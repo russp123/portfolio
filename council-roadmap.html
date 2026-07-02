@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Glamporise Council Roadmap — Russel A. Pineda</title>
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="index.html"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location">Pampanga, Philippines</span></div>
+    </header>
+
+    <main style="padding:0;">
+
+      <!-- Hero is filled in by js/theme.js (initDetailHero) from this
+           project's `cover`/`video` field in js/data.js — the SAME
+           asset shown as this project's homepage tile. -->
+      <div class="detail-hero" id="detail-hero" data-project-id="council-roadmap"></div>
+
+      <div class="detail-layout">
+
+        <div class="detail-side">
+          <h1 class="detail-title">Glamporise Council Roadmap</h1>
+          <p class="detail-subtitle">Funnel &amp; CRM System</p>
+        </div>
+
+        <div class="detail-main">
+          <div class="detail-section">
+            <div class="detail-text">
+              <p>A live, complete customer-acquisition system for Glamporise — a primary landing page plus four stage-specific funnel pages, spanning design, web deployment, GoHighLevel membership infrastructure, email marketing, and workflow automation end-to-end. The system converted an immediate Stage 2 membership sale shortly after launch, with additional leads in active pipeline discussion for Stage 3.</p>
+            </div>
+            <div class="detail-meta">
+              <div class="detail-meta-item">
+                <div class="meta-label">Role</div>
+                <div class="meta-value">Full-Stack Developer</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Result</div>
+                <div class="meta-value">One confirmed Stage 2 sale; Stage 3 in active discussion</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Tools</div>
+                <div class="meta-value">WordPress/Elementor, GoHighLevel, Stripe</div>
+              </div>
+            </div>
+            <div class="detail-links">
+              <a href="https://glamporise.com/council-roadmap" target="_blank" rel="noopener">Council Roadmap<sup>↗</sup></a>
+              <a href="https://glamporise.com/council-roadmap-stage-1" target="_blank" rel="noopener">Stage 1<sup>↗</sup></a>
+              <a href="https://glamporise.com/council-roadmap-stage-2" target="_blank" rel="noopener">Stage 2<sup>↗</sup></a>
+              <a href="https://glamporise.com/council-roadmap-stage-3" target="_blank" rel="noopener">Stage 3<sup>↗</sup></a>
+              <a href="https://glamporise.com/council-roadmap-stage-4" target="_blank" rel="noopener">Stage 4<sup>↗</sup></a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+</body>
+</html>

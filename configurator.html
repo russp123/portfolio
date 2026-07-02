@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kingdomes Product Configurator — Russel A. Pineda</title>
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="index.html"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location">Pampanga, Philippines</span></div>
+    </header>
+
+    <main style="padding:0;">
+
+      <!-- Hero is filled in by js/theme.js (initDetailHero) from this
+           project's `cover`/`video` field in js/data.js — the SAME
+           asset shown as this project's homepage tile. Edit it once
+           in data.js and both places update. -->
+      <div class="detail-hero" id="detail-hero" data-project-id="configurator"></div>
+
+      <div class="detail-layout">
+
+        <!-- Left column: stays pinned under the global header while the
+             right column scrolls. Just title + tag, nothing else. -->
+        <div class="detail-side">
+          <h1 class="detail-title">Kingdomes Product Configurator</h1>
+          <p class="detail-subtitle">Interactive Web App</p>
+        </div>
+
+        <!-- Right column: stack as many .detail-section blocks as the
+             subpage needs. Each one can mix a heading, paragraph, link
+             buttons, and one or more .detail-image blocks — customize
+             freely per project. These images are *additional* to the
+             main hero above. -->
+        <div class="detail-main">
+
+          <div class="detail-section">
+            <div class="detail-text">
+              <p>A standalone HTML/JavaScript application built for Kingdomes, featuring procedurally generated SVG dome previews, a carousel state machine with selection-hierarchy logic, and real-time pricing across 5 dome sizes. It integrates with GoHighLevel via webhook for direct lead capture, and has been iterated across 8+ build versions. Not yet launched publicly — this is a completed build, not a live product with usage metrics.</p>
+            </div>
+            <div class="detail-meta">
+              <div class="detail-meta-item">
+                <div class="meta-label">Role</div>
+                <div class="meta-value">Full-Stack Developer</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Status</div>
+                <div class="meta-value">Completed, not yet launched publicly</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Tools</div>
+                <div class="meta-value">JavaScript, SVG</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Integration</div>
+                <div class="meta-value">GoHighLevel (webhook)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Example second section: swap this heading/text/image set
+               for any other part of the build worth calling out. -->
+          <div class="detail-section">
+            <h2 class="detail-section-title">Pricing Carousel</h2>
+            <div class="detail-text">
+              <p>A carousel state machine drives selection across 5 dome sizes, recalculating price in real time as options change, with selection-hierarchy logic that keeps incompatible combinations from being chosen.</p>
+            </div>
+            <div class="detail-image" style="background-image:linear-gradient(135deg,#0a3d2e,#1c6b4f)"></div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">Lead Capture</h2>
+            <div class="detail-text">
+              <p>Once a configuration is finalized, the app hands off to GoHighLevel via webhook for direct lead capture — no manual data entry between the configurator and the CRM.</p>
+            </div>
+            <div class="detail-image" style="background-image:linear-gradient(135deg,#1c6b4f,#2e8b6f)"></div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+</body>
+</html>

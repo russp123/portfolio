@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Russel A. Pineda — Full-Stack Developer</title>
+<script>
+  // Runs synchronously, before anything paints — sets the theme
+  // attribute immediately so the browser never has a chance to paint
+  // CSS's dark :root defaults first. Without this, a saved "light"
+  // preference would flash dark for a frame on every load (theme.js,
+  // which runs later, would be too late to prevent that).
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="index.html"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location">Pampanga, Philippines</span></div>
+    </header>
+
+    <main>
+      <div class="top-grid">
+        <section class="about-row">
+          <div class="avatar-widget" id="avatar-widget" role="button" tabindex="0" aria-label="Click for a surprise">
+            <span class="avatar-word" id="avatar-word"></span>
+            <img class="avatar-img" id="avatar-img" src="assets/avatar-neutral.png" alt="Click for a surprise" />
+            <span class="avatar-hint">Click me!</span>
+          </div>
+          <div class="about-row-text">
+            <div class="section-label">About <span class="section-num">[1]</span></div>
+            <div class="about-text" id="about-text"></div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-label">Experience <span class="section-num">[2]</span></div>
+          <div class="list-col" id="experience-list"></div>
+        </section>
+      </div>
+
+      <section class="skills-section">
+        <div class="section-label">Skills <span class="section-num">[3]</span></div>
+        <div id="skills-list"></div>
+      </section>
+
+      <section class="projects-grid" id="projects-grid"></section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+  <script src="js/avatar.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("about-text").innerHTML = `<p>${PORTFOLIO.aboutHtml}</p>`;
+
+      document.getElementById("experience-list").innerHTML = PORTFOLIO.experience
+        .map(
+          (t) => `<a class="experience-row" href="${t.url}" target="_blank" rel="noopener">
+            <span>${t.name}</span>
+            <span class="experience-year">${t.year}</span>
+          </a>`
+        )
+        .join("");
+
+      document.getElementById("skills-list").innerHTML = PORTFOLIO.skills
+        .map(
+          (s) => `<div class="skills-row">
+            <span class="skill-category">${s.category}</span>
+            <span class="skill-items">${s.items}</span>
+          </div>`
+        )
+        .join("");
+
+      document.getElementById("projects-grid").innerHTML = PORTFOLIO.projects
+        .map((p) => {
+          // If a project has a `video`, the card auto-plays a silent,
+          // looping preview instead of the static gradient/image. The
+          // video sits inside .project-cover (not as .project-cover
+          // itself) so the hover-darken overlay still works — ::after
+          // doesn't reliably render on <video> elements directly.
+          const cover = p.video
+            ? `<div class="project-cover size-${p.size || "square"}"><video class="cover-media" src="${p.video}" autoplay muted loop playsinline></video></div>`
+            : `<div class="project-cover size-${p.size || "square"}" style="background-image:${p.cover}"></div>`;
+          return `<a class="project-card" href="${p.page}" data-project-id="${p.id}">
+            ${cover}
+            <div class="project-meta">
+              <div class="project-title-row">
+                <p class="project-title">${p.title}</p>
+                ${p.badge ? `<span class="project-badge">${p.badge}</span>` : ""}
+              </div>
+              <p class="project-tag">${p.tag}</p>
+            </div>
+          </a>`;
+        })
+        .join("");
+
+      // When a tile with a video is clicked, remember exactly where its
+      // preview was in playback so the hero on the project page can pick
+      // up from the same point instead of restarting at 0:00.
+      document.querySelectorAll(".project-card").forEach((card) => {
+        const video = card.querySelector(".cover-media");
+        if (!video) return;
+        card.addEventListener("click", () => {
+          sessionStorage.setItem(`resumeTime:${card.dataset.projectId}`, String(video.currentTime || 0));
+        });
+      });
+
+      // Staggered scroll-reveal: each tile fades/slides in as it enters
+      // the viewport, with a small per-card delay (capped + cycled so a
+      // long grid doesn't end up with a multi-second tail).
+      const cards = document.querySelectorAll(".project-card");
+      cards.forEach((card, i) => {
+        card.classList.add("reveal");
+        card.style.transitionDelay = `${(i % 6) * 60}ms`;
+      });
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+      );
+      cards.forEach((card) => revealObserver.observe(card));
+    });
+  </script>
+</body>
+</html>

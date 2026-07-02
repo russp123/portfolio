@@ -1,0 +1,792 @@
+/* ============================================================
+   THEME VARIABLES — tweak colors here to restyle everything.
+   Dark mode is the primary look (matches joseph.cv); light mode
+   is the same layout inverted to macOS System Settings light tones.
+   ============================================================ */
+:root {
+  --bg: #0a0a0a;
+  --bg-elevated: #141414;
+  --text-primary: #f2f2f2;
+  --text-secondary: #8a8a8a;
+  --text-tertiary: #5e5e5e;
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: #f2f2f2;
+  --badge-accent: #d8a93a;
+  --badge-border: rgba(216, 169, 58, 0.55);
+  --selection-bg: #58381b;
+  --selection-text: #ffd9a8;
+}
+
+html[data-theme="light"] {
+  --bg: #fbfbfb;
+  --bg-elevated: #ffffff;
+  --text-primary: #161616;
+  --text-secondary: #6e6e6e;
+  --text-tertiary: #a3a3a3;
+  --border: rgba(0, 0, 0, 0.1);
+  --accent: #161616;
+  --badge-accent: #9c6e10;
+  --badge-border: rgba(156, 110, 16, 0.4);
+  --selection-bg: #f8e1d5;
+  --selection-text: #b5540f;
+}
+
+* { box-sizing: border-box; }
+
+::selection { background: var(--selection-bg); color: var(--selection-text); }
+::-moz-selection { background: var(--selection-bg); color: var(--selection-text); }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.mono {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.wrap { width: 100%; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* Subtle blur + upward settle on every page load. CSS animations run
+   automatically on paint, no JS needed — and `both` keeps the final
+   state (fully sharp, no transform) once it finishes.
+   Applied to main/footer ONLY, not .wrap or the header — animating an
+   ancestor of the sticky header changes its containing block mid
+   -animation, which is what caused the tiny scroll jump on reload. */
+@keyframes page-reveal {
+  from { opacity: 0; filter: blur(3px); transform: translateY(8px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+main, .site-footer { animation: page-reveal 420ms ease-out both; }
+
+/* Toggled by js/theme.js (initPageTransitions) right before
+   navigating to an internal link, so leaving feels continuous with
+   the page-reveal animation on the page you're headed to. Kept very
+   light — a heavier blur/travel here reads as a glitch rather than a
+   transition, especially over a full-bleed hero video. */
+body.page-leave main,
+body.page-leave .site-footer {
+  opacity: 0;
+  filter: blur(2px);
+  transform: translateY(-6px);
+  transition: opacity 200ms ease, filter 200ms ease, transform 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main, .site-footer { animation: none; }
+  body.page-leave main,
+  body.page-leave .site-footer { transition: none; opacity: 1; filter: none; transform: none; }
+}
+
+/* ---------------- Theme toggle ---------------- */
+.theme-toggle {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 100;
+}
+.theme-toggle:hover { border-color: var(--badge-accent); }
+
+/* ---------------- RUSSELLM chat widget ----------------
+   z-index budget for fixed site chrome (keep future additions
+   under 130, or bump this comment): header=50, .theme-toggle=100,
+   .russellm-toggle=110, .russellm-overlay=120, .russellm-drawer=130. */
+.russellm-toggle {
+  position: fixed;
+  top: 22px;
+  right: 22px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 8px 14px;
+  border-radius: 100px;
+  cursor: pointer;
+  z-index: 110;
+}
+.russellm-toggle:hover { border-color: var(--badge-accent); }
+
+.russellm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+  z-index: 120;
+}
+.russellm-overlay.open { opacity: 1; pointer-events: auto; }
+
+.russellm-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 380px;
+  max-width: 92vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elevated);
+  border-left: 1px solid var(--border);
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.25);
+  transform: translateX(100%);
+  transition: transform 280ms ease;
+  z-index: 130;
+}
+.russellm-drawer.open { transform: translateX(0); }
+
+.russellm-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.russellm-drawer-title {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+.russellm-close {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.russellm-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.russellm-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.russellm-msg.user {
+  align-self: flex-end;
+  background: var(--text-primary);
+  color: var(--bg);
+}
+.russellm-msg.ai {
+  align-self: flex-start;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+.russellm-msg.loading { color: var(--text-tertiary); }
+.russellm-msg.error { border-color: var(--badge-border); color: var(--text-secondary); }
+
+.russellm-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.russellm-chip {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 6px 12px;
+  border-radius: 100px;
+  cursor: pointer;
+}
+.russellm-chip:hover { border-color: var(--badge-border); }
+
+.russellm-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.russellm-input-row input {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+}
+.russellm-input-row input:disabled { opacity: 0.6; }
+.russellm-send {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 9px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.russellm-send:hover { border-color: var(--badge-border); }
+.russellm-send:disabled { opacity: 0.6; cursor: default; }
+
+@media (max-width: 600px) {
+  .russellm-drawer { width: 100vw; max-width: 100vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .russellm-drawer, .russellm-overlay { transition: none; }
+}
+
+/* ---------------- Header (3-column row, sticky) ----------------
+   Fixed height so detail pages can stick a second bar (the
+   project title) directly beneath it at a known offset. ---------------- */
+:root { --header-h: 70px; }
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--header-h);
+  display: grid;
+  /* Matches .top-grid's 2fr 1fr 1fr + 40px gap below, so "Full-Stack
+     Developer" lines up over "Experience" and "Pampanga, Philippines"
+     lines up over "Links". */
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  /* Same padding as .top-grid/main on every page (with or without a
+     close button) so the three columns always land in the same place.
+     The × close button is positioned absolutely and floats over this
+     padding rather than reserving its own space. */
+  padding: 0 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+}
+.site-header .col-mid,
+.site-header .col-end { text-align: center; }
+.site-header .col-start a { text-decoration: none; }
+.header-name { font-size: 14px; font-weight: 600; margin: 0; }
+.header-meta-item { font-size: 14px; color: var(--text-primary); }
+
+/* ---------------- Main content grid ---------------- */
+main { padding: 40px; flex: 1; }
+
+.top-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+  margin-bottom: 56px;
+}
+
+/* Top-aligned so "ABOUT" starts at the same height as "EXPERIENCE"
+   in the column beside it, instead of being centered against the
+   avatar and pushed down. */
+.about-row { display: flex; gap: 24px; align-items: flex-start; }
+.about-row-text { flex: 1; min-width: 0; }
+
+.section-label {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+
+.about-text p {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 84px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+.about-text p i { font-style: italic; }
+.about-text p .inline-link,
+.about-text a.inline-link {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+}
+.about-text a.inline-link sup { font-size: 9px; margin-left: 1px; }
+
+.list-col { display: flex; flex-direction: column; gap: 10px; }
+.list-col a {
+  font-size: 14px;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+  width: fit-content;
+}
+.list-col a sup { font-size: 9px; color: var(--text-tertiary); margin-left: 2px; }
+
+/* Experience rows: name (underlined, like other list links) + a
+   plain year label on the right, instead of a superscript number. */
+.list-col a.experience-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: 8px;
+  width: fit-content;
+  text-decoration: none;
+}
+.experience-row > span:first-child {
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+}
+.experience-row .experience-year {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* Small bracketed index after each section label, e.g. "About [1]". */
+.section-num { color: var(--text-tertiary); }
+
+/* ---------------- Avatar widget ----------------
+   Fills the space where the homepage "Links" column used to sit.
+   Click/tap swaps the image and pops a random word, then reverts. */
+.avatar-widget {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Fixed width (not fit-content) so the random word popping in/out
+     never changes the widget's box size and shifts the About text
+     beside it. */
+  width: 120px;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+}
+.avatar-img {
+  /* Fixed box for BOTH dimensions (not height + auto-width) so the
+     neutral/surprised images — which may have slightly different
+     native aspect ratios — never change the rendered size on swap.
+     That mismatch was what caused the layout to shift after a click
+     and stay shifted until reload. */
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  display: block;
+  /* Avatar now sits left of the About text and already faces right
+     toward it natively — no mirroring needed. */
+}
+.avatar-word {
+  display: block;
+  /* Reserved at full height from the very first render — empty or
+     not — so the first click (which permanently puts real text into
+     this span) can't make the widget taller than it started out. */
+  min-height: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  text-align: center;
+  width: 100%;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.avatar-word.show { opacity: 1; transform: scale(1); }
+
+/* Static label, no animation/transition — just a plain nudge that
+   it's clickable, sitting underneath the character. */
+.avatar-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+
+/* ---------------- Skills ---------------- */
+.skills-section { margin-bottom: 56px; }
+.skills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.skills-row:first-of-type { border-top: 1px solid var(--border); }
+.skills-row .skill-category {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--text-primary);
+  min-width: 220px;
+  flex-shrink: 0;
+}
+.skills-row .skill-items { font-size: 13px; color: var(--text-secondary); }
+
+/* ---------------- Projects masonry grid ----------------
+   True masonry via CSS multi-column flow: each card packs into
+   the shortest column instead of a fixed-row grid, so there's
+   never dead space under a short card — whatever comes next
+   just flows up to fill it. This also means adding more projects
+   to data.js "just works" without retuning the layout. ---------------- */
+.projects-grid {
+  column-count: 3;
+  column-gap: 14px;
+}
+.project-card {
+  display: block;
+  background: var(--bg-elevated);
+  border-radius: 0;
+  overflow: hidden;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  margin-bottom: 14px;
+}
+/* Starts hidden/offset; js/avatar.js's sibling reveal script (see
+   index.html) adds .is-visible as each card scrolls into view, with
+   a small per-card stagger delay set inline via transition-delay. */
+.project-card.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+.project-card.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-card.reveal { opacity: 1; transform: none; transition: none; }
+}
+/* Hover only darkens the image itself — the card doesn't move,
+   and the title/tag text below stays completely unaffected. */
+.project-cover {
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+.project-cover .cover-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.project-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.15s ease;
+}
+.project-card:hover .project-cover::after { background: rgba(0, 0, 0, 0.12); }
+
+.project-cover.size-wide { aspect-ratio: 16 / 10; }
+.project-cover.size-square { aspect-ratio: 1 / 1; }
+.project-cover.size-tall { aspect-ratio: 3 / 4; }
+
+.project-meta { padding: 14px 4px 0; }
+.project-title-row { display: flex; align-items: center; gap: 8px; }
+.project-title { font-size: 15px; font-weight: 600; margin: 0; color: var(--text-primary); }
+.project-tag {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin: 4px 0 0;
+}
+.project-badge {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10px;
+  color: var(--badge-accent);
+  border: 1px solid var(--badge-border);
+  padding: 2px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .top-grid { grid-template-columns: 1fr; gap: 32px; }
+  /* Avatar sits above the About text instead of squeezed beside it
+     once the columns stack. */
+  .about-row { flex-direction: column; align-items: flex-start; gap: 32px; }
+  .projects-grid { column-count: 2; column-gap: 12px; }
+  .project-card { margin-bottom: 12px; }
+}
+@media (max-width: 600px) {
+  .site-header { grid-template-columns: 1fr; height: auto; gap: 4px; padding: 14px 20px; text-align: left; }
+  .site-header .col-mid, .site-header .col-end { text-align: left; }
+  main { padding: 20px; }
+  .about-text p { font-size: 34px; }
+  .projects-grid { column-count: 1; }
+  .project-card { margin-bottom: 18px; }
+}
+
+/* ---------------- Project detail (overlay-style page) ----------------
+   .detail-close lives inside .detail-hero (top-right of the cover
+   image/video), not the header — the RUSSELLM toggle sits at the
+   header's top-right too, and the two were colliding there. White +
+   text-shadow (matching .detail-hero-scroll-cue/.detail-hero-credit)
+   since it overlays arbitrary photo/video content, not a flat bg. */
+.detail-close {
+  position: absolute;
+  top: 28px;
+  right: 40px;
+  font-size: 20px;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  line-height: 1;
+}
+/* ---------------- Detail page hero ----------------
+   The project's main/cover image, full-bleed at the very top of
+   the subpage — directly under the global header — at the full
+   viewport width and (nearly) full viewport height. The
+   secondary .detail-image blocks further down the page are for
+   any *additional* images. ---------------- */
+.detail-hero {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - var(--header-h));
+  overflow: hidden;
+}
+/* The actual visual — a gradient/image div, or a <video> for
+   projects with a `video` field in data.js. Both fill the hero
+   the same way, so swapping one for the other is a drop-in change. */
+.detail-hero-media {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  object-fit: cover;
+  display: block;
+  border: none;
+}
+.detail-hero-scroll-cue {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+.detail-hero-scroll-cue .label {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.detail-hero-scroll-cue .arrow {
+  font-size: 14px;
+  animation: scroll-cue-bounce 1.6s ease-in-out infinite;
+}
+@keyframes scroll-cue-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+/* Optional small credit label, bottom-left of the hero — e.g.
+   attributing a stock/rendered video. Set via `heroCredit` on a
+   project in data.js; omit the field and nothing renders. */
+.detail-hero-credit {
+  position: absolute;
+  bottom: 28px;
+  left: 40px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.75);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+.detail-hero-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+}
+.detail-hero-credit a sup { font-size: 9px; margin-left: 1px; }
+
+@media (max-width: 600px) {
+  .detail-hero { height: 70vh; }
+  .detail-hero-credit { left: 20px; bottom: 18px; }
+  .detail-close { top: 16px; right: 20px; }
+}
+
+/* ---------------- Detail page layout ----------------
+   Left column (title + tag) stays sticky under the global
+   header while the right column scrolls through one or more
+   customizable sections (heading + text + links + images).
+   Add as many .detail-section blocks as a given subpage needs. */
+.detail-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 40px;
+  padding: 32px 40px 56px;
+  align-items: start;
+}
+.detail-side {
+  position: sticky;
+  top: calc(var(--header-h) + 32px);
+}
+.detail-title { font-size: 17px; font-weight: 600; margin: 0; }
+.detail-subtitle {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin: 4px 0 0;
+}
+
+.detail-main { min-width: 0; }
+.detail-section { margin-bottom: 40px; }
+.detail-section-title { font-size: 15px; font-weight: 600; margin: 0 0 12px; }
+
+.detail-text p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0 0 24px;
+}
+
+.detail-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.detail-meta-item .meta-label {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-tertiary); margin-bottom: 6px;
+}
+.detail-meta-item .meta-value { font-size: 14px; color: var(--text-primary); line-height: 1.5; }
+
+.detail-links { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.detail-links a {
+  font-size: 13px;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 9px 14px;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+}
+.detail-links a:hover { border-color: var(--badge-border); }
+
+.detail-quote {
+  margin: 24px 0;
+  padding: 18px 22px;
+  border-left: 2px solid var(--badge-border);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.detail-stats .stat-value {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 28px;
+  color: var(--badge-accent);
+}
+.detail-stats .stat-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+/* Drop one or more of these into a .detail-section to feature
+   imagery alongside that section's text — fully customizable
+   per subpage, just add/remove .detail-image elements. */
+.detail-image {
+  width: 100%;
+  height: 360px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+  .detail-layout { grid-template-columns: 1fr; gap: 16px; padding: 24px 24px 40px; }
+  .detail-side { position: static; }
+  .detail-meta, .detail-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .detail-layout { padding: 20px; }
+  .detail-image { height: 220px; }
+}
+
+/* ---------------- Footer ---------------- */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 40px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.cv-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 9px 14px;
+  border-radius: 6px;
+}
+.cv-button:hover { border-color: var(--badge-border); }
+.cv-button sup { font-size: 9px; margin-left: 1px; }
+.footer-links { display: flex; flex-direction: column; gap: 10px; }
+.footer-links a {
+  font-size: 14px; color: var(--text-primary);
+  text-decoration: underline; text-decoration-color: var(--text-tertiary);
+  width: fit-content;
+}
+.footer-links a sup { font-size: 9px; color: var(--text-tertiary); margin-left: 2px; }
+.footer-cta { font-size: 14px; color: var(--text-primary); margin: 0 0 8px; }
+.footer-email {
+  font-size: 14px; color: var(--text-primary);
+  text-decoration: underline; text-decoration-color: var(--text-tertiary);
+}
+
+@media (max-width: 600px) {
+  .site-footer { grid-template-columns: 1fr; padding: 24px 20px 32px; }
+}
