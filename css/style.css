@@ -780,6 +780,19 @@ main { padding: 40px; flex: 1; }
   padding: 18px 20px;
   background: var(--bg-elevated);
 }
+.brand-symbol-card .brand-symbol-mark {
+  width: 96px;
+  height: 96px;
+  display: block;
+  margin-bottom: 12px;
+  /* crops have a white background baked in (rasterized from the
+     guidelines PDF), so frame them as small white tiles — reads
+     cleanly in dark mode instead of looking like a glitch */
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px;
+  object-fit: contain;
+}
 .brand-symbol-card .brand-symbol-name {
   font-size: 14px;
   font-weight: 600;
