@@ -64,7 +64,7 @@
 
           <div class="detail-section">
             <div class="detail-text">
-              <p>A standalone HTML/JavaScript application built for Kingdomes, featuring procedurally generated SVG dome previews, a carousel state machine with selection-hierarchy logic, and real-time pricing across 5 dome sizes. It integrates with GoHighLevel via webhook for direct lead capture, and has been iterated across 8+ build versions. Not yet launched publicly — this is a completed build, not a live product with usage metrics.</p>
+              <p>Kingdomes sells geodesic glamping domes across Australia, New Zealand, and the US — a considered purchase with dozens of size, colour, and upgrade combinations, where every quote used to start with a back-and-forth email thread. I designed and built a product configurator that lets a buyer spec their exact dome, watch the price update live, and send the finished configuration straight into the company's CRM as a qualified lead. It's a single self-contained HTML file — no framework, no build step — iterated across 8+ versions with the Kingdomes team, and now live on <a class="inline-link" href="https://www.kingdomes.com.au/configurator" target="_blank" rel="noopener">kingdomes.com.au<sup>↗</sup></a>.</p>
             </div>
             <div class="detail-meta">
               <div class="detail-meta-item">
@@ -73,11 +73,11 @@
               </div>
               <div class="detail-meta-item">
                 <div class="meta-label">Status</div>
-                <div class="meta-value">Completed, not yet launched publicly</div>
+                <div class="meta-value">Live</div>
               </div>
               <div class="detail-meta-item">
                 <div class="meta-label">Tools</div>
-                <div class="meta-value">JavaScript, SVG</div>
+                <div class="meta-value">Vanilla JavaScript, HTML/CSS, SVG</div>
               </div>
               <div class="detail-meta-item">
                 <div class="meta-label">Integration</div>
@@ -86,22 +86,40 @@
             </div>
           </div>
 
-          <!-- Example second section: swap this heading/text/image set
-               for any other part of the build worth calling out. -->
           <div class="detail-section">
-            <h2 class="detail-section-title">Pricing Carousel</h2>
+            <h2 class="detail-section-title">Try It</h2>
             <div class="detail-text">
-              <p>A carousel state machine drives selection across 5 dome sizes, recalculating price in real time as options change, with selection-hierarchy logic that keeps incompatible combinations from being chosen.</p>
+              <p>This is the real configurator, embedded — click through the tabs, switch sizes and currencies, and watch the price bar react. The only difference from production: the quote form's CRM webhook is disabled in this demo, so feel free to submit it.</p>
             </div>
-            <div class="detail-image" style="background-image:linear-gradient(135deg,#0a3d2e,#1c6b4f)"></div>
+            <iframe class="detail-embed" src="assets/configurator-demo.html" title="Kingdomes Product Configurator — live demo" loading="lazy"></iframe>
           </div>
 
           <div class="detail-section">
-            <h2 class="detail-section-title">Lead Capture</h2>
+            <h2 class="detail-section-title">The Configuration Flow</h2>
             <div class="detail-text">
-              <p>Once a configuration is finalized, the app hands off to GoHighLevel via webhook for direct lead capture — no manual data entry between the configurator and the CRM.</p>
+              <p>Buyers move through seven guided steps — Range, Size, Colour Options, Premium Upgrades, Chimney, Tech Specs, and Summary &amp; Quote — covering two product lines (the original King Dome in 6m–10m, and the newer Aura Dome in 5m–7m). Each step is driven by a shared state object: picking a different range or size re-resolves every downstream option, photo carousel, and price, so incompatible combinations can never be selected. A Compare All Sizes table shows side-by-side specs with the current selection highlighted, for buyers who want the full picture before committing.</p>
             </div>
-            <div class="detail-image" style="background-image:linear-gradient(135deg,#1c6b4f,#2e8b6f)"></div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">Multi-Currency Pricing Engine</h2>
+            <div class="detail-text">
+              <p>Every price in the app — base dome, colour fees, upgrades, chimney — is stored as an AUD/USD/NZD triple and resolved through a single lookup at render time, sourced from the same pricing spreadsheets the Kingdomes team maintains internally. Switching currency reprices the entire configuration instantly, and the sticky price bar recalculates the estimated total (incl. GST) on every change, so the buyer never has to ask "what does this cost?" — the answer is always on screen.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">From Configuration to CRM Lead</h2>
+            <div class="detail-text">
+              <p>The Summary &amp; Quote step turns the session into a sales asset: the quote form POSTs the buyer's full configuration — range, size, every colour and upgrade choice with its price, intended use, region, and timestamp — to a GoHighLevel webhook as structured JSON. Sales receives a lead that already contains the exact dome the customer built and its estimated total, with no manual data entry between the configurator and the CRM.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">One File, No Build Step</h2>
+            <div class="detail-text">
+              <p>The whole application ships as one ~2,500-line HTML file: styles, markup, pricing data, and logic together, with zero dependencies. That constraint was deliberate — it drops into the company's WordPress site (or anywhere else) without touching their deploy pipeline, and updating prices or adding a size is an edit to one data block in one file. The embed above is that same file, unchanged except for the disabled webhook.</p>
+            </div>
           </div>
 
         </div>

@@ -1,0 +1,2492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kingdomes Configurator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; overflow: hidden; }
+  :root {
+    --black: #1a1a1a;
+    --red: #e9c17c;
+    --red-light: #f0d09a;
+    --grey-bg: #c8c8c8;
+    --border: #e0e0e0;
+    --text-muted: #777;
+    --panel-w: 400px;
+    --sidebar-w: 52px;
+    --header-h: 52px;
+    --banner-h: 38px;
+    --tab-h: 46px;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+    background: #f4f4f4;
+    color: var(--black);
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── BANNER ── */
+  .banner {
+    height: var(--banner-h);
+    background: var(--black);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    gap: 6px;
+    flex-shrink: 0;
+    letter-spacing: 0.01em;
+  }
+  .banner strong { color: #e9c17c; }
+
+  /* ── HEADER ── */
+  header {
+    height: var(--header-h);
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    flex-shrink: 0;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo img {
+    height: 22px;
+    object-fit: contain;
+  }
+  .logo-text {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--black);
+    text-transform: uppercase;
+  }
+  .logo-divider {
+    width: 1px; height: 18px;
+    background: #ddd;
+  }
+  .logo-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .hdr-btn {
+    padding: 5px 13px;
+    border: 1.5px solid #ddd;
+    border-radius: 5px;
+    background: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: all 0.13s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .hdr-btn:hover { border-color: #999; background: #f7f7f7; }
+
+  /* ── TABS ── */
+  .tabs {
+    height: var(--tab-h);
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    padding: 0 16px;
+    gap: 2px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 10px 13px 9px;
+    border: none;
+    background: none;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2.5px solid transparent;
+    position: relative; top: 1px;
+    transition: color 0.13s;
+    letter-spacing: 0.01em;
+  }
+  .tab:hover { color: var(--black); }
+  .tab.active { color: var(--black); font-weight: 700; border-bottom-color: #e9c17c; }
+
+  /* ── BODY ── */
+  .body {
+    flex: 1;
+    display: flex;
+    overflow: visible;
+    min-height: 0;
+  }
+
+  /* ── LEFT SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: #fff;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .sdbtn {
+    width: 36px; height: 36px;
+    border-radius: 7px;
+    border: none;
+    background: none;
+    color: #888;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.13s;
+  }
+  .sdbtn:hover { background: #f0f0f0; color: var(--black); }
+  .sdbtn.active { background: #e9c17c; color: #1a1a1a; }
+  .sdbtn svg { width: 17px; height: 17px; }
+  .sdbtn-ar { margin-top: auto; }
+
+  /* ── VIEWER (fixed-frame carousel) ── */
+  .viewer {
+    flex: 1;
+    background: var(--grey-bg);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Fixed-size frame — never changes regardless of source image dimensions */
+  .carousel-frame {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+  .carousel-track {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .carousel-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+  .carousel-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .carousel-slide img,
+  .carousel-slide video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  /* Arrows */
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.85);
+    color: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: background 0.13s, transform 0.13s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  }
+  .carousel-arrow:hover { background: #fff; transform: translateY(-50%) scale(1.06); }
+  .carousel-arrow svg { width: 18px; height: 18px; }
+  .carousel-arrow.prev { left: 12px; }
+  .carousel-arrow.next { right: 12px; }
+  .carousel-arrow.hidden { display: none; }
+  /* Dots */
+  .carousel-dots {
+    position: absolute;
+    bottom: 14px;
+    left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .carousel-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    border: none;
+    cursor: pointer;
+    pointer-events: auto;
+    padding: 0;
+    transition: all 0.15s;
+  }
+  .carousel-dot.active {
+    background: #fff;
+    width: 18px;
+    border-radius: 4px;
+  }
+
+  /* add-on preview label — shown bottom-centre when a single addon image is active */
+  .viewer-addon-label {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26,26,26,0.72);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    z-index: 6;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+  }
+
+  /* size badge */
+  .viewer-badge {
+    position: absolute;
+    top: 14px; left: 14px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    z-index: 6;
+  }
+  .viewer-aura-link {
+    position: absolute;
+    bottom: 14px; left: 14px;
+    background: rgba(255,255,255,0.92);
+    color: var(--black);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    z-index: 6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: background 0.13s;
+  }
+  .viewer-aura-link:hover { background: #fff; }
+  /* image counter */
+  .viewer-counter {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+    pointer-events: none;
+    z-index: 6;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .panel {
+    width: var(--panel-w);
+    background: #fff;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .panel-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 18px 90px;
+    scrollbar-width: thin;
+    scrollbar-color: #ddd transparent;
+  }
+  .panel-scroll::-webkit-scrollbar { width: 4px; }
+  .panel-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+  .panel-h1 { font-size: 21px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .panel-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+  .section-label {
+    font-size: 13px; font-weight: 800;
+    margin: 18px 0 10px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+
+  /* ── OPTION CARD ── */
+  .card {
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 13px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.13s, background 0.13s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .card:hover { border-color: #bbb; }
+  .card.sel { border-color: var(--black); background: #fafafa; }
+  .card-icon {
+    width: 52px; height: 52px;
+    border-radius: 7px;
+    background: #f2f2f2;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    overflow: hidden;
+  }
+  .card-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 7px; }
+  .card-body { flex: 1; min-width: 0; }
+  .card-name { font-size: 13.5px; font-weight: 700; margin-bottom: 2px; }
+  .card-price { font-size: 12.5px; color: #555; }
+  .card-note { font-size: 11px; color: #999; margin-top: 3px; line-height: 1.4; }
+  .card-info {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid #ccc;
+    background: none;
+    color: #888;
+    font-size: 11px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; align-self: center;
+  }
+
+  /* sub-controls */
+  .sub { margin: 10px 0 4px; }
+  .sub-lbl { font-size: 11px; font-weight: 700; color: #555; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .sub-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .swatch {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    position: relative;
+    transition: border-color 0.13s, transform 0.1s;
+    flex-shrink: 0;
+  }
+  .swatch:hover { transform: scale(1.1); }
+  .swatch.sel { border-color: var(--black); }
+  .swatch .tick {
+    position: absolute; inset: 0;
+    display: none; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .swatch.sel .tick { display: flex; }
+  .pill {
+    padding: 6px 13px;
+    border-radius: 20px;
+    border: 1.5px solid #ddd;
+    background: none;
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.13s;
+    display: flex; align-items: center; gap: 4px;
+    white-space: nowrap;
+  }
+  .pill:hover { border-color: #aaa; }
+  .pill.sel { border-color: var(--black); background: var(--black); color: #fff; }
+
+  /* checkbox style card addon */
+  .check-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid #ccc;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    align-self: center;
+    transition: all 0.13s;
+  }
+  .card.sel .check-dot { border-color: var(--black); background: var(--black); color: #fff; }
+
+  .divider { border: none; border-top: 1px solid #ebebeb; margin: 18px 0 4px; }
+
+  /* included features list */
+  .features-list {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 13px 15px;
+    margin-bottom: 6px;
+  }
+  .features-list .fl-title { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--black); }
+  .features-list li {
+    font-size: 11.5px;
+    color: #555;
+    margin-left: 14px;
+    line-height: 1.8;
+  }
+
+  /* specs table */
+  .specs-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  .specs-table tr:nth-child(odd) td { background: #f8f8f8; }
+  .specs-table td {
+    padding: 7px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+  }
+  .specs-table td:first-child { font-weight: 700; color: #444; width: 44%; }
+
+  /* ── PRICE BAR ── */
+  .price-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top: 1.5px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    z-index: 10;
+  }
+  .price-bar > div:first-child { min-width: 0; }
+  .price-total { font-size: 21px; font-weight: 800; letter-spacing: -0.5px; }
+  .price-note { font-size: 10.5px; color: #aaa; margin-top: 1px; }
+  .btn-quote {
+    background: var(--black);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 16px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    letter-spacing: 0.02em;
+    transition: background 0.13s;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .btn-quote:hover { background: #333; }
+  .btn-quote svg { width: 14px; height: 14px; }
+  .qte-short { display: none; }
+
+  /* Quote modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  @supports (height: 100dvh) {
+    .modal-overlay { height: 100dvh; }
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    width: 420px;
+    max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .modal p { font-size: 12.5px; color: #666; margin-bottom: 18px; line-height: 1.5; }
+  .modal-summary {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .modal-row {
+    display: flex; justify-content: space-between;
+    font-size: 12px; padding: 4px 0;
+    border-bottom: 1px solid #ebebeb;
+  }
+  .modal-row:last-child { border-bottom: none; }
+  .modal-row span:first-child { color: #666; }
+  .modal-row span:last-child { font-weight: 700; }
+  .modal-total {
+    display: flex; justify-content: space-between;
+    font-size: 15px; font-weight: 800;
+    padding: 10px 0 14px;
+    border-top: 2px solid var(--black);
+    margin-top: 4px;
+  }
+  .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .form-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .form-field label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.04em; }
+  .form-field input, .form-field select, .form-field textarea {
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.13s;
+  }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--black); }
+  .form-field textarea { resize: vertical; min-height: 60px; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 14px; }
+  .btn-cancel {
+    flex: 1; padding: 10px; border: 1.5px solid #ddd; border-radius: 7px;
+    background: none; font-size: 13px; font-weight: 600; cursor: pointer;
+    color: #555; transition: all 0.13s;
+  }
+  .btn-cancel:hover { border-color: #aaa; }
+  .btn-submit {
+    flex: 2; padding: 10px; border: none; border-radius: 7px;
+    background: #e9c17c; color: #1a1a1a;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: background 0.13s; letter-spacing: 0.02em;
+  }
+  .btn-submit:hover { background: #f0d09a; }
+  .success-msg {
+    display: none; text-align: center; padding: 20px 0 10px;
+  }
+  .success-msg .tick-big { font-size: 40px; margin-bottom: 10px; }
+  .success-msg h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+  .success-msg p { font-size: 12.5px; color: #666; }
+
+  /* ── COMPARE MODAL ── */
+  .compare-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+  }
+  .compare-overlay.open { display: flex; }
+  .compare-modal {
+    background: #fff;
+    border-radius: 6px;
+    width: 100%;
+    max-width: none;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+  }
+  .compare-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .compare-header h2 { font-size: 18px; font-weight: 800; }
+  .compare-header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .compare-close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid #ddd;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #555;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.13s;
+    flex-shrink: 0;
+  }
+  .compare-close:hover { background: #f0f0f0; border-color: #aaa; }
+  .compare-body {
+    overflow-x: auto;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+  }
+  /* sticky first column */
+  .compare-table td:first-child,
+  .compare-table th:first-child {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 2;
+  }
+  .compare-table thead th:first-child { background: #f8f8f8; }
+  /* header row */
+  .compare-table thead th {
+    padding: 14px 16px;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+    background: #f8f8f8;
+    border-bottom: 2px solid var(--border);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .compare-table thead th:first-child {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    width: 160px;
+  }
+  /* size name row */
+  .compare-table thead tr.size-row th {
+    padding: 16px 16px 6px;
+    border-bottom: none;
+    background: #fff;
+  }
+  .compare-table thead tr.size-row th .size-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--black);
+  }
+  .compare-table thead tr.size-row th .size-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    margin-top: 2px;
+  }
+  .compare-table thead tr.size-row th .size-tag {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 700;
+    background: none;
+    color: #888;
+    padding: 2px 7px;
+    border-radius: 0;
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+    white-space: normal;
+    max-width: 70px;
+  }
+  .compare-table thead tr.size-row th.active-col .size-tag {
+    background: none;
+    color: #666;
+  }
+  /* highlight currently selected size */
+  .compare-table .active-col {
+    background: #fffdf5 !important;
+  }
+  .compare-table thead th.active-col {
+    background: #f5f5f5 !important;
+  }
+  /* body rows */
+  .compare-table tbody tr:nth-child(even) td { background: #f8f8f8; }
+  .compare-table tbody tr:nth-child(even) td:first-child { background: #f8f8f8; }
+  .compare-table tbody tr:nth-child(odd) td { background: #fff; }
+  .compare-table tbody tr:nth-child(odd) td:first-child { background: #fff; }
+  .compare-table tbody td {
+    padding: 11px 16px;
+    font-size: 12px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    color: #444;
+    vertical-align: middle;
+  }
+  .compare-table tbody td:first-child {
+    text-align: left;
+    font-weight: 700;
+    color: #555;
+    font-size: 11.5px;
+    white-space: nowrap;
+  }
+  .compare-table tbody tr.section-row td {
+    background: #e8e8e8 !important;
+    color: #555;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 7px 16px;
+  }
+  .tick { color: #2ecc71; font-size: 15px; font-weight: 700; }
+  .cross { color: #ccc; font-size: 15px; }
+  .tbc { font-size: 10.5px; color: #aaa; font-style: italic; }
+  /* footer CTA row */
+  .compare-table tfoot td {
+    padding: 14px 10px;
+    text-align: center;
+    border-top: 2px solid var(--border);
+    background: #fff !important;
+  }
+  .compare-table tfoot td:first-child { background: #fff !important; }
+  .btn-select-size {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1.5px solid #ccc;
+    background: none;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.13s;
+    white-space: nowrap;
+  }
+  .btn-select-size:hover { background: #f5f5f5; color: #333; border-color: #aaa; }
+  .btn-select-size.active-size { background: #f0f0f0; color: #333; border-color: #999; }
+
+  /* Floating "See More" button — hidden by default, only shown on mobile */
+  .scroll-more-btn {
+    display: none;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MOBILE / RESPONSIVE — tablet & phone breakpoint
+     Below ~860px: stack viewer above panel, page scrolls
+     normally instead of the desktop fixed-height split view.
+     ═══════════════════════════════════════════════════════ */
+  @media (max-width: 860px) {
+    html, body {
+      height: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .banner {
+      height: auto;
+      padding: 8px 12px;
+      text-align: center;
+      line-height: 1.4;
+      font-size: 11.5px;
+    }
+
+    header {
+      height: auto;
+      padding: 10px 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .logo img { height: 18px; }
+    .logo-sub { display: none; }
+    .logo-divider { display: none; }
+    .header-right { gap: 6px; }
+    .hdr-btn { padding: 5px 10px; font-size: 11px; }
+
+    .tabs {
+      height: auto;
+      padding: 0 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab { padding: 9px 10px 8px; font-size: 12px; }
+
+    /* Body becomes a column: sidebar row, viewer, panel — all stacked */
+    .body {
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    /* Sidebar becomes a slim horizontal strip above the viewer */
+    .sidebar {
+      width: 100%;
+      flex-direction: row;
+      justify-content: center;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 6px 0;
+      gap: 10px;
+    }
+    .sdbtn-ar { margin-top: 0; margin-left: 0; }
+
+    /* Viewer: fixed height, full width, never resizes with image */
+    .viewer {
+      flex: none;
+      width: 100%;
+      height: 280px;
+    }
+    .carousel-arrow { width: 34px; height: 34px; }
+    .carousel-arrow.prev { left: 8px; }
+    .carousel-arrow.next { right: 8px; }
+    .viewer-badge { font-size: 10px; padding: 3px 8px; top: 10px; left: 10px; }
+    .viewer-counter { font-size: 9.5px; padding: 3px 7px; top: 10px; right: 10px; }
+    .viewer-aura-link { font-size: 10px; padding: 5px 10px; bottom: 10px; left: 10px; }
+
+    /* Panel: full width, flows with page, no internal fixed scroll */
+    .panel {
+      width: 100%;
+      border-left: none;
+      border-top: 1px solid var(--border);
+      flex: none;
+      overflow: visible;
+    }
+    .panel-scroll {
+      overflow-y: auto;
+      padding: 18px 16px 100px;
+      max-height: calc(100vh - 380px);
+      -webkit-overflow-scrolling: touch;
+    }
+    .panel-h1 { font-size: 19px; }
+    .panel-desc { font-size: 12px; }
+
+    .card { padding: 10px 11px; }
+    .card-icon { width: 46px; height: 46px; }
+    .card-name { font-size: 13px; }
+
+    /* Price bar pins to bottom on mobile. Uses sticky, not fixed —
+       fixed-position elements drift on scroll inside iframes on iOS/mobile Safari. */
+    .price-bar {
+      position: sticky;
+      bottom: 0;
+      padding: 10px 14px;
+      gap: 10px;
+      box-shadow: 0 -2px 14px rgba(0,0,0,0.08);
+      background: #fff;
+      z-index: 5;
+    }
+    .price-bar > div:first-child { min-width: 0; }
+    .price-total { font-size: 18px; }
+    .btn-quote { padding: 10px 14px; font-size: 12px; }
+
+    /* Add bottom padding so the last panel content isn't occluded */
+    .panel-scroll { padding-bottom: 110px; }
+
+    /* Floating "See More" button — visible on mobile */
+    .scroll-more-btn {
+      display: flex;
+      position: fixed;
+      bottom: 90px;
+      right: 16px;
+      padding: 10px 16px;
+      height: auto;
+      width: auto;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a1a;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 4;
+      transition: all 0.3s ease;
+    }
+    .scroll-more-btn:hover {
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+    .scroll-more-btn:active {
+      transform: translateY(0);
+    }
+    .scroll-more-btn svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s ease;
+    }
+    .scroll-more-btn.scrolled-down svg {
+      transform: rotate(180deg);
+    }
+    .scroll-more-btn.hidden {
+      display: none;
+    }
+
+    /* Modals: full-width sheets on mobile */
+    .modal {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 14px 14px 0 0;
+      padding: 22px 18px 20px;
+      position: fixed;
+      bottom: 0; left: 0;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-overlay { align-items: flex-end; }
+    #regionModal { align-items: center; }
+    #regionModal .modal {
+      position: relative;
+      bottom: auto; left: auto;
+      width: 90%;
+      border-radius: 12px;
+    }
+    .form-row { flex-direction: column; gap: 10px; }
+
+    .compare-overlay { padding: 12px; }
+    .compare-modal {
+      max-width: none;
+      max-height: 92vh;
+      border-radius: 12px;
+      margin: 0;
+      width: calc(100% - 24px);
+    }
+    .compare-header { 
+      padding: 14px 14px 10px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .compare-header > div { width: 100%; }
+    .compare-header h2 { font-size: 15px; margin-bottom: 2px; }
+    .compare-header p { font-size: 11px; }
+    .compare-close { position: absolute; top: 12px; right: 12px; }
+    .compare-body { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .compare-table { min-width: 480px; }
+    .compare-table thead th { padding: 10px 8px; font-size: 11px; }
+    .compare-table thead th:first-child { width: 140px; padding: 10px 8px; font-size: 9.5px; }
+    .compare-table tbody td { padding: 8px 8px; font-size: 11px; }
+    .compare-table tbody td:first-child { font-size: 10px; width: 140px; }
+    .compare-table thead tr.size-row th { padding: 12px 8px 4px; }
+    .compare-table thead tr.size-row th .size-name { font-size: 13px; }
+    .compare-table thead tr.size-row th .size-price { font-size: 12px; }
+    .compare-table thead tr.size-row th .size-tag { font-size: 8.5px; padding: 1px 5px; }
+    .compare-table tfoot td { padding: 10px 6px; }
+    .btn-select-size { padding: 7px 10px; font-size: 10.5px; }
+  }
+
+  @media (max-width: 480px) {
+    .viewer { height: 230px; }
+    .panel-h1 { font-size: 17px; }
+    .price-total { font-size: 16px; }
+    .price-note { font-size: 9.5px; }
+    .btn-quote { padding: 9px 12px; }
+    .qte-full { display: none; }
+    .qte-short { display: inline; }
+    .compare-table { min-width: 440px; }
+    .compare-table thead th { padding: 8px 6px; font-size: 10px; }
+    .compare-table thead th:first-child { width: 120px; font-size: 9px; }
+    .compare-table tbody td { padding: 7px 6px; font-size: 10px; }
+    .compare-table tbody td:first-child { font-size: 9px; width: 120px; }
+    .compare-table thead tr.size-row th { padding: 10px 6px 3px; }
+    .compare-table thead tr.size-row th .size-name { font-size: 12px; }
+    .compare-table thead tr.size-row th .size-price { font-size: 11px; }
+    .compare-table tfoot td { padding: 8px 5px; }
+    .btn-select-size { padding: 6px 8px; font-size: 9.5px; }
+  }
+</style>
+</head>
+<body>
+
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <img src="https://www.kingdomes.com.au/wp-content/uploads/2026/04/LOGO-KINGDOMES-BLACK.png"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+         alt="Kingdomes">
+    <span class="logo-text" style="display:none;">KINGDOMES</span>
+    <div class="logo-divider"></div>
+    <span class="logo-sub">Dome Configurator</span>
+  </div>
+  <div class="header-right">
+    <button class="hdr-btn" id="currencyBtn" onclick="openRegionPicker()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span id="currencyBtnLabel">AUD</span>
+    </button>
+    <button class="hdr-btn" onclick="resetAll()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      RESET
+    </button>
+  </div>
+</header>
+
+<!-- Tabs -->
+<nav class="tabs" id="tabBar">
+  <button class="tab active" data-tab="range">Range</button>
+  <button class="tab" data-tab="size">Size</button>
+  <button class="tab" data-tab="colour">Colour Options</button>
+  <button class="tab" data-tab="upgrades">Premium Upgrades</button>
+  <button class="tab" data-tab="chimney">Chimney</button>
+  <button class="tab" data-tab="specs">Tech Specs</button>
+  <button class="tab" data-tab="summary">Summary & Quote</button>
+</nav>
+
+<!-- Body -->
+<div class="body">
+
+  <!-- Left sidebar -->
+  <aside class="sidebar">
+    <button class="sdbtn active" title="Front view">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+    </button>
+    <button class="sdbtn" title="Compare all sizes" onclick="openCompare()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </button>
+    <button class="sdbtn sdbtn-ar" title="View on kingdomes.com.au" onclick="window.open('https://www.kingdomes.com.au/shop/','_blank')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </button>
+  </aside>
+
+  <!-- Viewer -->
+  <section class="viewer">
+    <div class="viewer-badge" id="viewerBadge">6m King Dome</div>
+    <div class="viewer-counter" id="viewerCounter">1 / 1</div>
+    <div class="viewer-addon-label" id="viewerAddonLabel" style="display:none;"></div>
+    <a class="viewer-aura-link" id="viewerAuraLink" href="https://kingdomes.com.au/aura-dome-range" target="_blank" rel="noopener" style="display:none;">
+      Visit Aura Dome Page ↗
+    </a>
+    <div class="carousel-frame" id="carouselFrame">
+      <div class="carousel-track" id="carouselTrack"></div>
+      <button class="carousel-arrow prev" id="carouselPrev" onclick="carouselPrev()" aria-label="Previous image">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="carousel-arrow next" id="carouselNext" onclick="carouselNext()" aria-label="Next image">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="carousel-dots" id="carouselDots"></div>
+    </div>
+  </section>
+
+  <!-- Right panel -->
+  <aside class="panel">
+    <div class="panel-scroll" id="panelContent"></div>
+    <button class="scroll-more-btn" id="scrollMoreBtn" onclick="toggleScrollMore()">
+      <span id="scrollMoreText">See More Below</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" id="scrollMoreIcon">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <div class="price-bar">
+      <div>
+        <div class="price-total" id="priceTotal">$20,999.00</div>
+        <div class="price-note">incl. GST &nbsp;·&nbsp; Excl. shipping</div>
+      </div>
+      <button class="btn-quote" onclick="openQuote()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="qte-full">Request a Quote</span>
+        <span class="qte-short">Get Quote</span>
+      </button>
+    </div>
+  </aside>
+</div>
+
+<!-- Compare Modal -->
+<div class="compare-overlay" id="compareModal">
+  <div class="compare-modal">
+    <div class="compare-header">
+      <div>
+        <h2>Compare All Sizes</h2>
+        <p>Side-by-side specs for every King Dome. Your current selection is highlighted.</p>
+      </div>
+      <button class="compare-close" onclick="closeCompare()">✕</button>
+    </div>
+    <div class="compare-body">
+      <table class="compare-table" id="compareTable"></table>
+    </div>
+  </div>
+</div>
+
+<!-- Quote Modal -->
+<div class="modal-overlay" id="quoteModal">
+  <div class="modal">
+    <div id="modalForm">
+      <h2>Request a Quote</h2>
+      <p>Fill in your details and we'll send you a full quote for your configured dome within 24 hours.</p>
+      <div class="modal-summary" id="modalSummary"></div>
+      <div class="modal-total">
+        <span>Estimated Total</span>
+        <span id="modalTotal"></span>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>First Name</label>
+          <input type="text" id="fname">
+        </div>
+        <div class="form-field">
+          <label>Last Name</label>
+          <input type="text" id="lname">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" id="femail">
+        </div>
+        <div class="form-field">
+          <label>Phone (optional)</label>
+          <input type="tel" id="fphone">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Intended Use</label>
+          <select id="fuse">
+            <option value="">Select one…</option>
+            <option>Glamping / Accommodation</option>
+            <option>Health & Wellness / Retreat</option>
+            <option>Home Office / Studio</option>
+            <option>Personal Use / Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Message (optional)</label>
+          <textarea id="fmsg"></textarea>
+        </div>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeQuote()">Cancel</button>
+        <button class="btn-submit" onclick="submitQuote()">Send Quote Request →</button>
+      </div>
+    </div>
+    <div class="success-msg" id="successMsg">
+      <div class="tick-big">✅</div>
+      <h3>Quote Request Sent!</h3>
+      <p>Thanks! The Kingdomes team will be in touch within 24 hours with your full quote.</p>
+      <div style="margin-top:18px;">
+        <button class="btn-submit" style="width:100%; padding:11px;" onclick="closeQuote()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Region / Currency Picker -->
+<div class="modal-overlay" id="regionModal" style="z-index:999999;">
+  <div class="modal" style="max-width:380px; max-height:85vh; max-height:85dvh; display:flex; flex-direction:column; padding:0;">
+    <div style="padding:24px 22px 6px; flex-shrink:0;">
+      <h3 style="margin:0 0 4px; font-size:17px;">Choose your region</h3>
+      <p style="margin:0 0 16px; font-size:13px; color:#777;">Prices and currency will be shown for your selected region.</p>
+    </div>
+    <div class="modal-summary" id="regionOptions" style="border-top:none; padding:0 14px; flex:1; overflow-y:auto;"></div>
+    <div style="padding:16px 22px calc(22px + env(safe-area-inset-bottom)); flex-shrink:0;">
+      <button class="btn-submit" style="width:100%; padding:11px;" onclick="confirmRegion()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────
+// PRODUCT CATALOG — scraped from kingdomes.com.au
+// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────
+// CURRENCY — region picker, symbols, and flat per-currency fees
+// ─────────────────────────────────────────────────────────
+const CURRENCY_SYMBOL = { AUD: 'A$', USD: 'US$', NZD: 'NZ$' };
+const CHIMNEY_FEE = { AUD: 750, USD: 330, NZD: 750 };
+const COVER_COLOUR_FEE      = { AUD: 500, USD: 350, NZD: 500 };
+const INSULATION_COLOUR_FEE = { AUD: 250, USD: 200, NZD: 250 };
+const CURTAIN_COLOUR_FEE    = { AUD: 250, USD: 200, NZD: 250 };
+
+// Resolves a plain number or a {AUD,USD,NZD} object to the active currency's number.
+function px(v) { return (v && typeof v === 'object') ? v[state.currency] : v; }
+
+const CATALOG = {
+  '6m': {
+    label: '6m King Dome',
+    sku: '6M-KDOME',
+    price: { AUD: 20999, USD: 10509, NZD: 20999 },
+    diameter: '6m', height: '3m', area: '28.3m²', volume: '56.5m³', weight: '~500kg',
+    included: ['Standard air-cell insulation','Curtains & curtain rails','1x Solar extraction fan','3x Porthole windows','3x Ventilation ports','Lockable frosted glass door','1x Large bay window'],
+    desc: 'The happy medium. Fits a queen/king bed, 2-person seating area, fireplace, and either a kitchenette or en-suite. Great balance of affordability and comfort for couples glamping.',
+    chimney: true,
+    bayWindow: false,
+    upgrades: [
+      { key: 'insulation', label: 'Upgraded Insulation', price: { AUD: 4000, USD: 2785,    NZD: 4000 } },
+      { key: 'cover',      label: 'Upgraded Cover',      price: { AUD: 2000, USD: 1247.50, NZD: 2000 } },
+    ],
+    colourOptions: true,
+  },
+  '7m': {
+    label: '7m King Dome',
+    sku: '7M-KDOME',
+    price: { AUD: 23999, USD: 11706, NZD: 23999 },
+    diameter: '7m', height: '4.05m', area: '38.5m²', volume: '112.7m³', weight: '~600kg',
+    included: ['Standard air-cell insulation','Curtains & curtain rails','1x Solar extraction fan','4x Porthole windows','3x Ventilation ports','Lockable frosted glass door','1x Large bay window'],
+    desc: 'The true glamping size. Fits a bedroom, kitchenette, en-suite, seating area, fireplace, and potentially a 2nd bedroom upstairs thanks to the 4m roof height.',
+    chimney: true,
+    bayWindow: false,
+    upgrades: [
+      { key: 'insulation', label: 'Upgraded Insulation', price: { AUD: 5000, USD: 3260, NZD: 5000 } },
+      { key: 'cover',      label: 'Upgraded Cover',      price: { AUD: 2500, USD: 1625, NZD: 2500 } },
+    ],
+    colourOptions: true,
+  },
+  '8m': {
+    label: '8m King Dome',
+    sku: '8M-KDOME',
+    price: { AUD: 27999, USD: 14304, NZD: 27999 },
+    diameter: '8m', height: '4.72m', area: '50.3m²', volume: '173.7m³', weight: 'up to 1,100kg',
+    included: ['Standard air-cell insulation','Curtains & curtain rails','2x Solar extraction fans','4x Porthole windows','5x Ventilation ports','Lockable frosted glass door','1x Large bay window'],
+    desc: 'Luxury-tier. Enough space for multiple bedrooms, loft/mezzanine, full bathroom, kitchen, and entertainment space. Perfect for families, groups, or premium couples accommodation.',
+    chimney: true,
+    bayWindow: false,
+    upgrades: [
+      { key: 'insulation', label: 'Upgraded Insulation', price: { AUD: 6500, USD: 4468, NZD: 6500 } },
+      { key: 'frame',      label: 'Upgraded Frame',      price: { AUD: 2000, USD: 1102, NZD: 2000 } },
+      { key: 'cover',      label: 'Upgraded Cover',      price: { AUD: 3000, USD: 2130, NZD: 3000 } },
+    ],
+    colourOptions: true,
+  },
+  '10m': {
+    label: '10m King Dome',
+    sku: '10M-KDOME',
+    price: { AUD: 34999, USD: 19318.50, NZD: 34999 },
+    diameter: '10m', height: '5m', area: '78.5m²', volume: '261.8m³', weight: '~1,050kg',
+    included: ['Standard air-cell insulation','Curtains & curtain rails','2x Solar extraction fans','6x Porthole windows','10x Ventilation ports','Lockable frosted glass door (double door frame)','1x Large bay window'],
+    desc: 'The Goliath. Commercial-grade size for cafes, yoga studios, dance spaces, workshops, or family-sized luxury glamping. Multiple rooms, loft levels, virtually unlimited configurations.',
+    chimney: true,
+    bayWindow: false,
+    upgrades: [
+      { key: 'insulation', label: 'Upgraded Insulation', price: { AUD: 9445, USD: 5989, NZD: 9445 } },
+      { key: 'frame',      label: 'Upgraded Frame',      price: { AUD: 4000, USD: 2762, NZD: 4000 } },
+      { key: 'cover',      label: 'Upgraded Cover',      price: { AUD: 4000, USD: 2530, NZD: 4000 } },
+    ],
+    colourOptions: true,
+  },
+};
+
+// ─────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────
+const state = {
+  currency: localStorage.getItem('kd_currency') || null,
+  range: 'kingdome',  // 'kingdome' | 'aura'
+  size: '6m',  // Kingdome starts at 6m (5m removed)
+  chimney: false,
+  bayWindow: 'left',        // only for 5m kingdome
+  bayWindowChosen: false,
+  upgrades: {},
+  coverColour: false,
+  insulationColour: false,
+  curtainColour: false,
+  lastClickedByTab: {
+    colours:   null,
+    upgrades:  null,
+    chimney:   null,
+    bayWindow: null,
+  },
+};
+
+// ─────────────────────────────────────────────────────────
+// PRICE CALC
+// ─────────────────────────────────────────────────────────
+function calcTotal() {
+  const prod = activeCatalog()[state.size];
+  let t = px(prod.price);
+  prod.upgrades.forEach(u => { if (state.upgrades[u.key]) t += px(u.price); });
+  if (state.chimney && prod.chimney) t += px(CHIMNEY_FEE);
+  if (state.coverColour) t += px(COVER_COLOUR_FEE);
+  if (state.insulationColour) t += px(INSULATION_COLOUR_FEE);
+  if (state.curtainColour) t += px(CURTAIN_COLOUR_FEE);
+  return t;
+}
+
+function fmtPrice(n) {
+  return CURRENCY_SYMBOL[state.currency] + Number(n).toLocaleString('en-AU', { minimumFractionDigits: 2 });
+}
+
+function updatePrice() {
+  document.getElementById('priceTotal').textContent = fmtPrice(calcTotal());
+}
+
+// ─────────────────────────────────────────────────────────
+// MAIN VIEWER IMAGES — flexible array per dome size
+// Add/remove URLs per size; the carousel adapts automatically.
+// The viewer frame size never changes — only the image inside flexes.
+// ─────────────────────────────────────────────────────────
+const DOME_IMAGES = {
+  '6m':  [
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DJI_0340.mp4',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20250510_011051085_iOS-2-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20250404_094625-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Untitled-design-13-scaled.png',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20250510_010743484_iOS-1-1-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/VID_20250510_113104.mp4',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20251117_182309-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01264-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01269-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20251119_190827-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20251119_190806-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20251117_182423-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/6M-DSC01269-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/6M-DSC01297-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/6M-DSC01273-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/6M-IMG_20241130_090012-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/6M-IMG_20241130_085959-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/6M-IMG_20241130_090153-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/6M-VID_20241130_085633.mp4',
+
+  ],
+  '7m':  [
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/07/7M-DSC02897-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/07/7M-DSC02921-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/07/7M-DSC02900-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/07/7M-DSC02895-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/07/7M-DSC02899-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/07/7M-DSC02925-scaled.jpg',
+
+
+  ],
+  '8m':  [
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-DJI_0190-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-c9c350d3-b731-4952-b19f-18f47cfa9ea0_20250228_185941_0000-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-20250221_081059-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-dji_fly_20250124_072622_45_1738830401366_photo-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-dji_fly_20250130_090010_53_1738830369322_photo-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-DJI_0202-Edited_20250228_185920_0000-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-DJI_0210-Edited_20250228_190019_0000-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-dji_fly_20250322_074002_241_1742702722438_photo-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-20250227_071115-1-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-dji_fly_20250221_074606_126_1742705362074_photo-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-20260213_143947-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-20250718_130444-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-20260213_143947-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-20250718_130412-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-DJI_0177-scaled.jpg',
+    'https://www.kingdomes.com.au/wp-content/uploads/2026/06/8M-20250718_130444-scaled.jpg',
+  ],
+  '10m': [
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/FB_IMG_1702530297988-2.jpg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/10m-dome-min-1.jpg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/9BFD66C0-84BC-4F3E-AB46-735DFA4357F0-scaled.jpeg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/20211028_133147-min-scaled.jpg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/20220402_201023-min-scaled.jpg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/20220402_221910-scaled.jpg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/20220603_102558-min-1-scaled.jpg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/A63A5FCA-D6E6-49F4-A830-CDC46D64BEBA-scaled.jpeg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/DSC_0414-min-scaled.jpg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/IMG_8014-min.jpg',
+'https://www.kingdomes.com.au/wp-content/uploads/2023/05/IMG_8016.jpg',
+
+
+  ],
+};
+
+// ─────────────────────────────────────────────────────────
+// ADD-ON PREVIEW IMAGES
+// One static image shown in the viewer when a specific
+// add-on is selected. Replace each https://example.com/…
+// URL with your real hosted image when ready.
+// Priority order (first match wins): upgrades → colours →
+// chimney → bay window.
+// ─────────────────────────────────────────────────────────
+const ADDON_IMAGES = {
+  // ── Premium Upgrades ──
+  upgrade_insulation: {
+    src:   'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Upgraded-Insulation-scaled.jpg',
+    label: 'Upgraded Insulation',
+  },
+  upgrade_frame: {
+    src:   'https://www.kingdomes.com.au/wp-content/uploads/2026/06/upgraded-frame-scaled.jpg',
+    label: 'Upgraded Frame',
+  },
+  upgrade_cover: {
+    src:   'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Upgraded-Cover-scaled.jpg',
+    label: 'Upgraded Cover',
+  },
+
+  // ── Colour Options ──
+  coverColour: {
+    src:   'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Outer-Cover-Colour-scaled.jpg',
+    label: 'Custom Cover Colour',
+  },
+  insulationColour: {
+    src:   'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Insulation-Colour-scaled.jpg',
+    label: 'Custom Insulation Colour',
+  },
+  curtainColour: {
+    src:   'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Curtain-Colour-scaled.jpg',
+    label: 'Custom Curtain Colour',
+  },
+
+  // ── Chimney Port ──
+  chimney_yes: {
+    src:   'https://www.kingdomes.com.au/wp-content/uploads/2026/06/With-Chimney-Port-scaled.jpg',
+    label: 'With Chimney Port',
+  },
+
+  // ── Bay Window Position (5m only) ──
+  bayWindow_left: {
+    src:   'https://example.com/preview-bay-window-left.jpg',
+    label: 'Bay Window — Left of Door',
+  },
+  bayWindow_right: {
+    src:   'https://example.com/preview-bay-window-right.jpg',
+    label: 'Bay Window — Right of Door',
+  },
+};
+
+// ─────────────────────────────────────────────────────────
+// AURA DOME RANGE — CATALOG
+// Same sizes as Kingdome for now. Replace placeholders when ready.
+// ─────────────────────────────────────────────────────────
+const AURA_CATALOG = {
+  '5m': {
+    label: '5m Aura Dome', sku: '5M-AURA', price: { AUD: 12999, USD: 9170,  NZD: 12999 },
+    diameter: '5m', height: '2.95m', area: '19.6m²', volume: '42.4m³', weight: '~400kg',
+    included: ['PC Shell','Single (900 x 2000)','3x Tilting Vent','Plywood Crate'],
+    desc: '5m Aura Dome with frameless polycarbonate structure.',
+    chimney: false, bayWindow: false, upgrades: [
+      { key: 'solar_fan', label: '1x Solar Fan', price: { AUD: 700, USD: 487.50, NZD: 700 } },
+      { key: 'additional_door', label: 'Additional Single Door', price: { AUD: 750, USD: 550, NZD: 750 } },
+      { key: 'upgrade_insulation', label: 'Upgrade Insulation', price: { AUD: 3375, USD: 2240, NZD: 3375 } },
+      { key: 'tint', label: 'Tint', price: { AUD: 2250, USD: 1825, NZD: 2250 } },
+    ], colourOptions: false,
+  },
+  '6m': {
+    label: '6m Aura Dome', sku: '6M-AURA', price: { AUD: 17999, USD: 12655, NZD: 17999 },
+    diameter: '6m', height: '3m', area: '28.3m²', volume: '56.5m³', weight: '~500kg',
+    included: ['PC Shell','Single (900 x 2000)','3x Tilting Vent','Plywood Crate'],
+    desc: '6m Aura Dome with frameless polycarbonate structure.',
+    chimney: true, bayWindow: false,
+    upgrades: [
+      { key: 'solar_fan', label: '1x Solar Fan', price: { AUD: 700, USD: 487.50, NZD: 700 } },
+      { key: 'additional_door', label: 'Additional Single Door', price: { AUD: 750, USD: 550, NZD: 750 } },
+      { key: 'upgrade_insulation', label: 'Upgrade Insulation', price: { AUD: 5475, USD: 3300, NZD: 5475 } },
+      { key: 'tint', label: 'Tint', price: { AUD: 2875, USD: 2625, NZD: 2875 } },
+    ],
+    colourOptions: false,
+  },
+  '7m': {
+    label: '7m Aura Dome', sku: '7M-AURA', price: { AUD: 23999, USD: 18490, NZD: 23999 },
+    diameter: '7m', height: '4.05m', area: '38.5m²', volume: '112.7m³', weight: '~600kg',
+    included: ['PC Shell','Single (900 x 2000)','4x Tilting Vent','Plywood Crate'],
+    desc: '7m Aura Dome with frameless polycarbonate structure.',
+    chimney: true, bayWindow: false,
+    upgrades: [
+      { key: 'solar_fan', label: '1x Solar Fan', price: { AUD: 700, USD: 487.50, NZD: 700 } },
+      { key: 'additional_door', label: 'Additional Single Door', price: { AUD: 750, USD: 550, NZD: 750 } },
+      { key: 'upgrade_insulation', label: 'Upgrade Insulation', price: { AUD: 6890, USD: 4500, NZD: 6890 } },
+      { key: 'tint', label: 'Tint', price: { AUD: 3645, USD: 3550, NZD: 3645 } },
+    ],
+    colourOptions: false,
+  },
+};
+
+// ─────────────────────────────────────────────────────────
+// AURA DOME IMAGES — replace with real URLs when ready
+// ─────────────────────────────────────────────────────────
+const AURA_DOME_IMAGES = {
+  '5m':  [
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/LP-Aura-Dome-Material-3.mp4',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01673.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01775-scaled.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20260131_101654-scaled.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Bilpin-DSC02008-copy.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20260131_075654-scaled.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01940-scaled.jpg', 
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20260131_101810-scaled.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01399.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01434.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Color-Transfer-1-scaled.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01495.jpg', 
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01521.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01770.jpg',
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01897-scaled.jpg', 
+  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/DSC01521.jpg'
+],
+
+  '6m':  ['https://www.kingdomes.com.au/wp-content/uploads/2026/06/d5da029ed062ee1ca049a3a5283a13dc.jpeg'],
+  '7m':  ['https://www.kingdomes.com.au/wp-content/uploads/2026/06/a538a5c836948164f645786f27eaf315.jpeg'],
+};
+
+// ─────────────────────────────────────────────────────────
+// AURA ADDON PREVIEW IMAGES
+// [AURA] label = placeholder, remove when confirmed real
+// ─────────────────────────────────────────────────────────
+const AURA_ADDON_IMAGES = {
+  upgrade_insulation: { src: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Upgraded-Insulation-scaled.jpg', label: 'Upgraded Insulation' },
+  solar_fan:          { src: 'https://example.com/aura-preview-solar-fan.jpg',          label: 'Solar Fan Upgrade [AURA]' },
+  upgrade_solar_fan:  { src: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/1x-Solar-Fan-scaled.jpg',          label: 'Solar Fan Upgrade' },
+  additional_door:    { src: 'https://example.com/aura-preview-additional-door.jpg',    label: 'Additional Door [AURA]' },
+  upgrade_additional_door: { src: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Additional-Single-Door-scaled.jpg', label: 'Additional Door' },
+  tint:               { src: 'https://example.com/aura-preview-tint.jpg',               label: 'Tint Upgrade [AURA]' },
+  upgrade_tint:       { src: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Tint.jpg',               label: 'Tint Upgrade' },
+  upgrade_frame:      { src: 'https://example.com/aura-preview-upgrade-frame.jpg',      label: 'Upgraded Frame [AURA]' },
+  upgrade_cover:      { src: 'https://example.com/aura-preview-upgrade-cover.jpg',      label: 'Upgraded Cover [AURA]' },
+  coverColour:        { src: 'https://example.com/aura-preview-colour-cover.jpg',       label: 'Custom Cover Colour [AURA]' },
+  insulationColour:   { src: 'https://example.com/aura-preview-colour-insulation.jpg',  label: 'Custom Insulation Colour [AURA]' },
+  curtainColour:      { src: 'https://example.com/aura-preview-colour-curtain.jpg',     label: 'Custom Curtain Colour [AURA]' },
+  chimney_yes:        { src: 'https://example.com/aura-preview-chimney-yes.jpg',        label: 'With Chimney Port [AURA]' },
+  bayWindow_left:     { src: 'https://example.com/aura-preview-bay-window-left.jpg',    label: 'Bay Window — Left of Door [AURA]' },
+  bayWindow_right:    { src: 'https://example.com/aura-preview-bay-window-right.jpg',   label: 'Bay Window — Right of Door [AURA]' },
+};
+
+// ─────────────────────────────────────────────────────────
+// RANGE HELPERS — swap active data based on selected range
+// ─────────────────────────────────────────────────────────
+function activeCatalog()     { return state.range === 'aura' ? AURA_CATALOG     : CATALOG; }
+function activeDomeImages()  { return state.range === 'aura' ? AURA_DOME_IMAGES : DOME_IMAGES; }
+function activeAddonImages() { return state.range === 'aura' ? AURA_ADDON_IMAGES : ADDON_IMAGES; }
+
+const RANGES = [
+  { key: 'kingdome', label: 'Kingdome Range',    tagline: 'The original geodesic dome. Proven, iconic, and built to last.',              img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20250510_011051085_iOS.jpg' },
+  { key: 'aura',     label: 'Aura Dome Range',   tagline: 'A new era of dome design. Refined aesthetics and expanded options.',           img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/20250510_011051085_iOS-1.jpg' },
+];
+
+// Returns { src, label } based on the currently active tab's last clicked addon,
+// or null when the carousel should show instead.
+function getActiveAddonPreview() {
+  const prod = activeCatalog()[state.size];
+  const addonImgs = activeAddonImages();
+  const activeTab = (document.querySelector('.tab.active') || {}).dataset?.tab || 'size';
+
+  if (activeTab === 'size' || activeTab === 'range') return null;
+
+  if (activeTab === 'colour') {
+    const key = state.lastClickedByTab.colours;
+    if (key && state[key]) return addonImgs[key] || ADDON_IMAGES[key];
+    return null;
+  }
+
+  if (activeTab === 'upgrades') {
+    const key = state.lastClickedByTab.upgrades;
+    if (key) {
+      const upgradeKey = key.replace('upgrade_', '');
+      if (state.upgrades[upgradeKey]) return addonImgs[key] || addonImgs[upgradeKey] || ADDON_IMAGES[key] || ADDON_IMAGES[upgradeKey];
+    }
+    return null;
+  }
+
+  if (activeTab === 'chimney') {
+    const bwKey = state.lastClickedByTab.bayWindow;
+    if (bwKey && prod.bayWindow && state.bayWindowChosen) return addonImgs[bwKey] || ADDON_IMAGES[bwKey];
+    if (prod.chimney && state.chimney) return addonImgs.chimney_yes || ADDON_IMAGES.chimney_yes;
+    return null;
+  }
+
+  return null;
+}
+
+let carouselIndex = 0;
+let touchStartX = 0;
+let touchDeltaX = 0;
+
+function renderDome() {
+  carouselIndex = 0;
+  buildCarousel();
+  document.getElementById('viewerBadge').textContent = activeCatalog()[state.size].label;
+  document.getElementById('viewerAuraLink').style.display = state.range === 'aura' ? 'block' : 'none';
+}
+
+// Force carousel mode regardless of addon state (used when Size/Range tab is clicked)
+// Renders a video tag (autoplay, muted, looping) for .mp4/.webm/.mov URLs, otherwise an img tag.
+function carouselMedia(src, alt) {
+  if (/\.(mp4|webm|mov)(\?.*)?$/i.test(src)) {
+    return `<video src="${src}" autoplay muted loop playsinline disablepictureinpicture aria-label="${alt}"></video>`;
+  }
+  return `<img src="${src}" alt="${alt}" draggable="false">`;
+}
+
+function buildCarouselForced() {
+  carouselIndex = 0;
+  const addonLabel = document.getElementById('viewerAddonLabel');
+  if (addonLabel) addonLabel.style.display = 'none';
+  const images = activeDomeImages()[state.size] || [];
+  const track = document.getElementById('carouselTrack');
+  const dots  = document.getElementById('carouselDots');
+
+  track.innerHTML = images.map((src, i) => `
+    <div class="carousel-slide ${i === 0 ? 'active' : ''}" data-index="${i}">
+      ${carouselMedia(src, `${activeCatalog()[state.size].label} — view ${i + 1}`)}
+    </div>`).join('');
+
+  dots.innerHTML = images.map((_, i) =>
+    `<button class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="carouselGoTo(${i})" aria-label="Image ${i + 1}"></button>`
+  ).join('');
+
+  updateCarouselUI();
+}
+
+function buildCarousel() {
+  const addon  = getActiveAddonPreview();
+  const track  = document.getElementById('carouselTrack');
+  const dots   = document.getElementById('carouselDots');
+  const prev   = document.getElementById('carouselPrev');
+  const next   = document.getElementById('carouselNext');
+  const counter = document.getElementById('viewerCounter');
+  const addonLabel = document.getElementById('viewerAddonLabel');
+
+  if (addon) {
+    // ── ADDON PREVIEW MODE — single static image, no carousel ──
+    track.innerHTML = `
+      <div class="carousel-slide active">
+        ${carouselMedia(addon.src, addon.label)}
+      </div>`;
+    dots.innerHTML = '';
+    dots.style.display = 'none';
+    counter.style.display = 'none';
+    prev.classList.add('hidden');
+    next.classList.add('hidden');
+    if (addonLabel) { addonLabel.textContent = addon.label; addonLabel.style.display = 'block'; }
+    return;
+  }
+
+  // ── CAROUSEL MODE ──
+  if (addonLabel) addonLabel.style.display = 'none';
+  const images = activeDomeImages()[state.size] || [];
+
+  track.innerHTML = images.map((src, i) => `
+    <div class="carousel-slide ${i === carouselIndex ? 'active' : ''}" data-index="${i}">
+      ${carouselMedia(src, `${activeCatalog()[state.size].label} — view ${i + 1}`)}
+    </div>`).join('');
+
+  dots.innerHTML = images.map((_, i) =>
+    `<button class="carousel-dot ${i === carouselIndex ? 'active' : ''}" onclick="carouselGoTo(${i})" aria-label="Image ${i + 1}"></button>`
+  ).join('');
+
+  updateCarouselUI();
+}
+
+function updateCarouselUI() {
+  const images = activeDomeImages()[state.size] || [];
+  const slides = document.querySelectorAll('.carousel-slide');
+  const dots   = document.querySelectorAll('.carousel-dot');
+  slides.forEach((s, i) => s.classList.toggle('active', i === carouselIndex));
+  dots.forEach((d, i) => d.classList.toggle('active', i === carouselIndex));
+  document.getElementById('viewerCounter').textContent = `${carouselIndex + 1} / ${images.length}`;
+
+  const onlyOne = images.length <= 1;
+  document.getElementById('carouselPrev').classList.toggle('hidden', onlyOne);
+  document.getElementById('carouselNext').classList.toggle('hidden', onlyOne);
+  document.getElementById('carouselDots').style.display = onlyOne ? 'none' : 'flex';
+  document.getElementById('viewerCounter').style.display = onlyOne ? 'none' : 'block';
+}
+
+function carouselNext() {
+  const images = activeDomeImages()[state.size] || [];
+  if (images.length <= 1) return;
+  carouselIndex = (carouselIndex + 1) % images.length;
+  updateCarouselUI();
+}
+
+function carouselPrev() {
+  const images = activeDomeImages()[state.size] || [];
+  if (images.length <= 1) return;
+  carouselIndex = (carouselIndex - 1 + images.length) % images.length;
+  updateCarouselUI();
+}
+
+function carouselGoTo(i) {
+  carouselIndex = i;
+  updateCarouselUI();
+}
+
+// Swipe support (touch + mouse drag) — manual only, no autoplay
+(function initCarouselSwipe() {
+  const frame = document.getElementById('carouselFrame');
+
+  frame.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchDeltaX = 0;
+  }, { passive: true });
+
+  frame.addEventListener('touchmove', e => {
+    touchDeltaX = e.touches[0].clientX - touchStartX;
+  }, { passive: true });
+
+  frame.addEventListener('touchend', () => {
+    if (Math.abs(touchDeltaX) > 40) {
+      if (touchDeltaX < 0) carouselNext();
+      else carouselPrev();
+    }
+    touchDeltaX = 0;
+  });
+})();
+
+// ─────────────────────────────────────────────────────────
+// TABS / PANEL CONTENT
+// ─────────────────────────────────────────────────────────
+const TABS = ['range','size','colour','upgrades','chimney','specs','summary'];
+
+function renderPanel() {
+  const active = document.querySelector('.tab.active');
+  const tab = active ? active.dataset.tab : 'range';
+  document.getElementById('panelContent').innerHTML = PANELS[tab]();
+  updatePrice();
+}
+
+const PANELS = {
+
+  range: () => {
+    let html = `<div class="panel-h1">Choose Your Range</div>
+    <div class="panel-desc">Select the dome range that suits your vision. Each range has its own sizing, aesthetic, and add-on options.</div>`;
+    RANGES.forEach(r => {
+      const sel = state.range === r.key;
+      html += `<div class="card ${sel?'sel':''}" onclick="setRange('${r.key}')">
+        <div class="card-icon"><img src="${r.img}" alt="${r.label}"></div>
+        <div class="card-body">
+          <div class="card-name">${r.label}</div>
+          <div class="card-note">${r.tagline}</div>
+        </div>
+        <div class="check-dot">${sel?'✓':''}</div>
+      </div>`;
+    });
+    return html;
+  },
+
+  size: () => {
+    const cat = activeCatalog();
+    const sizes = state.range === 'aura' ? ['5m','6m','7m'] : ['6m','7m','8m','10m'];
+    const tags = state.range === 'aura' ? ['Entry Level','Popular','True Glamping'] : ['Popular','True Glamping','Luxury','Commercial'];
+    const THUMB = {
+      '6m':  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Wire-dome_510x384-1-1.jpg',
+      '7m':  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Wire-dome_510x384-2.jpg',
+      '8m':  'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Wire-dome_510x384-3.jpg',
+      '10m': 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Wire-dome_510x384-4.jpg',
+    };
+    const AURA_THUMB = {
+      '5m': 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Wire-dome_510x384-1.jpg', '6m': 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Wire-dome_510x384-1-1.jpg',
+      '7m': 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Wire-dome_510x384-2.jpg',
+    };
+    const thumbs = state.range === 'aura' ? AURA_THUMB : THUMB;
+    const rangeLabel = state.range === 'aura' ? 'Aura Dome Range' : 'Kingdome Range';
+    let html = `<div class="panel-h1">Choose Your Size</div>
+    <div class="panel-desc" style="margin-bottom:6px;"><span style="background:#e9c17c;color:#1a1a1a;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">${rangeLabel}</span></div>
+    <div class="panel-desc">All sizes include standard insulation, curtains & rails, solar fan(s), porthole windows, ventilation ports, and a lockable frosted glass door.</div>`;
+    sizes.forEach((sz, i) => {
+      const p = cat[sz];
+      const sel = state.size === sz;
+      html += `<div class="card ${sel?'sel':''}" onclick="setSize('${sz}')">
+        <div class="card-icon"><img src="${thumbs[sz]}" alt="${p.label}"></div>
+        <div class="card-body">
+          <div class="card-name">${p.label} <span style="font-size:10px;font-weight:600;background:${sel?'#1a1a1a':'#eee'};color:${sel?'#fff':'#555'};padding:2px 7px;border-radius:10px;margin-left:4px;">${tags[i]}</span></div>
+          <div class="card-price">${fmtPrice(px(p.price))}</div>
+          <div class="card-note">Ø${p.diameter} · ${p.area} floor · ${p.height} height</div>
+        </div>
+        <div class="check-dot">${sel?'✓':''}</div>
+      </div>`;
+    });
+    const prod = cat[state.size];
+    html += `<hr class="divider"/>
+    <div class="section-label">What's Included — ${prod.label}</div>
+    <div class="features-list">
+      <div class="fl-title">Every dome includes as standard:</div>
+      <ul>${prod.included.map(f => `<li>${f}</li>`).join('')}</ul>
+    </div>
+    <div class="panel-desc" style="margin-top:10px;">${prod.desc}</div>`;
+    return html;
+  },
+
+  colour: () => {
+    const prod = activeCatalog()[state.size];
+    if (state.range === 'aura') return `<div class="panel-h1">Colour Options</div><div class="panel-desc">The Aura Dome features the natural translucent polycarbonate finish. Custom colour options are not available for the Aura range.</div>`;
+    if (!prod.colourOptions) return `<div class="panel-h1">Colour Options</div><div class="panel-desc">No colour add-ons available for this size.</div>`;
+    let html = `<div class="panel-h1">Colour Options</div>
+    <div class="panel-desc">Customise the look of your dome. All colour upgrades are charged per component. Standard colour is included.</div>`;
+
+    const colOpts = [
+      { key: 'coverColour',      label: 'Outer Cover Colour', price: COVER_COLOUR_FEE, stateKey: 'coverColour',
+        note: 'Choose a custom colour for the outer PVC cover instead of standard white/grey.',
+        img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Outer.jpg' },
+      { key: 'insulationColour', label: 'Insulation Colour',  price: INSULATION_COLOUR_FEE, stateKey: 'insulationColour',
+        note: 'Custom colour for the inner insulation lining.',
+        img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Insulation-1.jpg' },
+      { key: 'curtainColour',    label: 'Curtain Colour',     price: CURTAIN_COLOUR_FEE, stateKey: 'curtainColour',
+        note: 'Choose a custom colour for your blackout curtains & pelmet.',
+        img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Curtain-1.jpg' },
+    ];
+    colOpts.forEach(o => {
+      const sel = state[o.stateKey];
+      html += `<div class="card ${sel?'sel':''}" onclick="toggleColour('${o.stateKey}')">
+        <div class="card-icon"><img src="${o.img}" alt="${o.label}"></div>
+        <div class="card-body">
+          <div class="card-name">${o.label}</div>
+          <div class="card-price">+${fmtPrice(px(o.price))}</div>
+          <div class="card-note">${o.note}</div>
+        </div>
+        <div class="check-dot">${sel?'✓':''}</div>
+      </div>`;
+    });
+    html += `<div class="panel-desc" style="margin-top:14px; background:#f8f8f8; padding:12px 14px; border-radius:8px; font-size:12px;">
+      <strong>Note:</strong> Specific colour selections are confirmed with the Kingdomes team after your quote is submitted. Colour swatches will be shared via email.
+    </div>`;
+    return html;
+  },
+
+  upgrades: () => {
+    const prod = activeCatalog()[state.size];
+    let html = `<div class="panel-h1">Premium Upgrades</div>
+    <div class="panel-desc">Take your dome to the next level with structural and performance upgrades. These are optional add-ons specific to the ${prod.label}.</div>`;
+
+    if (prod.upgrades.length === 0) {
+      html += `<div style="padding:20px 0; text-align:center; color:#aaa; font-size:13px;">
+        <div style="margin-bottom:10px;"><img src="https://example.com/icon-no-upgrades.png" style="width:52px;height:52px;object-fit:cover;border-radius:8px;opacity:0.5;"></div>
+        No premium upgrades are available for the ${prod.label}.<br>
+        <span style="font-size:12px;">The 5m is focused on the essentials.</span>
+      </div>`;
+      return html;
+    }
+
+    // Upgrade descriptions for both Kingdome and Aura
+    const upgradeInfo = {
+      insulation: { desc: 'Enhanced reflective insulation system for superior temperature regulation year-round.', img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Upgraded-Insulation-1-1.jpg' },
+      frame: { desc: 'Heavier gauge powder-coated steel frame for increased structural rigidity and durability.', img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/upgraded-frame-icon.png' },
+      cover: { desc: 'Premium grade PVC cover with increased UV resistance and longer expected lifespan.', img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Upgraded-Cover-2.jpg' },
+      upgrade_insulation: { desc: 'Enhanced reflective insulation system for superior temperature regulation year-round.', img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Insulation-1.jpg' },
+      solar_fan: { desc: 'Additional solar-powered extraction fan for improved air circulation and ventilation.', img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Fan.jpg' },
+      additional_door: { desc: 'Install an additional single door entry for dual access and improved circulation.', img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Door.jpg' },
+      tint: { desc: 'UV-protective tinting for the cover to reduce internal heat buildup and glare.', img: 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Tint-1.jpg' },
+    };
+
+    prod.upgrades.forEach(u => {
+      const sel = state.upgrades[u.key];
+      const info = upgradeInfo[u.key] || {};
+      html += `<div class="card ${sel?'sel':''}" onclick="toggleUpgrade('${u.key}')">
+        <div class="card-icon"><img src="${info.img || 'https://example.com/icon-upgrade-default.png'}" alt="${u.label}"></div>
+        <div class="card-body">
+          <div class="card-name">${u.label}</div>
+          <div class="card-price">+${fmtPrice(px(u.price))}</div>
+          <div class="card-note">${info.desc || ''}</div>
+        </div>
+        <div class="check-dot">${sel?'✓':''}</div>
+      </div>`;
+    });
+    return html;
+  },
+
+  chimney: () => {
+    const prod = activeCatalog()[state.size];
+    // 5m: Bay Window Position (only for Kingdome which doesn't have bay window anymore)
+    if (prod.bayWindow) {
+      let html = `<div class="panel-h1">Bay Window Position</div>
+      <div class="panel-desc">When you walk through your 5m King Dome's door, do you want the bay window on the left or right hand side? The dome preview above updates to reflect your choice.</div>
+      <div class="section-label">Bay Window Side</div>`;
+      ['left','right'].forEach(side => {
+        const sel = state.bayWindow === side;
+        html += `<div class="card ${sel?'sel':''}" onclick="setBayWindow('${side}')">
+          <div class="card-icon"><img src="https://example.com/icon-bay-window-${side}.png" alt="${side} bay window"></div>
+          <div class="card-body">
+            <div class="card-name">${side.charAt(0).toUpperCase()+side.slice(1)} of Door</div>
+            <div class="card-price">Included</div>
+          </div>
+          <div class="check-dot">${sel?'✓':''}</div>
+        </div>`;
+      });
+      return html;
+    }
+
+    // Chimney Port - only for sizes that support it
+    if (!prod.chimney) {
+      return `<div class="panel-h1">Chimney Port</div><div class="panel-desc">Chimney port is not available for the ${prod.label}.</div>`;
+    }
+
+    // 6m–10m (Kingdome) and 6m–7m (Aura): Chimney Port
+    let html = `<div class="panel-h1">Chimney Port</div>
+    <div class="panel-desc">Add a chimney port to your dome for installation of a wood-burning stove or fireplace. The port is sealed and weatherproof when not in use. Recommended for cold climates or year-round use.</div>
+    <div class="section-label">Chimney Port Option</div>`;
+
+    [false, true].forEach(val => {
+      const sel = state.chimney === val;
+      const chimneyImg = val ? 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/Chimney.jpg' : 'https://www.kingdomes.com.au/wp-content/uploads/2026/06/No.jpg';
+      html += `<div class="card ${sel?'sel':''}" onclick="setChimney(${val})">
+        <div class="card-icon"><img src="${chimneyImg}" alt="${val ? 'With chimney' : 'No chimney'}"></div>
+        <div class="card-body">
+          <div class="card-name">${val ? 'With Chimney Port' : 'No Chimney Port'}</div>
+          <div class="card-price">${val ? '+' + fmtPrice(px(CHIMNEY_FEE)) : 'Included'}</div>
+          ${val ? `<div class="card-note">A sealed flue port cut through the dome cover, allowing safe installation of a wood burner or combustion heater inside.</div>` : ''}
+        </div>
+        <div class="check-dot">${sel?'✓':''}</div>
+      </div>`;
+    });
+    return html;
+  },
+
+  specs: () => {
+    const p = activeCatalog()[state.size];
+    const isAura = state.range === 'aura';
+    
+    if (isAura) {
+      return `<div class="panel-h1">Tech Specs</div>
+      <div class="panel-desc">Full specifications for the ${p.label}.</div>
+      <div class="section-label">General</div>
+      <table class="specs-table">
+        <tr><td>Diameter</td><td>Ø${p.diameter}</td></tr>
+        <tr><td>Roof Height</td><td>${p.height}</td></tr>
+        <tr><td>Floor Area</td><td>${p.area}</td></tr>
+        <tr><td>Volume</td><td>${p.volume}</td></tr>
+        <tr><td>Weight</td><td>${p.weight}</td></tr>
+      </table>
+      <div class="section-label">Structure</div>
+      <table class="specs-table">
+        <tr><td>Design</td><td>Frameless geodesic</td></tr>
+        <tr><td>Material</td><td>Polycarbonate hexagon/pentagon panels</td></tr>
+        <tr><td>Assembly</td><td>Precision bolted construction</td></tr>
+        <tr><td>Wind Resistance</td><td>Up to 120 km/h (when properly anchored)</td></tr>
+      </table>
+      <div class="section-label">Door</div>
+      <table class="specs-table">
+        <tr><td>Material</td><td>Aluminium with lock</td></tr>
+        <tr><td>Type</td><td>Single door entry</td></tr>
+      </table>
+      <div class="section-label">Ventilation</div>
+      <table class="specs-table">
+        <tr><td>Tilting Vent Windows</td><td>${p.diameter === '7m' ? '4' : '3'} windows</td></tr>
+      </table>
+      <hr class="divider"/>
+      <div style="padding:12px 14px; background:#f8f8f8; border-radius:8px; font-size:12px; color:#555; line-height:1.6;">
+        <strong style="color:#1a1a1a;">Key Feature:</strong> Frameless design means no internal metal supports blocking your view. The polycarbonate shell is self-supporting, similar to an eggshell structure.<br><br>
+        <strong style="color:#1a1a1a;">Delivery:</strong> 3-4 months<br>
+        <strong style="color:#1a1a1a;">What's Included:</strong> Complete dome structure, door with lock, tilting vent windows, installation guide.
+      </div>`;
+    }
+    
+    return `<div class="panel-h1">Tech Specs</div>
+    <div class="panel-desc">Full specifications for the ${p.label}.</div>
+    <div class="section-label">General</div>
+    <table class="specs-table">
+      <tr><td>Diameter</td><td>Ø${p.diameter}</td></tr>
+      <tr><td>Roof Height</td><td>${p.height}</td></tr>
+      <tr><td>Floor Area</td><td>${p.area}</td></tr>
+      <tr><td>Volume</td><td>${p.volume}</td></tr>
+      <tr><td>Weight</td><td>${p.weight}</td></tr>
+    </table>
+    <div class="section-label">Frame</div>
+    <table class="specs-table">
+      <tr><td>Material</td><td>Hot-rolled seamless steel pipe</td></tr>
+      <tr><td>Finish</td><td>Powder coated</td></tr>
+      <tr><td>Steel Type</td><td>Q235</td></tr>
+      <tr><td>Yield Strength</td><td>235 MPa</td></tr>
+    </table>
+    <div class="section-label">Cover</div>
+    <table class="specs-table">
+      <tr><td>Material</td><td>Dual layered PVC coated synthetic fibre</td></tr>
+      <tr><td>Thickness</td><td>0.76mm</td></tr>
+      <tr><td>Weight</td><td>850g/m² (coloured) · 950g/m² (clear)</td></tr>
+      <tr><td>Temperature Range</td><td>-30°C to 70°C</td></tr>
+      <tr><td>Properties</td><td>Waterproof, UV resistant, mould resistant, fire retardant, blackout</td></tr>
+    </table>
+    <div class="section-label">Door</div>
+    <table class="specs-table">
+      <tr><td>Material</td><td>Tempered glass with aluminium frame</td></tr>
+      <tr><td>Height</td><td>2,100mm</td></tr>
+      <tr><td>Width</td><td>900mm ${p.diameter === '10m' ? '(double door)' : '(single door)'}</td></tr>
+      <tr><td>Features</td><td>Frosted glass, lockable with spare keys, fly screen with magnetic strip</td></tr>
+    </table>
+    <div class="section-label">Insulation</div>
+    <table class="specs-table">
+      <tr><td>Material</td><td>Layered aluminium foil bubble insulation, PVDF coated</td></tr>
+      <tr><td>Thickness</td><td>8mm</td></tr>
+      <tr><td>System</td><td>Reflective Insulative System — traps heat in 50–70mm cavity between cover and insulation layer</td></tr>
+    </table>
+    <hr class="divider"/>
+    <div style="padding:12px 14px; background:#f8f8f8; border-radius:8px; font-size:12px; color:#555; line-height:1.6;">
+      <strong style="color:#1a1a1a;">Payment Terms:</strong> 50% deposit on sale · Remaining balance (incl. shipping) before delivery.<br>
+      Financing available via <strong>Great Escape Finance</strong>. Ask us in your quote request.
+    </div>`;
+  },
+
+  summary: () => {
+    const prod = activeCatalog()[state.size];
+    const total = calcTotal();
+    let rows = [['Dome Size', prod.label, fmtPrice(px(prod.price))]];
+    if (state.chimney && prod.chimney) rows.push(['Chimney Port', 'With Chimney Port', '+' + fmtPrice(px(CHIMNEY_FEE))]);
+    if (!prod.chimney && prod.bayWindow) rows.push(['Bay Window', `${state.bayWindow.charAt(0).toUpperCase()+state.bayWindow.slice(1)} of door`, 'Included']);
+    prod.upgrades.forEach(u => {
+      if (state.upgrades[u.key]) rows.push([u.label, 'Selected', '+' + fmtPrice(px(u.price))]);
+    });
+    if (state.coverColour) rows.push(['Cover Colour', 'Custom colour', '+' + fmtPrice(px(COVER_COLOUR_FEE))]);
+    if (state.insulationColour) rows.push(['Insulation Colour', 'Custom colour', '+' + fmtPrice(px(INSULATION_COLOUR_FEE))]);
+    if (state.curtainColour) rows.push(['Curtain Colour', 'Custom colour', '+' + fmtPrice(px(CURTAIN_COLOUR_FEE))]);
+
+    return `<div class="panel-h1">Your Configuration</div>
+    <div class="panel-desc">Review your build below. When you're ready, click Request a Quote and the Kingdomes team will follow up within 24 hours.</div>
+    <div style="background:#f8f8f8; border-radius:8px; overflow:hidden; margin-bottom:14px;">
+      ${rows.map(([k,v,p], i) => `
+      <div class="modal-row" style="padding:9px 14px; background:${i%2===0?'#f8f8f8':'#fff'};">
+        <span style="color:#444; font-weight:600; font-size:12.5px;">${k}</span>
+        <span style="font-size:12.5px; color:#555;">${v} &nbsp;<strong>${p}</strong></span>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--black); color:#fff; border-radius:8px; font-weight:800; font-size:16px; margin-bottom:18px;">
+      <span>Estimated Total</span>
+      <span>${fmtPrice(total)}</span>
+    </div>
+    <div style="font-size:11.5px; color:#aaa; text-align:center; margin-bottom:16px;">Excl. shipping · Chimney port pricing TBC · Finance available</div>
+    <button class="btn-submit" style="width:100%; padding:13px; font-size:14px; border-radius:8px;" onclick="openQuote()">
+      Request a Quote →
+    </button>
+    <div style="margin-top:12px; padding:12px; background:#f8f8f8; border-radius:8px; font-size:11.5px; color:#666; line-height:1.6; text-align:center;">
+      Questions? Contact us at <a  target="_blank" style="color:var(--black); font-weight:700;">enquiries@kingdomes.com.au</a>
+    </div>`;
+  },
+};
+
+// ─────────────────────────────────────────────────────────
+// ACTIONS
+// ─────────────────────────────────────────────────────────
+function setSize(sz) {
+  // Only reset if actually changing to a different size
+  if (sz === state.size) return;
+  state.size = sz;
+  state.chimney = false;
+  state.bayWindow = 'left';
+  state.bayWindowChosen = false;
+  state.upgrades = {};
+  state.coverColour = false;
+  state.insulationColour = false;
+  state.curtainColour = false;
+  state.lastClickedByTab = { colours: null, upgrades: null, chimney: null, bayWindow: null };
+  refresh();
+}
+function setChimney(val) {
+  state.chimney = val;
+  state.lastClickedByTab.chimney = val ? 'chimney_yes' : null;
+  refresh();
+}
+function setBayWindow(side) {
+  state.bayWindow = side;
+  state.bayWindowChosen = true;
+  state.lastClickedByTab.bayWindow = `bayWindow_${side}`;
+  refresh();
+}
+function toggleUpgrade(key) {
+  state.upgrades[key] = !state.upgrades[key];
+  state.lastClickedByTab.upgrades = state.upgrades[key] ? `upgrade_${key}` : null;
+  refresh();
+}
+function toggleColour(key) {
+  state[key] = !state[key];
+  state.lastClickedByTab.colours = state[key] ? key : null;
+  refresh();
+}
+function setRange(rng) {
+  if (rng === state.range) return;
+  state.range = rng;
+  // Reset everything when switching range
+  state.size = rng === 'aura' ? '5m' : '6m';  // Aura starts at 5m, Kingdome at 6m
+  state.chimney = false;
+  state.bayWindow = 'left';
+  state.bayWindowChosen = false;
+  state.upgrades = {};
+  state.coverColour = false;
+  state.insulationColour = false;
+  state.curtainColour = false;
+  state.lastClickedByTab = { colours: null, upgrades: null, chimney: null, bayWindow: null };
+  refresh();
+}
+function resetAll() {
+  state.range = 'kingdome';
+  state.size = '6m';  // Kingdome starts at 6m (5m removed)
+  state.chimney = false;
+  state.bayWindow = 'left';
+  state.bayWindowChosen = false;
+  state.upgrades = {};
+  state.coverColour = false;
+  state.insulationColour = false;
+  state.curtainColour = false;
+  state.lastClickedByTab = { colours: null, upgrades: null, chimney: null, bayWindow: null };
+  // Return to Range tab
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab[data-tab="range"]').classList.add('active');
+  refresh();
+}
+
+// ─────────────────────────────────────────────────────────
+// QUOTE MODAL
+// ─────────────────────────────────────────────────────────
+function openQuote() {
+  const prod = activeCatalog()[state.size];
+  const total = calcTotal();
+  let rows = `<div class="modal-row"><span>${prod.label}</span><span>${fmtPrice(px(prod.price))}</span></div>`;
+  prod.upgrades.forEach(u => {
+    if (state.upgrades[u.key]) rows += `<div class="modal-row"><span>${u.label}</span><span>+${fmtPrice(px(u.price))}</span></div>`;
+  });
+  if (state.chimney && prod.chimney) rows += `<div class="modal-row"><span>Chimney Port</span><span>+${fmtPrice(px(CHIMNEY_FEE))}</span></div>`;
+  if (state.coverColour) rows += `<div class="modal-row"><span>Cover Colour</span><span>+${fmtPrice(px(COVER_COLOUR_FEE))}</span></div>`;
+  if (state.insulationColour) rows += `<div class="modal-row"><span>Insulation Colour</span><span>+${fmtPrice(px(INSULATION_COLOUR_FEE))}</span></div>`;
+  if (state.curtainColour) rows += `<div class="modal-row"><span>Curtain Colour</span><span>+${fmtPrice(px(CURTAIN_COLOUR_FEE))}</span></div>`;
+  document.getElementById('modalSummary').innerHTML = rows;
+  document.getElementById('modalTotal').textContent = fmtPrice(total);
+  document.getElementById('modalForm').style.display = 'block';
+  document.getElementById('successMsg').style.display = 'none';
+  document.getElementById('quoteModal').classList.add('open');
+}
+
+function closeQuote() {
+  document.getElementById('quoteModal').classList.remove('open');
+  const submitBtn = document.querySelector('.btn-submit[onclick="submitQuote()"]');
+  if (submitBtn) {
+    submitBtn.textContent = 'Send Quote Request →';
+    submitBtn.disabled = false;
+  }
+}
+
+async function submitQuote() {
+  const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
+  const email = document.getElementById('femail').value.trim();
+  const phone = document.getElementById('fphone').value.trim();
+  const fuse  = document.getElementById('fuse').value;
+  const fmsg  = document.getElementById('fmsg').value.trim();
+
+  if (!fname || !email) {
+    alert('Please enter your first name and email address.');
+    return;
+  }
+
+  const prod = activeCatalog()[state.size];
+
+  const payload = {
+    // GHL native contact fields — maps automatically
+    firstName:   fname,
+    lastName:    lname,
+    email:       email,
+    phone:       phone,
+
+    // Dome configuration — map these to GHL custom fields
+    dome_size:          prod.label,
+    base_price:         fmtPrice(px(prod.price)),
+    estimated_total:    fmtPrice(calcTotal()),
+    chimney_port:       (prod.chimney && state.chimney) ? 'Yes' : 'No',
+    bay_window:         prod.bayWindow ? state.bayWindow.charAt(0).toUpperCase() + state.bayWindow.slice(1) + ' of door' : 'N/A',
+    upgrades_selected:  prod.upgrades.filter(u => state.upgrades[u.key]).map(u => u.label).join(', ') || 'None',
+    cover_colour:       state.coverColour       ? `Yes (+${fmtPrice(px(COVER_COLOUR_FEE))})`      : 'No',
+    insulation_colour:  state.insulationColour  ? `Yes (+${fmtPrice(px(INSULATION_COLOUR_FEE))})` : 'No',
+    curtain_colour:     state.curtainColour      ? `Yes (+${fmtPrice(px(CURTAIN_COLOUR_FEE))})`    : 'No',
+    intended_use:       fuse  || 'Not specified',
+    customer_message:   fmsg  || '',
+
+    // Meta
+    region:        state.currency || 'AUD',
+    source:        'Dome Configurator',
+    submitted_at:  new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }),
+  };
+
+  const submitBtn = document.querySelector('.btn-submit');
+  submitBtn.textContent = 'Sending…';
+  submitBtn.disabled = true;
+
+  // PORTFOLIO DEMO COPY — the production configurator POSTs this payload
+  // to a GoHighLevel webhook here. Disabled in this embedded demo so
+  // portfolio visitors can't submit test leads into the live Kingdomes CRM.
+  void payload;
+  await new Promise((r) => setTimeout(r, 600)); // simulate the request
+  document.getElementById('modalForm').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'block';
+}
+
+// Close modal on overlay click
+document.getElementById('quoteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeQuote();
+});
+
+// ─────────────────────────────────────────────────────────
+// COMPARE MODAL
+// ─────────────────────────────────────────────────────────
+function openCompare() {
+  buildCompareTable();
+  document.getElementById('compareModal').classList.add('open');
+}
+
+function closeCompare() {
+  document.getElementById('compareModal').classList.remove('open');
+}
+
+document.getElementById('compareModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCompare();
+});
+
+function buildCompareTable() {
+  const sizes = state.range === 'aura' ? ['5m','6m','7m'] : ['6m','7m','8m','10m'];
+  const tags  = state.range === 'aura' ? ['Entry Level','Popular','True Glamping'] : ['Popular','True Glamping','Luxury','Commercial'];
+
+  const tick = `<span class="tick">✓</span>`;
+  const cross = `<span class="cross">—</span>`;
+  const tbc   = `<span class="tbc">TBC</span>`;
+
+  // Helper: value or tick/cross for boolean
+  const v = (val) => val ? tick : cross;
+
+  // Upgrade presence per size
+  const hasUpgrade = (sz, key) => activeCatalog()[sz].upgrades.some(u => u.key === key);
+  const upgradePrice = (sz, key) => {
+    const u = activeCatalog()[sz].upgrades.find(u => u.key === key);
+    return u ? '+' + fmtPrice(px(u.price)) : cross;
+  };
+
+  // Section row helper
+  const section = (label, cols) =>
+    `<tr class="section-row"><td>${label}</td>${cols.map(() => '<td></td>').join('')}</tr>`;
+
+  // Data row helper
+  const row = (label, vals) =>
+    `<tr><td>${label}</td>${vals.map((val, i) =>
+      `<td class="${sizes[i] === state.size ? 'active-col' : ''}">${val}</td>`
+    ).join('')}</tr>`;
+
+  // ── THEAD ──
+  let thead = `<thead>
+    <tr class="size-row">
+      <th></th>
+      ${sizes.map((sz, i) => `
+        <th class="${sz === state.size ? 'active-col' : ''}">
+          <div class="size-name">${activeCatalog()[sz].label}</div>
+          <div class="size-price">${fmtPrice(px(activeCatalog()[sz].price))}</div>
+          <div class="size-tag">${tags[i]}</div>
+        </th>`).join('')}
+    </tr>
+    <tr>
+      <th></th>
+      ${sizes.map(sz => `<th class="${sz === state.size ? 'active-col' : ''}">Starting from</th>`).join('')}
+    </tr>
+  </thead>`;
+
+  // ── TBODY ──
+  let tbody = `<tbody>
+    ${section('Dimensions', sizes)}
+    ${row('Diameter',    sizes.map(sz => `Ø${activeCatalog()[sz].diameter}`))}
+    ${row('Roof Height', sizes.map(sz => activeCatalog()[sz].height))}
+    ${row('Floor Area',  sizes.map(sz => activeCatalog()[sz].area))}
+    ${row('Volume',      sizes.map(sz => activeCatalog()[sz].volume))}
+    ${row('Weight',      sizes.map(sz => activeCatalog()[sz].weight))}
+
+    ${section('Included Standard', sizes)}
+    ${row('Air-cell Insulation',   sizes.map(() => tick))}
+    ${row('Curtains & Rails',      sizes.map(() => tick))}
+    ${row('Porthole Windows',      sizes.map(sz => ({ '5m':'3×','6m':'3×','7m':'4×','8m':'4×','10m':'6×' }[sz])))}
+    ${row('Ventilation Ports',     sizes.map(sz => ({ '5m':'3×','6m':'3×','7m':'3×','8m':'5×','10m':'10×' }[sz])))}
+    ${row('Solar Extraction Fan',  sizes.map(sz => ({ '5m':'1×','6m':'1×','7m':'1×','8m':'2×','10m':'2×' }[sz])))}
+    ${row('Frosted Glass Door',    sizes.map(() => tick))}
+    ${row('Large Bay Window',      sizes.map(() => tick))}
+
+    ${section('Configuration Options', sizes)}
+    ${row('Chimney Port',          sizes.map(sz => activeCatalog()[sz].chimney ? tick : cross))}
+    ${row('Bay Window Position',   sizes.map(sz => activeCatalog()[sz].bayWindow ? 'Left / Right' : cross))}
+
+    ${section('Premium Upgrades Available', sizes)}
+    ${row('Upgraded Insulation',   sizes.map(sz => hasUpgrade(sz,'insulation') ? upgradePrice(sz,'insulation') : cross))}
+    ${row('Upgraded Frame',        sizes.map(sz => hasUpgrade(sz,'frame')      ? upgradePrice(sz,'frame')      : cross))}
+    ${row('Upgraded Cover',        sizes.map(sz => hasUpgrade(sz,'cover')      ? upgradePrice(sz,'cover')      : cross))}
+
+    ${section('Colour Options (all sizes)', sizes)}
+    ${row('Outer Cover Colour',    sizes.map(() => '+$500'))}
+    ${row('Insulation Colour',     sizes.map(() => '+$250'))}
+    ${row('Curtain Colour',        sizes.map(() => '+$250'))}
+
+    ${section('Payment & Finance', sizes)}
+    ${row('50% Deposit',           sizes.map(() => tick))}
+    ${row('Finance Available',     sizes.map(() => tick))}
+    ${row('Ships Australia-wide',  sizes.map(() => tick))}
+  </tbody>`;
+
+  // ── TFOOT — select buttons ──
+  let tfoot = `<tfoot>
+    <tr>
+      <td></td>
+      ${sizes.map(sz => `
+        <td>
+          <button class="btn-select-size ${sz === state.size ? 'active-size' : ''}"
+            onclick="selectFromCompare('${sz}')">
+            ${sz === state.size ? '✓ Selected' : 'Select ' + sz}
+          </button>
+        </td>`).join('')}
+    </tr>
+  </tfoot>`;
+
+  document.getElementById('compareTable').innerHTML = thead + tbody + tfoot;
+}
+
+function selectFromCompare(sz) {
+  setSize(sz);
+  closeCompare();
+  // Switch to Size tab so the user sees the change
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab[data-tab="size"]').classList.add('active');
+  renderPanel();
+}
+
+// ─────────────────────────────────────────────────────────
+// MOBILE SCROLL "SEE MORE" BUTTON
+// ─────────────────────────────────────────────────────────
+let isScrolledToBottom = false;
+
+function updateScrollMoreBtn() {
+  const panelScroll = document.getElementById('panelContent');
+  const btn = document.getElementById('scrollMoreBtn');
+  
+  // Only show on mobile (≤860px)
+  if (window.innerWidth > 860) {
+    btn.classList.add('hidden');
+    return;
+  }
+
+  // Get the active tab
+  const activeTab = document.querySelector('.tab.active');
+  const tabName = activeTab ? activeTab.dataset.tab : null;
+
+  // Only show button on Size tab or Premium Upgrades tab
+  const shouldShowButton = (tabName === 'size') || (tabName === 'upgrades');
+
+  if (!shouldShowButton) {
+    btn.classList.add('hidden');
+    return;
+  }
+
+  // Show the button on these tabs
+  btn.classList.remove('hidden');
+
+  // Check if scrolled to bottom
+  const scrollTop = panelScroll.scrollTop;
+  const scrollHeight = panelScroll.scrollHeight;
+  const clientHeight = panelScroll.clientHeight;
+  const atBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
+
+  isScrolledToBottom = atBottom;
+  
+  if (atBottom) {
+    btn.classList.add('scrolled-down');
+    document.getElementById('scrollMoreText').textContent = 'See More Above';
+  } else {
+    btn.classList.remove('scrolled-down');
+    document.getElementById('scrollMoreText').textContent = 'See More Below';
+  }
+}
+
+function toggleScrollMore() {
+  const panelScroll = document.getElementById('panelContent');
+  const scrollAmount = 200; // pixels to scroll
+
+  if (isScrolledToBottom) {
+    // Scroll back up
+    panelScroll.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  } else {
+    // Scroll down
+    panelScroll.scrollBy({
+      top: scrollAmount,
+      behavior: 'smooth'
+    });
+  }
+
+  // Update button state after a slight delay
+  setTimeout(updateScrollMoreBtn, 300);
+}
+
+// Listen for resize events
+window.addEventListener('resize', updateScrollMoreBtn);
+
+// Listen for scroll events on the panel
+const panelScroll = document.getElementById('panelContent');
+if (panelScroll) {
+  panelScroll.addEventListener('scroll', updateScrollMoreBtn);
+}
+
+// Force check on page load with longer delay
+window.addEventListener('load', () => {
+  setTimeout(updateScrollMoreBtn, 500);
+  // Double-check after a bit more
+  setTimeout(updateScrollMoreBtn, 1000);
+});
+
+// ─────────────────────────────────────────────────────────
+// ROUTING
+// ─────────────────────────────────────────────────────────
+function refresh() {
+  renderDome();
+  renderPanel();
+  // Update scroll button visibility after content renders — with multiple checks
+  updateScrollMoreBtn();
+  setTimeout(() => updateScrollMoreBtn(), 100);
+  setTimeout(() => updateScrollMoreBtn(), 300);
+  setTimeout(() => updateScrollMoreBtn(), 600);
+}
+
+document.getElementById('tabBar').addEventListener('click', e => {
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (btn.dataset.tab === 'size' || btn.dataset.tab === 'range') {
+    buildCarouselForced();
+  } else {
+    buildCarousel();
+  }
+  renderPanel();
+  // Update button visibility after tab switch with delays
+  updateScrollMoreBtn();
+  setTimeout(() => updateScrollMoreBtn(), 100);
+  setTimeout(() => updateScrollMoreBtn(), 300);
+});
+
+// ─────────────────────────────────────────────────────────
+// REGION / CURRENCY PICKER
+// ─────────────────────────────────────────────────────────
+const REGIONS = [
+  { code: 'AUD', label: 'Australia', sub: 'AUD — Australian Dollar' },
+  { code: 'USD', label: 'United States', sub: 'USD — US Dollar' },
+  { code: 'NZD', label: 'New Zealand', sub: 'NZD — New Zealand Dollar' },
+];
+let regionPickerSelection = state.currency;
+
+function renderRegionOptions() {
+  document.getElementById('regionOptions').innerHTML = REGIONS.map(r => `
+    <div class="modal-row" style="cursor:pointer; align-items:center;" onclick="regionPickerSelection='${r.code}'; renderRegionOptions();">
+      <span>${regionPickerSelection === r.code ? '✓ ' : ''}${r.label}</span>
+      <span style="font-weight:500; color:#999;">${r.sub.split(' — ')[0]}</span>
+    </div>
+  `).join('');
+}
+
+function openRegionPicker() {
+  regionPickerSelection = state.currency || 'AUD';
+  renderRegionOptions();
+  document.getElementById('regionModal').classList.add('open');
+}
+
+function confirmRegion() {
+  if (!regionPickerSelection) return;
+  state.currency = regionPickerSelection;
+  localStorage.setItem('kd_currency', state.currency);
+  document.getElementById('currencyBtnLabel').textContent = state.currency;
+  document.getElementById('regionModal').classList.remove('open');
+  refresh();
+}
+
+// Init
+if (state.currency) {
+  document.getElementById('currencyBtnLabel').textContent = state.currency;
+  refresh();
+} else {
+  openRegionPicker();
+}
+</script>
+</body>
+</html>

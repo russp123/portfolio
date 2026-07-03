@@ -36,7 +36,7 @@ module.exports = {
   ],
 
   projects: [
-    "Kingdomes Product Configurator — an interactive web app for Kingdomes: procedurally generated SVG dome previews, a carousel state machine with selection-hierarchy logic, real-time pricing across 5 dome sizes, and GoHighLevel webhook integration for lead capture.",
+    "Kingdomes Product Configurator — a live product configurator on kingdomes.com.au: a 7-step guided flow (range, size, colours, upgrades, chimney, specs, quote) across two dome ranges and seven sizes, real-time multi-currency pricing (AUD/USD/NZD), and quote submissions posted straight into GoHighLevel as structured CRM leads. Built as a single self-contained HTML file with zero dependencies.",
     "Glamporise Council Roadmap — a live, complete customer-acquisition system for Glamporise: a primary landing page plus four stage-specific funnel pages, spanning design, web deployment, GoHighLevel membership infrastructure, email marketing, and workflow automation end-to-end. Converted an immediate Stage 2 membership sale shortly after launch.",
     "Glamporise Brand Identity — designed multiple original SVG-based logo concepts for Glamporise, a luxury glamping brand, translating native flora (the waratah flower) and campfire motifs into minimalist visual concepts in Photoshop and Figma.",
     "Plugin Cost Optimization — audited the WordPress plugin ecosystem for Kingdomes and decommissioned 7 redundant tools, consolidating their functions onto existing Cloudflare/VentraIP infrastructure and saving nearly $1,000 AUD annually.",
