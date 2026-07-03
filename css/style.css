@@ -764,6 +764,119 @@ main { padding: 40px; flex: 1; }
   display: block;
 }
 
+/* ---------------- Brand identity case study (brand-identity.html) ----------------
+   Swatches/logo cards hardcode Glamporise's actual brand colours on
+   purpose — they're exhibits of that brand, not themed site chrome.
+   Text around them still uses the site's theme variables. */
+.brand-symbol-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 20px;
+}
+.brand-symbol-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  background: var(--bg-elevated);
+}
+.brand-symbol-card .brand-symbol-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.brand-symbol-card p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.brand-logo-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+}
+.brand-logo-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.brand-logo-card img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+.brand-swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+.brand-swatch {
+  border-radius: 8px;
+  height: 150px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+}
+.brand-swatch.swatch-outline { border: 1px solid var(--border); }
+.brand-swatch .swatch-name { font-size: 12px; font-weight: 600; }
+.brand-swatch .swatch-hex {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.brand-type-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 20px;
+}
+.brand-type-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--bg-elevated);
+}
+.brand-type-label {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+.brand-type-wordmark {
+  max-width: 100%;
+  display: block;
+  /* the black lockup needs a light surface to read in dark mode */
+  background: #fff;
+  border-radius: 6px;
+  padding: 16px;
+}
+.brand-type-specimen {
+  font-family: "Poppins", -apple-system, sans-serif;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.brand-type-specimen .specimen-display { font-size: 56px; font-weight: 700; line-height: 1; }
+.brand-type-specimen .specimen-line { font-size: 13px; color: var(--text-secondary); word-break: break-all; }
+
+@media (max-width: 600px) {
+  .brand-symbol-grid, .brand-type-cards { grid-template-columns: 1fr; }
+  .brand-logo-cards { grid-template-columns: 1fr; }
+  .brand-swatches { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 900px) {
   .detail-layout { grid-template-columns: 1fr; gap: 16px; padding: 24px 24px 40px; }
   .detail-side { position: static; }

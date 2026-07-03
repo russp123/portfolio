@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Glamporise Brand Identity — Russel A. Pineda</title>
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<!-- Poppins powers the live type specimen in the Typography section —
+     it's one of the two brand fonts. Cartesius (the serif) is shown via
+     the wordmark artwork instead of an embedded webfont. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="index.html"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location">Pampanga, Philippines</span></div>
+    </header>
+
+    <main style="padding:0;">
+
+      <!-- Hero is filled in by js/theme.js (initDetailHero) from this
+           project's `cover`/`video` field in js/data.js — the SAME
+           asset shown as this project's homepage tile. -->
+      <div class="detail-hero" id="detail-hero" data-project-id="brand-identity"></div>
+
+      <div class="detail-layout">
+
+        <div class="detail-side">
+          <h1 class="detail-title">Glamporise Brand Identity</h1>
+          <p class="detail-subtitle">Logo &amp; Visual Design</p>
+        </div>
+
+        <div class="detail-main">
+
+          <div class="detail-section">
+            <div class="detail-text">
+              <p>Glamporise is Kingdomes' luxury glamping sister brand — built on the idea that luxury shouldn't mean leaving nature behind. I designed its visual identity from scratch: 25+ exploratory logo concepts narrowed to one final mark, a five-colour palette, a two-font type system, and a 12-page brand guidelines document that keeps every future touchpoint consistent. The identity now runs across the live website, funnel pages, ebooks, and social content.</p>
+            </div>
+            <div class="detail-meta">
+              <div class="detail-meta-item">
+                <div class="meta-label">Role</div>
+                <div class="meta-value">Brand &amp; Visual Designer</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Client</div>
+                <div class="meta-value">Glamporise (Kingdomes)</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Tools</div>
+                <div class="meta-value">Photoshop, Figma, SVG</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Deliverables</div>
+                <div class="meta-value">Logo suite, palette, typography, brand guidelines</div>
+              </div>
+            </div>
+            <div class="detail-links">
+              <a href="https://glamporise.com" target="_blank" rel="noopener">glamporise.com<sup>↗</sup></a>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">Concept Development</h2>
+            <div class="detail-text">
+              <p>The mark didn't start as a flower. Early explorations ranged from literal waratah illustrations and royal crests (a nod to the Kingdomes parent brand) to geometric florals, leaf studies, and campfire flames — 25+ directions in total. The final mark emerged where three of those threads crossed: petals, crown, and fire in a single shape.</p>
+            </div>
+            <div class="detail-image" style="background-image:url('assets/glamporise-concept-development.jpg'); height: 520px; background-size: contain; background-repeat: no-repeat; background-color: #fff;"></div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">One Mark, Three Stories</h2>
+            <div class="detail-text">
+              <p>Every element of the final logo carries a meaning, documented in the brand guidelines so the story travels with the mark:</p>
+            </div>
+            <div class="brand-symbol-grid">
+              <div class="brand-symbol-card">
+                <div class="brand-symbol-name">The Waratah Petals</div>
+                <p>Drawn from Australia's iconic waratah flower — heritage, and a commitment to natural luxury.</p>
+              </div>
+              <div class="brand-symbol-card">
+                <div class="brand-symbol-name">The Crown</div>
+                <p>A royal silhouette connecting Glamporise to Kingdomes — the evolution of luxury glamping.</p>
+              </div>
+              <div class="brand-symbol-card">
+                <div class="brand-symbol-name">The Campfire Wood</div>
+                <p>The logs at the base — the core element of every camping experience.</p>
+              </div>
+              <div class="brand-symbol-card">
+                <div class="brand-symbol-name">The Complete Flame</div>
+                <p>Together the three parts form a campfire with rising flames: nature, luxury, and the timeless gathering around fire.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">The Logo System</h2>
+            <div class="detail-text">
+              <p>The final suite covers every context the brand publishes in: the full horizontal lockup in brand green, black for print and light surfaces, and white for photography and dark surfaces — plus stacked and icon-only variants, each with documented clear-space and usage rules.</p>
+            </div>
+            <div class="brand-logo-cards">
+              <div class="brand-logo-card" style="background:#f4f0eb;">
+                <img src="assets/glamporise-lockup-original.png" alt="Glamporise logo, brand green on soft sand" />
+              </div>
+              <div class="brand-logo-card" style="background:#ffffff;">
+                <img src="assets/glamporise-lockup-black.png" alt="Glamporise logo, black on white" />
+              </div>
+              <div class="brand-logo-card" style="background:#06402b;">
+                <img src="assets/glamporise-lockup-white.png" alt="Glamporise logo, white on deep sage emerald" />
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">Colour</h2>
+            <div class="detail-text">
+              <p>Deep Sage Emerald — drawn from the waratah's foliage — leads the palette, softened by Soft Sand in place of stark white, anchored by black and white for contrast, with Golden Yellow reserved as a sparing accent for highlights and calls-to-action.</p>
+            </div>
+            <div class="brand-swatches">
+              <div class="brand-swatch" style="background:#06402b; color:#f4f0eb;">
+                <span class="swatch-name">Deep Sage Emerald</span>
+                <span class="swatch-hex">#06402B</span>
+              </div>
+              <div class="brand-swatch" style="background:#f4f0eb; color:#1a1a1a;">
+                <span class="swatch-name">Soft Sand</span>
+                <span class="swatch-hex">#F4F0EB</span>
+              </div>
+              <div class="brand-swatch" style="background:#000000; color:#f4f0eb;">
+                <span class="swatch-name">Black</span>
+                <span class="swatch-hex">#000000</span>
+              </div>
+              <div class="brand-swatch swatch-outline" style="background:#ffffff; color:#1a1a1a;">
+                <span class="swatch-name">Pure White</span>
+                <span class="swatch-hex">#FFFFFF</span>
+              </div>
+              <div class="brand-swatch" style="background:#fbb901; color:#1a1a1a;">
+                <span class="swatch-name">Golden Yellow</span>
+                <span class="swatch-hex">#FBB901</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">Typography</h2>
+            <div class="detail-text">
+              <p>Two voices: Cartesius, the elegant serif carrying the wordmark, and Poppins, the geometric sans doing the everyday work — headlines in bold, body text in regular, with documented sizes and spacing so hierarchy stays consistent no matter who's designing.</p>
+            </div>
+            <div class="brand-type-cards">
+              <div class="brand-type-card">
+                <div class="brand-type-label">Cartesius — the wordmark</div>
+                <img class="brand-type-wordmark" src="assets/glamporise-lockup-black.png" alt="Glamporise wordmark set in Cartesius" />
+              </div>
+              <div class="brand-type-card">
+                <div class="brand-type-label">Poppins — everything else</div>
+                <div class="brand-type-specimen">
+                  <span class="specimen-display">Aa</span>
+                  <span class="specimen-line">ABCDEFGHIJKLMNOPQRSTUVWXYZ</span>
+                  <span class="specimen-line">abcdefghijklmnopqrstuvwxyz 0123456789</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">The Guidelines</h2>
+            <div class="detail-text">
+              <p>Everything above ships as a 12-page brand guidelines document — brand story, logo anatomy and variations, dos and don'ts, colour usage rules, and typography specs — so anyone touching the brand can keep it consistent without asking. Its closing note sets the tone for how it's meant to be used:</p>
+            </div>
+            <div class="detail-quote">These guidelines exist to keep Glamporise consistent and recognizable. But they're not prison rules. If something isn't covered here and you're unsure, ask yourself: does this feel natural, luxurious, and honest?</div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+</body>
+</html>

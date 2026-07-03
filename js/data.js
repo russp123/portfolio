@@ -66,7 +66,7 @@ const PORTFOLIO = {
       badge: null,
       cover: "linear-gradient(135deg,#3a2a1a,#c9a227)",
       size: "square",
-      page: "project.html?id=brand-identity",
+      page: "brand-identity.html",
       subtitle: "Logo & Visual Design",
       body: "Designed multiple original SVG-based logo concepts for Glamporise, a luxury glamping brand, translating the brand direction — native flora (the waratah flower) and campfire motifs — into minimalist visual concepts in Photoshop and Figma.",
       role: "Brand & Visual Designer",
