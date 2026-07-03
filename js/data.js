@@ -16,22 +16,22 @@ const PORTFOLIO = {
   // ---- Home page: About ----
   // Raw HTML is allowed here so you can inline links the same way
   // joseph.cv does (e.g. an underlined word with a small arrow).
-  aboutHtml: `I'm Russ, a software engineer<br>who <i>automates</i>.`,
+  aboutHtml: `I'm Russ, a software engineer who handles the tech, then<i> automates  what's left</i>.`,
 
   // ---- Home page: Experience (shown in the "Experience" column) ----
   experience: [
-    { name: "Kingdomes Leisure Pty Ltd", url: "https://kingdomes.com.au", year: "2025 —" },
-    { name: "La Rose Noire Philippines", url: "#", year: "2025" },
-    { name: "Cloudstaff Global Workplace Inc.", url: "#", year: "2025" },
+    { name: "Kingdomes Leisure Pty Ltd", url: "https://kingdomes.com.au", year: "2025 —", roles: ["Lead Full-Stack Developer"] },
+    { name: "La Rose Noire Philippines", url: "#", year: "2025", roles: ["Associate Software Engineer"] },
+    { name: "Cloudstaff Global Workplace Inc.", url: "#", year: "2025", roles: ["Associate Software Engineer Trainee", "Associate Software Quality Assurance Engineer Trainee"] },
   ],
 
   // ---- Home page: Skills ----
   // Each category renders as a labeled row of comma-separated skills.
   skills: [
     { category: "Full-Stack Development", items: "JavaScript, HTML, CSS, PHP, MySQL, Git, GitHub" },
-    { category: "WordPress & CMS", items: "WordPress Multisite, Elementor Pro, WooCommerce, API Integration, Database Optimization" },
-    { category: "DevOps & Infrastructure", items: "Cloudflare (DDoS mitigation, WAF, security hardening), DNS, SSL/TLS" },
+    { category: "WordPress & CMS", items: "WordPress + WP Multisite, Elementor Pro, WooCommerce, API Integration, Database Optimization" },
     { category: "Automation & Marketing", items: "GoHighLevel (CRM workflows, lead scoring), Email Deliverability (SPF/DKIM/DMARC), Mailgun Integration" },
+    { category: "DevOps & Infrastructure", items: "Cloudflare (DDoS mitigation, WAF, security hardening), DNS, SSL/TLS" },
     { category: "Design", items: "Adobe Photoshop, Figma, Canva, SVG Design" },
   ],
 

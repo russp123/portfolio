@@ -96,8 +96,11 @@
       document.getElementById("experience-list").innerHTML = PORTFOLIO.experience
         .map(
           (t) => `<a class="experience-row" href="${t.url}" target="_blank" rel="noopener">
-            <span>${t.name}</span>
-            <span class="experience-year">${t.year}</span>
+            <div class="experience-row-top">
+              <span class="experience-name">${t.name}</span>
+              <span class="experience-year">${t.year}</span>
+            </div>
+            ${t.roles.map((r) => `<span class="experience-role">${r}</span>`).join("")}
           </a>`
         )
         .join("");
