@@ -38,7 +38,8 @@ function initFooter() {
 
   if (cvEl && PORTFOLIO.cv) {
     cvEl.href = PORTFOLIO.cv.url;
-    cvEl.innerHTML = `${PORTFOLIO.cv.label}<sup>↗</sup>`;
+    cvEl.setAttribute("download", "");
+    cvEl.innerHTML = PORTFOLIO.cv.label;
   }
   if (ctaEl) ctaEl.textContent = PORTFOLIO.cta;
   if (emailEl) { emailEl.textContent = PORTFOLIO.email; emailEl.href = "mailto:" + PORTFOLIO.email; }

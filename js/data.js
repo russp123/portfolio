@@ -147,7 +147,5 @@ const PORTFOLIO = {
   ],
 
   cta: "Open to hearing what you're working on.",
-  // TODO: replace "#" with your actual Google Drive (or other) share
-  // link to your CV file.
-  cv: { label: "Download my CV", url: "#" },
+  cv: { label: "Download my CV", url: "assets/russel-pineda-cv.pdf" },
 };
