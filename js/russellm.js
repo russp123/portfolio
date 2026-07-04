@@ -49,6 +49,36 @@ function initRussellm() {
     input.value = "";
     russellmSendMessage(text);
   });
+
+  // Keep the drawer fitted to the *visible* viewport. On mobile the
+  // on-screen keyboard covers the bottom of the screen, but a
+  // `height:100vh` fixed drawer doesn't know that — so the input row
+  // ends up hidden behind the keyboard. The visualViewport API reports
+  // the area actually visible above the keyboard; syncing the drawer's
+  // height/top to it lifts the input right above the keyboard.
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", syncRussellmViewport);
+    window.visualViewport.addEventListener("scroll", syncRussellmViewport);
+  }
+  // When the input gains focus (keyboard opening), make sure the latest
+  // message + the input are scrolled into view.
+  input.addEventListener("focus", () => {
+    setTimeout(scrollRussellmLog, 300);
+  });
+}
+
+function syncRussellmViewport() {
+  const drawer = document.getElementById("russellm-drawer");
+  if (!drawer) return;
+  const vv = window.visualViewport;
+  if (!russellmOpen || !vv) {
+    // Not open (or unsupported) — hand height/position back to the CSS.
+    drawer.style.height = "";
+    drawer.style.top = "";
+    return;
+  }
+  drawer.style.height = vv.height + "px";
+  drawer.style.top = vv.offsetTop + "px";
 }
 
 function openRussellmDrawer() {
@@ -60,8 +90,13 @@ function openRussellmDrawer() {
   overlay.classList.add("open");
   drawer.setAttribute("aria-hidden", "false");
   if (russellmHistory.length === 0) renderRussellmGreeting();
+  syncRussellmViewport();
+  // Don't auto-focus on touch devices — it forces the keyboard open
+  // the instant the drawer appears, which is jarring; let the user tap
+  // the field when they're ready. On desktop, focus for quick typing.
   const input = document.getElementById("russellm-input");
-  if (input) input.focus();
+  const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+  if (input && !isTouch) input.focus();
 }
 
 function closeRussellmDrawer() {
@@ -72,6 +107,7 @@ function closeRussellmDrawer() {
   drawer.classList.remove("open");
   overlay.classList.remove("open");
   drawer.setAttribute("aria-hidden", "true");
+  syncRussellmViewport(); // clears the inline height/top back to CSS
 }
 
 function renderRussellmGreeting() {

@@ -230,10 +230,22 @@ function initProjectMasonry() {
   };
 
   layout();
-  // Re-pack when the viewport changes (column width -> card height)
-  // and once everything (fonts, media) has settled on first load.
-  window.addEventListener("resize", layout);
   window.addEventListener("load", layout);
+
+  // Re-pack only when the WIDTH changes — never on height-only resizes.
+  // This matters on mobile: scrolling shows/hides the URL bar, which
+  // fires `resize` with a new height. If we re-laid out then, the
+  // layout() call momentarily resets every card to grid-row-end:auto
+  // (10px tall), collapsing the whole page height for a frame — the
+  // browser then clamps scroll to that tiny height and slams you to
+  // the top. Masonry only depends on column width, so we ignore
+  // height-only resizes entirely.
+  let lastWidth = window.innerWidth;
+  window.addEventListener("resize", () => {
+    if (window.innerWidth === lastWidth) return;
+    lastWidth = window.innerWidth;
+    layout();
+  });
 }
 
 // Site-wide smooth/eased scrolling (Lenis, loaded via CDN — see the

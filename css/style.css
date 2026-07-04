@@ -168,6 +168,8 @@ body.page-leave .site-footer {
   top: 0;
   right: 0;
   height: 100vh;
+  height: 100dvh; /* dynamic viewport — accounts for mobile browser UI. JS
+                     (syncRussellmViewport) further fits it above the keyboard. */
   width: 380px;
   max-width: 92vw;
   display: flex;
