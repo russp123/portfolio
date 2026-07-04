@@ -49,6 +49,17 @@ const PORTFOLIO = {
       page: "configurator.html",
     },
     {
+      id: "glamporise-website",
+      title: "Glamporise Website",
+      tag: "WordPress Multisite Platform",
+      badge: "Live",
+      cover: "linear-gradient(135deg,#06402b,#2e8b6f)",
+      size: "wide",
+      page: "glamporise-website.html",
+      video: "assets/dome-edit.mp4",
+      heroCredit: { label: "Rendered by: Carlos Jingo", url: "https://www.facebook.com/wearysijey#" },
+    },
+    {
       id: "council-roadmap",
       title: "Glamporise Council Roadmap",
       tag: "Funnel & CRM System",
@@ -56,7 +67,7 @@ const PORTFOLIO = {
       cover: "linear-gradient(135deg,#1f3a93,#26d0ce)",
       size: "tall",
       page: "council-roadmap.html",
-      video: "assets/councilroadmap.mov",    
+      video: "assets/councilroadmap.mov",
 
     },
     {
