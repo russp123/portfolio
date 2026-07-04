@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The NSW Glamping Property Decoder — Russel A. Pineda</title>
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="index.html"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location">Pampanga, Philippines</span></div>
+    </header>
+
+    <main style="padding:0;">
+
+      <!-- Hero is filled in by js/theme.js (initDetailHero) from this
+           project's `cover`/`video` field in js/data.js — the SAME
+           asset shown as this project's homepage tile. -->
+      <div class="detail-hero" id="detail-hero" data-project-id="ebook-design"></div>
+
+      <div class="detail-layout">
+
+        <div class="detail-side">
+          <h1 class="detail-title">The NSW Glamping Property Decoder</h1>
+          <p class="detail-subtitle">Ebook Design</p>
+        </div>
+
+        <div class="detail-main">
+
+          <div class="detail-section">
+            <div class="detail-text">
+              <p>Glamporise needed a paid front door for its Stage 1 membership — something that earns its AU$27 price tag before a customer ever books a call. I designed a 34-page ebook that does that: original illustrated cover artwork, a custom typography system built to carry a lot of dense, practical advice without ever feeling like a wall of text, and consistent information design across every page. It's the flagship piece in a broader content set I also designed — a 15-page masterclass guide and a 3-part founding-offer guide series, 50+ pages total.</p>
+            </div>
+            <div class="detail-meta">
+              <div class="detail-meta-item">
+                <div class="meta-label">Role</div>
+                <div class="meta-value">Content &amp; Visual Designer</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Format</div>
+                <div class="meta-value">34-page paid ebook, AU$27</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Tools</div>
+                <div class="meta-value">Figma, Photoshop</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Part of</div>
+                <div class="meta-value">Glamporise Stage 1 membership</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">The Cover</h2>
+            <div class="detail-text">
+              <p>The cover carries the whole premise in one image: a geodesic dome glowing at dusk, set inside a silhouette of the NSW state outline, framed by tree line and a topographic contour pattern along the bottom edge. Warm gold against near-black — the same palette Glamporise's brand identity runs on — so the product reads as premium before anyone opens the first page.</p>
+            </div>
+            <img class="detail-image-native" src="assets/stage1-mockup3.jpg" alt="The NSW Glamping Property Decoder — cover artwork close-up, illustrated dome inside an NSW state outline" />
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">The System</h2>
+            <div class="detail-text">
+              <p>Thirty-four pages of practical, sometimes blunt advice needed a layout that could hold attention without getting monotonous. Every chapter opens with a large numbered marker and a punchy headline, body copy stays short and scannable, and recurring "Pro Tip" callouts and pull-quotes break up the page rhythm — all built on the color-weighted typography system I set up so headings, emphasis, and asides stay visually distinct without a redesign per page. Real property photography sits alongside the text rather than as generic stock filler.</p>
+            </div>
+            <img class="detail-image-native" src="assets/stage1-mockup2.jpg" alt="Interior spread of the ebook showing the numbered chapter system, pull quotes, and Pro Tip callouts" />
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">Part of a Larger Set</h2>
+            <div class="detail-text">
+              <p>The Decoder doesn't stand alone — it's the anchor of a full content library I designed for the membership, including a companion guide on the council approval process ("Most Dome Projects," pictured) and the rest of the founding-offer series. Same typography system, same illustration language, same gold-and-charcoal palette carried across every piece, so the whole collection reads as one product line rather than a stack of unrelated PDFs.</p>
+            </div>
+            <img class="detail-image-native" src="assets/stage1-mockup.jpg" alt="The NSW Glamping Property Decoder alongside its companion guide, Most Dome Projects" />
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+</body>
+</html>

@@ -740,13 +740,14 @@ main { padding: 40px; flex: 1; }
   margin-top: 4px;
 }
 
-/* Drop one or more of these into a .detail-section to feature
-   imagery alongside that section's text. Three sizing presets —
-   pick by adding (or not adding) a modifier class, no inline style
-   math required:
+/* Drop one of these into a .detail-section to feature imagery
+   alongside that section's text. Four sizing presets — three are
+   background-image divs (crop to a fixed shape), one is a plain
+   <img> (keeps the file's own shape, no cropping):
 
    1. `.detail-image`                    — Landscape Photo (default).
-      Fixed 16:9 ratio, cropped/centered. Use for real photography.
+      Fixed 16:9 ratio, cropped/centered. Use for real photography
+      you're okay having trimmed to a wide shape.
       <div class="detail-image" style="background-image:url('assets/x.jpg')"></div>
 
    2. `.detail-image.is-compact`          — Compact Photo.
@@ -755,9 +756,17 @@ main { padding: 40px; flex: 1; }
       <div class="detail-image is-compact" style="background-image:url('assets/x.jpg')"></div>
 
    3. `.detail-image.is-diagram`          — Diagram / Screenshot.
-      Never crops (shows the whole image, letterboxed on a light
-      background) — for brand-kit sheets, UI screenshots, logos.
+      Never crops, but forces a fixed 480px frame (letterboxed on a
+      light background if the image doesn't fill it) — for brand-kit
+      sheets, logos, anything meant to look like it's on a card.
       <div class="detail-image is-diagram" style="background-image:url('assets/x.jpg')"></div>
+
+   4. `.detail-image-native`              — True to Source.
+      A real <img>, not a background div — no cropping, no forced
+      frame. Renders at the file's own aspect ratio, whatever that
+      is (screenshots, browser captures, anything where the actual
+      shape of the file matters more than a tidy uniform grid).
+      <img class="detail-image-native" src="assets/x.jpg" alt="..." />
 */
 .detail-image {
   width: 100%;
@@ -777,6 +786,13 @@ main { padding: 40px; flex: 1; }
   background-size: contain;
   background-repeat: no-repeat;
   background-color: #fff;
+}
+.detail-image-native {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  margin-top: 20px;
 }
 
 /* Live interactive embed (e.g. the configurator demo) — tall enough
