@@ -741,15 +741,42 @@ main { padding: 40px; flex: 1; }
 }
 
 /* Drop one or more of these into a .detail-section to feature
-   imagery alongside that section's text — fully customizable
-   per subpage, just add/remove .detail-image elements. */
+   imagery alongside that section's text. Three sizing presets —
+   pick by adding (or not adding) a modifier class, no inline style
+   math required:
+
+   1. `.detail-image`                    — Landscape Photo (default).
+      Fixed 16:9 ratio, cropped/centered. Use for real photography.
+      <div class="detail-image" style="background-image:url('assets/x.jpg')"></div>
+
+   2. `.detail-image.is-compact`          — Compact Photo.
+      Shorter fixed height (360px), still cropped/centered — for when
+      16:9 feels too tall/dominant for a given section.
+      <div class="detail-image is-compact" style="background-image:url('assets/x.jpg')"></div>
+
+   3. `.detail-image.is-diagram`          — Diagram / Screenshot.
+      Never crops (shows the whole image, letterboxed on a light
+      background) — for brand-kit sheets, UI screenshots, logos.
+      <div class="detail-image is-diagram" style="background-image:url('assets/x.jpg')"></div>
+*/
 .detail-image {
   width: 100%;
-  height: 360px;
+  aspect-ratio: 16 / 9;
   border-radius: 8px;
   background-size: cover;
   background-position: center;
   margin-top: 20px;
+}
+.detail-image.is-compact {
+  aspect-ratio: auto;
+  height: 360px;
+}
+.detail-image.is-diagram {
+  aspect-ratio: auto;
+  height: 480px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #fff;
 }
 
 /* Live interactive embed (e.g. the configurator demo) — tall enough
@@ -897,7 +924,10 @@ main { padding: 40px; flex: 1; }
 }
 @media (max-width: 600px) {
   .detail-layout { padding: 20px; }
-  .detail-image { height: 220px; }
+  /* Landscape Photo (default) keeps its 16:9 ratio at any width —
+     only the two fixed-height presets need shrinking on small screens. */
+  .detail-image.is-compact { height: 220px; }
+  .detail-image.is-diagram { height: 280px; }
   .detail-embed { height: 78vh; }
 }
 
