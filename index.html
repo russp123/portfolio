@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.25/dist/lenis.css" />
 <link rel="stylesheet" href="css/style.css" />
 <link rel="icon" href="assets/portfolio-logo.jpg" />
 </head>
@@ -85,6 +86,7 @@
 
   </div>
 
+  <script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/russellm.js"></script>
@@ -168,6 +170,11 @@
         { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
       );
       cards.forEach((card) => revealObserver.observe(card));
+
+      // Pack the varied-height tiles into the row-major masonry.
+      // Defined in js/theme.js; called here because the cards above
+      // were just built and don't exist during theme.js's own init.
+      if (typeof initProjectMasonry === "function") initProjectMasonry();
     });
   </script>
 </body>

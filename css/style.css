@@ -105,10 +105,36 @@ body.page-leave .site-footer {
 }
 .theme-toggle:hover { border-color: var(--badge-accent); }
 
+/* Confirmation toast for mailto: clicks (see js/theme.js
+   initMailtoCopy) — sits above everything, including the RUSSELLM
+   drawer, since it's a transient one-off message. */
+.mailto-toast {
+  position: fixed;
+  /* top-right, clear of the sticky header (70px) and the RUSSELLM
+     pill that sits at top:22px — this lands just below both. */
+  top: 84px;
+  right: 22px;
+  transform: translateY(-8px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 10px 18px;
+  border-radius: 100px;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+  z-index: 200;
+}
+.mailto-toast.show { opacity: 1; transform: translateY(0); }
+
 /* ---------------- RUSSELLM chat widget ----------------
    z-index budget for fixed site chrome (keep future additions
-   under 130, or bump this comment): header=50, .theme-toggle=100,
-   .russellm-toggle=110, .russellm-overlay=120, .russellm-drawer=130. */
+   under 200, or bump this comment): header=50, .theme-toggle=100,
+   .russellm-toggle=110, .russellm-overlay=120, .russellm-drawer=130,
+   .mailto-toast=200. */
 .russellm-toggle {
   position: fixed;
   top: 22px;
@@ -339,6 +365,26 @@ main { padding: 40px; flex: 1; }
 }
 .about-text a.inline-link sup { font-size: 9px; margin-left: 1px; }
 
+/* The small "get in touch" CTA tacked onto the end of the big serif
+   headline — deliberately resets font/size/spacing back to the
+   site's normal UI type so it doesn't inherit the display treatment
+   from .about-text p. */
+.about-text .about-cta {
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: normal;
+  line-height: 1.4;
+  vertical-align: middle;
+  margin-left: 12px;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+}
+.about-text .about-cta sup { font-size: 9px; margin-left: 1px; }
+
 .list-col { display: flex; flex-direction: column; gap: 10px; }
 .list-col a {
   font-size: 14px;
@@ -461,23 +507,34 @@ main { padding: 40px; flex: 1; }
 .skills-row .skill-items { font-size: 13px; color: var(--text-secondary); }
 
 /* ---------------- Projects masonry grid ----------------
-   True masonry via CSS multi-column flow: each card packs into
-   the shortest column instead of a fixed-row grid, so there's
-   never dead space under a short card — whatever comes next
-   just flows up to fill it. This also means adding more projects
-   to data.js "just works" without retuning the layout. ---------------- */
+   Row-major masonry: varied tile shapes (wide / square / tall) that
+   pack together like a puzzle, BUT filled left-to-right, top-to
+   -bottom so the reading order matches data.js priority — unlike CSS
+   multi-column masonry, which packs down each column first (1,4,7 /
+   2,5,8) and scrambles that order.
+
+   How it works: the grid uses a very fine row unit (10px) with
+   `dense` packing, and js/theme.js initProjectMasonry() measures
+   each card and sets `grid-row-end: span N` so every card reserves
+   exactly its own height. `row-gap` stays 0 — the visual gap between
+   stacked cards is baked into the span math instead (see the JS), so
+   the fine row unit doesn't multiply the gaps. `align-items: start`
+   keeps each card at its natural height so that reserved gap shows
+   as space, not a stretched card. */
 .projects-grid {
-  column-count: 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 10px;
   column-gap: 14px;
+  row-gap: 0;
+  align-items: start;
+  grid-auto-flow: row dense;
 }
 .project-card {
   display: block;
   background: var(--bg-elevated);
   border-radius: 0;
   overflow: hidden;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  margin-bottom: 14px;
 }
 /* Starts hidden/offset; js/avatar.js's sibling reveal script (see
    index.html) adds .is-visible as each card scrolls into view, with
@@ -518,6 +575,8 @@ main { padding: 40px; flex: 1; }
 }
 .project-card:hover .project-cover::after { background: rgba(0, 0, 0, 0.12); }
 
+/* Per-tile shapes driving the masonry puzzle. Set via `size` in
+   data.js; the JS measures the resulting card height and packs. */
 .project-cover.size-wide { aspect-ratio: 16 / 10; }
 .project-cover.size-square { aspect-ratio: 1 / 1; }
 .project-cover.size-tall { aspect-ratio: 3 / 4; }
@@ -548,16 +607,16 @@ main { padding: 40px; flex: 1; }
   /* Avatar sits above the About text instead of squeezed beside it
      once the columns stack. */
   .about-row { flex-direction: column; align-items: flex-start; gap: 32px; }
-  .projects-grid { column-count: 2; column-gap: 12px; }
-  .project-card { margin-bottom: 12px; }
+  /* keep row-gap 0 so the masonry span math (js/theme.js) stays the
+     source of vertical spacing; only the column count/gap changes. */
+  .projects-grid { grid-template-columns: repeat(2, 1fr); column-gap: 12px; row-gap: 0; }
 }
 @media (max-width: 600px) {
   .site-header { grid-template-columns: 1fr; height: auto; gap: 4px; padding: 14px 20px; text-align: left; }
   .site-header .col-mid, .site-header .col-end { text-align: left; }
   main { padding: 20px; }
   .about-text p { font-size: 34px; }
-  .projects-grid { column-count: 1; }
-  .project-card { margin-bottom: 18px; }
+  .projects-grid { grid-template-columns: 1fr; column-gap: 0; row-gap: 0; }
 }
 
 /* ---------------- Project detail (overlay-style page) ----------------

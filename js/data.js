@@ -16,7 +16,7 @@ const PORTFOLIO = {
   // ---- Home page: About ----
   // Raw HTML is allowed here so you can inline links the same way
   // joseph.cv does (e.g. an underlined word with a small arrow).
-  aboutHtml: `I'm Russ, a software engineer who handles the tech, then<i> automates  what's left</i>.`,
+  aboutHtml: `I'm Russ, a software engineer who handles the tech, then<i> automates  what's left</i>. <a href="mailto:rsslpnd@gmail.com" class="about-cta">get in touch<sup>↗</sup></a>`,
 
   // ---- Home page: Experience (shown in the "Experience" column) ----
   experience: [
@@ -38,6 +38,11 @@ const PORTFOLIO = {
   // ---- Home page: Project grid ----
   // `id` maps to a bespoke page (e.g. configurator.html) if it exists,
   // otherwise falls back to project.html?id=<id> using the fields below.
+  // Order here = order on the homepage grid, filled row-major
+  // (1,2,3 / 4,5,6 across). `size` sets each tile's shape for the
+  // masonry puzzle — "wide" (landscape), "square", or "tall"
+  // (portrait). Reorder the objects to reorder tiles; change `size`
+  // to reshape a tile. js/theme.js initProjectMasonry() packs them.
   projects: [
     {
       id: "configurator",
@@ -46,7 +51,30 @@ const PORTFOLIO = {
       badge: "Live",
       cover: "url('assets/configurator-2.jpg'), linear-gradient(135deg,#3a2a1a,#c9a227)",
       size: "wide",
+      video: "assets/configurator.mp4",
       page: "configurator.html",
+    },
+    {
+      id: "performance-benchmark",
+      title: "Glamporise Performance Benchmark",
+      tag: "PageSpeed Audit",
+      badge: null,
+      cover: "url('assets/plugin-opt.jpg'), linear-gradient(135deg,#0f2027,#2c5364)",
+      size: "square",
+      page: "project.html?id=performance-benchmark",
+      subtitle: "PageSpeed Audit",
+      body: "Glamporise was built fresh on WordPress Multisite infrastructure — not migrated from a prior site — so these scores reflect the platform as architected from the ground up, measured via Google PageSpeed Insights.",
+      role: "Full-Stack Developer",
+      tools: "WordPress Multisite, Cloudflare",
+      stats: [
+        { label: "Performance", value: "94" },
+        { label: "Accessibility", value: "92" },
+        { label: "Best Practices", value: "92" },
+        { label: "SEO", value: "85" },
+      ],
+      links: [],
+      // Optional — shows a small credit label, bottom-left of the hero.
+      heroCredit: { label: "Rendered by: Carlos Jingo", url: "https://www.facebook.com/wearysijey#" },
     },
     {
       id: "glamporise-website",
@@ -58,32 +86,6 @@ const PORTFOLIO = {
       page: "glamporise-website.html",
       video: "assets/dome-edit.mp4",
       heroCredit: { label: "Rendered by: Carlos Jingo", url: "https://www.facebook.com/wearysijey#" },
-    },
-    {
-      id: "council-roadmap",
-      title: "Glamporise Council Roadmap",
-      tag: "Funnel & CRM System",
-      badge: "Live",
-      cover: "linear-gradient(135deg,#1f3a93,#26d0ce)",
-      size: "tall",
-      page: "council-roadmap.html",
-      video: "assets/councilroadmap.mov",
-
-    },
-    {
-      id: "brand-identity",
-      title: "Glamporise Brand Identity",
-      tag: "Logo & Visual Design",
-      badge: null,
-      cover: "linear-gradient(135deg,#3a2a1a,#c9a227)",
-      size: "square",
-      page: "brand-identity.html",
-      subtitle: "Logo & Visual Design",
-      body: "Designed multiple original SVG-based logo concepts for Glamporise, a luxury glamping brand, translating the brand direction — native flora (the waratah flower) and campfire motifs — into minimalist visual concepts in Photoshop and Figma.",
-      role: "Brand & Visual Designer",
-      tools: "Photoshop, Figma, SVG",
-      links: [{ label: "Glamporise", url: "https://glamporise.com" }],
-      video: "assets/glamporise-logo-reveal-hd.mp4",    
     },
     {
       id: "cost-optimization",
@@ -101,27 +103,29 @@ const PORTFOLIO = {
       links: [],
     },
     {
-      id: "performance-benchmark",
-      title: "Glamporise Performance Benchmark",
-      tag: "PageSpeed Audit",
+      id: "council-roadmap",
+      title: "Glamporise Council Roadmap",
+      tag: "Funnel & CRM System",
+      badge: "Live",
+      cover: "linear-gradient(135deg,#1f3a93,#26d0ce)",
+      size: "tall",
+      page: "council-roadmap.html",
+      video: "assets/councilroadmap.mov",
+    },
+    {
+      id: "brand-identity",
+      title: "Glamporise Brand Identity",
+      tag: "Logo & Visual Design",
       badge: null,
-      cover: "url('assets/plugin-opt.jpg'), linear-gradient(135deg,#0f2027,#2c5364)",
-      size: "wide",
-      page: "project.html?id=performance-benchmark",
-      subtitle: "PageSpeed Audit",
-      body: "Glamporise was built fresh on WordPress Multisite infrastructure — not migrated from a prior site — so these scores reflect the platform as architected from the ground up, measured via Google PageSpeed Insights.",
-      role: "Full-Stack Developer",
-      tools: "WordPress Multisite, Cloudflare",
-      stats: [
-        { label: "Performance", value: "94" },
-        { label: "Accessibility", value: "92" },
-        { label: "Best Practices", value: "92" },
-        { label: "SEO", value: "85" },
-      ],
-      links: [],
-      //video: "assets/dome-edit.mp4",  
-      // Optional — shows a small credit label, bottom-left of the hero.
-      heroCredit: { label: "Rendered by: Carlos Jingo", url: "https://www.facebook.com/wearysijey#" },
+      cover: "linear-gradient(135deg,#3a2a1a,#c9a227)",
+      size: "square",
+      page: "brand-identity.html",
+      subtitle: "Logo & Visual Design",
+      body: "Designed multiple original SVG-based logo concepts for Glamporise, a luxury glamping brand, translating the brand direction — native flora (the waratah flower) and campfire motifs — into minimalist visual concepts in Photoshop and Figma.",
+      role: "Brand & Visual Designer",
+      tools: "Photoshop, Figma, SVG",
+      links: [{ label: "Glamporise", url: "https://glamporise.com" }],
+      video: "assets/glamporise-logo-reveal-hd.mp4",
     },
     {
       id: "ebook-design",
