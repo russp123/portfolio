@@ -118,14 +118,23 @@
 
       document.getElementById("projects-grid").innerHTML = PORTFOLIO.projects
         .map((p) => {
-          // If a project has a `video`, the card auto-plays a silent,
-          // looping preview instead of the static gradient/image. The
-          // video sits inside .project-cover (not as .project-cover
-          // itself) so the hover-darken overlay still works — ::after
-          // doesn't reliably render on <video> elements directly.
+          // If a project has a `video`, the card plays a silent looping
+          // preview instead of the static gradient/image. The video sits
+          // inside .project-cover (not as .project-cover itself) so the
+          // hover-darken overlay still works — ::after doesn't reliably
+          // render on <video> elements directly.
+          //
+          // The video is LAZY-LOADED: no `src`/`autoplay` up front — just
+          // `data-src` and preload="none" — so the browser doesn't pull
+          // every clip on page load (brutal on mobile). An
+          // IntersectionObserver below sets the src + plays only when the
+          // tile nears the viewport, and pauses it when it leaves. The
+          // cover's background-image/gradient shows as a poster until the
+          // video kicks in, so there's always something on screen.
+          const bg = p.cover ? `background-image:${p.cover}` : "";
           const cover = p.video
-            ? `<div class="project-cover size-${p.size || "square"}"><video class="cover-media" src="${p.video}" autoplay muted loop playsinline></video></div>`
-            : `<div class="project-cover size-${p.size || "square"}" style="background-image:${p.cover}"></div>`;
+            ? `<div class="project-cover size-${p.size || "square"}" style="${bg}"><video class="cover-media" data-src="${p.video}" muted loop playsinline preload="none"></video></div>`
+            : `<div class="project-cover size-${p.size || "square"}" style="${bg}"></div>`;
           return `<a class="project-card" href="${p.page}" data-project-id="${p.id}">
             ${cover}
             <div class="project-meta">
@@ -149,6 +158,31 @@
           sessionStorage.setItem(`resumeTime:${card.dataset.projectId}`, String(video.currentTime || 0));
         });
       });
+
+      // Lazy-load the preview videos: only attach the src + play once a
+      // tile is near the viewport, and pause it when it scrolls away.
+      // This means a phone loads one or two clips at a time as you
+      // scroll, instead of hammering the network with all of them on
+      // page load. `rootMargin` starts the load ~300px early so the clip
+      // is usually ready by the time the tile is actually on screen.
+      const videos = document.querySelectorAll(".cover-media");
+      if (videos.length) {
+        const videoObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              const v = entry.target;
+              if (entry.isIntersecting) {
+                if (!v.src && v.dataset.src) v.src = v.dataset.src;
+                v.play().catch(() => {});
+              } else {
+                v.pause();
+              }
+            });
+          },
+          { rootMargin: "300px 0px" }
+        );
+        videos.forEach((v) => videoObserver.observe(v));
+      }
 
       // Staggered scroll-reveal: each tile fades/slides in as it enters
       // the viewport, with a small per-card delay (capped + cycled so a
