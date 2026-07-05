@@ -130,6 +130,23 @@ body.page-leave .site-footer {
 }
 .mailto-toast.show { opacity: 1; transform: translateY(0); }
 
+/* On mobile the header switches to height:auto and stacks
+   name/title/location vertically (see the max-width:600px rule below),
+   so the desktop top:84px offset lands *inside* that taller header.
+   Pin the toast to bottom-center instead — clear of the header and the
+   corner theme/RUSSELLM buttons, and a conventional mobile toast spot. */
+@media (max-width: 600px) {
+  .mailto-toast {
+    top: auto;
+    bottom: 24px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(8px);
+    max-width: calc(100vw - 40px);
+  }
+  .mailto-toast.show { transform: translateX(-50%) translateY(0); }
+}
+
 /* ---------------- RUSSELLM chat widget ----------------
    z-index budget for fixed site chrome (keep future additions
    under 200, or bump this comment): header=50, .theme-toggle=100,
@@ -329,7 +346,9 @@ main { padding: 40px; flex: 1; }
 
 .top-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  /* About is the star — ~60% of the row — with the two slim columns
+     (Skills [2], Experience [3]) sharing the remaining 40%. */
+  grid-template-columns: 3fr 1fr 1fr;
   gap: 40px;
   margin-bottom: 56px;
 }
@@ -352,8 +371,11 @@ main { padding: 40px; flex: 1; }
 .about-text p {
   font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
   font-weight: 400;
-  font-size: 64px;
-  line-height: 1.2;
+  /* Fluid so the ~60% About column stays a prominent 2-liner: big on
+     wide monitors, scaling down on narrower desktops instead of
+     wrapping to an awkward third line. */
+  font-size: clamp(40px, 3.3vw, 62px);
+  line-height: 1.15;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   margin: 0;
@@ -380,7 +402,6 @@ main { padding: 40px; flex: 1; }
   letter-spacing: normal;
   line-height: 1.4;
   vertical-align: middle;
-  margin-left: 12px;
   color: var(--text-secondary);
   text-decoration: underline;
   text-decoration-color: var(--text-tertiary);
@@ -490,23 +511,42 @@ main { padding: 40px; flex: 1; }
 }
 
 /* ---------------- Skills ---------------- */
-.skills-section { margin-bottom: 56px; }
-.skills-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  padding: 10px 0;
+/* ---------------- Skills accordion ----------------
+   Each category is a native <details> disclosure: the name shows
+   (the <summary>), details slide open on click. Keeps the top of the
+   page uncluttered. */
+/* .skills-row {
   border-bottom: 1px solid var(--border);
 }
-.skills-row:first-of-type { border-top: 1px solid var(--border); }
+.skills-row:first-of-type { border-top: 1px solid var(--border); } */
 .skills-row .skill-category {
+  list-style: none; /* drop the default disclosure triangle */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 0;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 12px;
   color: var(--text-primary);
-  min-width: 220px;
-  flex-shrink: 0;
+  user-select: none;
 }
-.skills-row .skill-items { font-size: 13px; color: var(--text-secondary); }
+.skills-row .skill-category::-webkit-details-marker { display: none; } /* Safari */
+.skills-row .skill-category::after {
+  content: "+";
+  color: var(--text-tertiary);
+  font-size: 14px;
+  line-height: 1;
+}
+.skills-row[open] .skill-category::after { content: "\2212"; } /* minus */
+.skills-row .skill-category:hover { color: var(--badge-accent); }
+.skills-row .skill-items {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  padding: 0 0 12px;
+}
 
 /* ---------------- Projects masonry grid ----------------
    Row-major masonry: varied tile shapes (wide / square / tall) that

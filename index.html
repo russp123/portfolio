@@ -3,6 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Full-stack developer in Pampanga, Philippines. I build WordPress platforms, high-converting landing pages, and the automation that runs them." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Russel A. Pineda" />
+<meta property="og:title" content="Russel A. Pineda — Full-Stack Developer" />
+<meta property="og:description" content="Full-stack developer in Pampanga, Philippines. I build WordPress platforms, high-converting landing pages, and the automation that runs them." />
+<meta property="og:url" content="https://russelpineda.com/" />
+<meta property="og:image" content="https://russelpineda.com/assets/og-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Russel A. Pineda — Full-Stack Developer" />
+<meta name="twitter:description" content="Full-stack developer in Pampanga, Philippines. I build WordPress platforms, high-converting landing pages, and the automation that runs them." />
+<meta name="twitter:image" content="https://russelpineda.com/assets/og-default.jpg" />
 <title>Russel A. Pineda — Full-Stack Developer</title>
 <script>
   // Runs synchronously, before anything paints — sets the theme
@@ -62,15 +75,15 @@
         </section>
 
         <section>
-          <div class="section-label">Experience <span class="section-num">[2]</span></div>
+          <div class="section-label">Skills <span class="section-num">[2]</span></div>
+          <div class="skills-accordion" id="skills-list"></div>
+        </section>
+
+        <section>
+          <div class="section-label">Experience <span class="section-num">[3]</span></div>
           <div class="list-col" id="experience-list"></div>
         </section>
       </div>
-
-      <section class="skills-section">
-        <div class="section-label">Skills <span class="section-num">[3]</span></div>
-        <div id="skills-list"></div>
-      </section>
 
       <section class="projects-grid" id="projects-grid"></section>
     </main>
@@ -107,14 +120,31 @@
         )
         .join("");
 
+      // Skills render as native <details> disclosures: the category
+      // name is always visible (the <summary>), and clicking it slides
+      // the detailed item list open. Keeps the top of the page light —
+      // the long comma-lists are hidden until asked for.
       document.getElementById("skills-list").innerHTML = PORTFOLIO.skills
         .map(
-          (s) => `<div class="skills-row">
-            <span class="skill-category">${s.category}</span>
-            <span class="skill-items">${s.items}</span>
-          </div>`
+          (s) => `<details class="skills-row">
+            <summary class="skill-category">${s.category}</summary>
+            <div class="skill-items">${s.items}</div>
+          </details>`
         )
         .join("");
+
+      // Accordion: only one category open at a time. When one opens,
+      // close the rest — keeps the skills column's height predictable
+      // so expanding an item doesn't shuffle the layout around.
+      const skillRows = document.querySelectorAll("#skills-list .skills-row");
+      skillRows.forEach((row) => {
+        row.addEventListener("toggle", () => {
+          if (!row.open) return;
+          skillRows.forEach((other) => {
+            if (other !== row) other.open = false;
+          });
+        });
+      });
 
       document.getElementById("projects-grid").innerHTML = PORTFOLIO.projects
         .map((p) => {
