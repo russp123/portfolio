@@ -16,7 +16,12 @@ const PORTFOLIO = {
   // ---- Home page: About ----
   // Raw HTML is allowed here so you can inline links the same way
   // joseph.cv does (e.g. an underlined word with a small arrow).
-  aboutHtml: `I'm Russ, a software engineer who handles the tech, then <i>automates what's left</i>. <br> <a href="mailto:rsslpnd@gmail.com" class="about-cta">get in touch<sup>↗</sup></a>`,
+  aboutHtml: `I'm Russ, a software engineer who handles the tech, then <i>automates what's left</i>. <a href="mailto:rsslpnd@gmail.com" class="about-cta">get in touch<sup>↗</sup></a>`,
+
+  // ---- Long-form bio (plain text) ----
+  // The homepage shows `aboutHtml` above; the RUSSELLM chat speaks from
+  // this fuller version instead. api/_bio.js reads it as `about`.
+  bio: "I'm interested in what happens when one person ends up holding the whole picture of a business's tech instead of just one slice of it — the website, the automation, the security, the brand. That's mostly how things unfolded with my current work, as trust-building did its thing, one piece kept leading to the next. If something you're working on needs that kind of range, get in touch.",
 
   // ---- Home page: Experience (shown in the "Experience" column) ----
   experience: [
@@ -46,6 +51,7 @@ const PORTFOLIO = {
   projects: [
     {
       id: "council-roadmap",
+      llm: "Glamporise Council Roadmap — a live, complete customer-acquisition system for Glamporise: a primary landing page plus four stage-specific funnel pages, spanning design, web deployment, GoHighLevel membership infrastructure, email marketing, and workflow automation end-to-end. Converted an immediate Stage 2 membership sale shortly after launch.",
       title: "A 5-Page Funnel System",
       tag: "Funnel & CRM System",
       badge: "Live",
@@ -56,6 +62,7 @@ const PORTFOLIO = {
     },
     {
       id: "glamporise-website",
+      llm: "Glamporise Website — the complete glamporise.com platform, built from scratch: an Apple-style multi-region WordPress Multisite architecture (glamporise.com/au/, /nz/, /ph/ — one installation, each region its own localized site, ccTLDs redirecting in), Elementor Pro front end wearing the Glamporise brand identity, Cloudflare security (DDoS/WAF/SSL), Mailgun email deliverability (SPF/DKIM/DMARC), and the Council Roadmap funnels running on top. Scored 94 Performance on PageSpeed as architected.",
       title: "Glamporise Website",
       tag: "WordPress Multisite Platform",
       badge: "Live",
@@ -65,6 +72,7 @@ const PORTFOLIO = {
     },
     {
       id: "configurator",
+      llm: "Kingdomes Product Configurator — a live product configurator on kingdomes.com.au: a 7-step guided flow (range, size, colours, upgrades, chimney, specs, quote) across two dome ranges and seven sizes, real-time multi-currency pricing (AUD/USD/NZD), and quote submissions posted straight into GoHighLevel as structured CRM leads. Built as a single self-contained HTML file with zero dependencies.",
       title: "Real-Time Product Configurator",
       tag: "Interactive Web App",
       badge: "Live",
@@ -75,6 +83,7 @@ const PORTFOLIO = {
     },
     {
       id: "cost-optimization",
+      llm: "Plugin Cost Optimization — audited the WordPress plugin ecosystem for Kingdomes and decommissioned 7 redundant tools, consolidating their functions onto existing Cloudflare/VentraIP infrastructure and saving nearly $1,000 AUD annually.",
       title: "$1K/Year Plugin Cleanup",
       tag: "Infrastructure Audit",
       badge: null,
@@ -90,6 +99,7 @@ const PORTFOLIO = {
     },
     {
       id: "brand-identity",
+      llm: "Glamporise Brand Identity — designed the complete visual identity for Glamporise, Kingdomes' luxury glamping brand: 25+ exploratory logo concepts narrowed to a final mark combining waratah petals, a crown (the Kingdomes connection), and campfire flames; a five-colour palette led by Deep Sage Emerald (#06402B); a Cartesius + Poppins type system; and a 12-page brand guidelines document. Built in Photoshop and Figma.",
       title: "Brand Identity System",
       tag: "Logo & Visual Design",
       badge: null,
@@ -105,6 +115,7 @@ const PORTFOLIO = {
     },
 {
       id: "performance-benchmark",
+      llm: "Glamporise Performance Benchmark — WordPress Multisite site built fresh (not migrated), scoring 94 Performance / 92 Accessibility / 92 Best Practices / 85 SEO on Google PageSpeed Insights.",
       title: "Performance Benchmark",
       tag: "PageSpeed Audit",
       badge: null,
@@ -126,6 +137,7 @@ const PORTFOLIO = {
         
     {
       id: "masterclass",
+      llm: "Kingdomes Masterclass — a single-scroll landing page and lead funnel on kingdomes.com.au for a free live masterclass ('Get your dome right the first time'), designed and built end to end: hero, value proposition, an attendee-qualifier section, a host bio, and a closing call-to-action, all driving to an embedded GoHighLevel registration form. Converted 18 sign-ups.",
       title: "Masterclass Funnel",
       tag: "Landing Page & Funnel",
       badge: "18 sign-ups",
@@ -133,8 +145,34 @@ const PORTFOLIO = {
       size: "wide",
       page: "masterclass.html",
     },
+        {
+      id: "ebook-design",
+      llm: "The NSW Glamping Property Decoder — a 34-page paid ebook for Glamporise's Stage 1 membership offering, with original illustrated cover art, a custom color-weighted typography system, and consistent information design throughout.",
+      title: "The NSW Glamping Property Decoder",
+      tag: "Ebook Design",
+      badge: null,
+      cover: "url('assets/837shots_so.jpeg'), linear-gradient(135deg,#3a2a1a,#c9a227)",
+      size: "wide",
+      page: "ebook-design.html",
+      subtitle: "Ebook Design",
+      body: "Designed a 34-page paid ebook for Glamporise's Stage 1 membership offering (AU$27), featuring original illustrated cover artwork — a geodesic dome silhouette set inside an NSW state outline, a gold and dark color palette, and topographic line details — plus a custom color-weighted typography system and consistent information design throughout. Part of a broader content design set that also includes a 15-page masterclass guide (\"Is a Dome Viable For You?\") and a 3-part founding-offer guide series, totaling 50+ pages across the full collection.",
+      role: "Content & Visual Designer",
+      tools: "Figma, Photoshop",
+      links: [],
+    },
+    {
+      id: "founding-offer",
+      llm: "Founding Offer — a long-form founding-offer landing page for the Kingdomes dome range ('first 5 deposits only'): a scarcity hook, the two dome ranges, an over-$10,000 value stack, buyer track selection, a competitor comparison table, a 36-month guarantee, and the Ground Zero add-on. The same funnel was replicated across two brands (Kingdomes and Glamporise) with copy tweaked to each brand's voice.",
+      title: "Founding Offer",
+      tag: "Conversion Landing Page",
+      badge: null,
+      cover: "url('assets/founding-offer.jpg'), linear-gradient(135deg,#141414,#444444)",
+      size: "square",
+      page: "founding-offer.html",
+    },
     {
       id: "ground-zero",
+      llm: "Ground Zero Sales Page — a post-masterclass sales page (for Kingdomes / Glamporise) that turns warm leads into a paid next step. It presents a two-path offer — a full Ground Zero design-and-consultation package with a tiered pricing table, or a lower-commitment viability consultation — alongside a 3D design-service explainer, a breakdown of what happens in the consultation, and an FAQ.",
       title: "Ground Zero Sales Page",
       tag: "Post-Masterclass Sales Page",
       badge: null,
@@ -146,30 +184,8 @@ const PORTFOLIO = {
 
 
     },
-    {
-      id: "founding-offer",
-      title: "Founding Offer",
-      tag: "Conversion Landing Page",
-      badge: null,
-      cover: "url('assets/founding-offer.jpg'), linear-gradient(135deg,#141414,#444444)",
-      size: "square",
-      page: "founding-offer.html",
-    },
 
-    {
-      id: "ebook-design",
-      title: "The NSW Glamping Property Decoder",
-      tag: "Ebook Design",
-      badge: null,
-      cover: "url('assets/decoder.jpg'), linear-gradient(135deg,#3a2a1a,#c9a227)",
-      size: "wide",
-      page: "ebook-design.html",
-      subtitle: "Ebook Design",
-      body: "Designed a 34-page paid ebook for Glamporise's Stage 1 membership offering (AU$27), featuring original illustrated cover artwork — a geodesic dome silhouette set inside an NSW state outline, a gold and dark color palette, and topographic line details — plus a custom color-weighted typography system and consistent information design throughout. Part of a broader content design set that also includes a 15-page masterclass guide (\"Is a Dome Viable For You?\") and a 3-part founding-offer guide series, totaling 50+ pages across the full collection.",
-      role: "Content & Visual Designer",
-      tools: "Figma, Photoshop",
-      links: [],
-    },
+
   ],
 
   // ---- Footer / top "Links" column (appears on every page) ----
@@ -182,3 +198,9 @@ const PORTFOLIO = {
   cta: "Open to hearing what you're working on.",
   cv: { label: "Download my CV", url: "assets/russel-pineda-cv.pdf" },
 };
+
+// This file is the single source of truth. It works as a browser
+// <script> global (PORTFOLIO) AND as a Node module: api/_bio.js
+// require()s it to build the RUSSELLM chat prompt. In the browser
+// `module` is undefined, so this line is a harmless no-op.
+if (typeof module !== "undefined" && module.exports) module.exports = PORTFOLIO;
