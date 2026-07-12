@@ -6,6 +6,13 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["vercel", "dev"],
       "port": 3000
+    },
+    {
+      "name": "portfolio-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "."],
+      "autoPort": true,
+      "port": 4321
     }
   ]
 }

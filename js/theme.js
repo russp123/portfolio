@@ -27,7 +27,9 @@ function initHeader() {
   const headerLocation = document.getElementById("header-location");
   if (headerName) headerName.textContent = PORTFOLIO.name;
   if (headerTitle) headerTitle.textContent = PORTFOLIO.title;
-  if (headerLocation) headerLocation.textContent = PORTFOLIO.location;
+  // Location moved to the footer (see initFooter). Strip the header's
+  // hardcoded placeholder so it no longer shows up top.
+  if (headerLocation) headerLocation.remove();
 }
 
 function initFooter() {
@@ -47,6 +49,16 @@ function initFooter() {
     linksEl.innerHTML = PORTFOLIO.links
       .map((l) => `<a href="${l.url}" target="_blank" rel="noopener">${l.label}<sup>↗</sup></a>`)
       .join("");
+  }
+
+  // Location lives in the footer now (removed from the header) — inject
+  // it above the CTA so it still appears on every page.
+  const ctaWrap = ctaEl ? ctaEl.parentElement : null;
+  if (ctaWrap && PORTFOLIO.location && !ctaWrap.querySelector(".footer-location")) {
+    const loc = document.createElement("p");
+    loc.className = "footer-location";
+    loc.textContent = PORTFOLIO.location;
+    ctaWrap.insertBefore(loc, ctaWrap.firstChild);
   }
 }
 
@@ -209,14 +221,14 @@ function showMailtoToast(text) {
 // cards exist (index.html builds them in its own inline script, so
 // it calls this at the end of that block, not from theme.js's own
 // DOMContentLoaded which runs earlier).
-function initProjectMasonry() {
-  const grid = document.getElementById("projects-grid");
+function initMasonry(gridId, cardSelector) {
+  const grid = document.getElementById(gridId);
   if (!grid) return;
   const ROW_UNIT = 10; // must match grid-auto-rows in css/style.css
   const GAP = 14; // vertical space reserved below each card
 
   const layout = () => {
-    const cards = grid.querySelectorAll(".project-card");
+    const cards = grid.querySelectorAll(cardSelector);
     // Reset all spans first so each card reports its natural content
     // height (with grid-auto-rows:10px, a span-less card is only 10px
     // tall in grid terms — so we always set a real span, single
@@ -231,6 +243,12 @@ function initProjectMasonry() {
 
   layout();
   window.addEventListener("load", layout);
+
+  // Re-pack as images finish loading — their height is 0 until then,
+  // which would otherwise leave gallery items overlapping.
+  grid.querySelectorAll("img").forEach((img) => {
+    if (!img.complete) img.addEventListener("load", layout, { once: true });
+  });
 
   // Re-pack only when the WIDTH changes — never on height-only resizes.
   // This matters on mobile: scrolling shows/hides the URL bar, which
@@ -247,6 +265,9 @@ function initProjectMasonry() {
     layout();
   });
 }
+
+// Back-compat wrapper for the homepage project grid.
+function initProjectMasonry() { initMasonry("projects-grid", ".project-card"); }
 
 // Site-wide smooth/eased scrolling (Lenis, loaded via CDN — see the
 // <script>/<link> tags near the top of each page's <head>). Skipped
@@ -266,6 +287,26 @@ function initSmoothScroll() {
   });
 }
 
+// The "About" pill — a sibling to the fixed RUSSELLM toggle, sitting
+// just to its left so the two live together (top-right) on every page.
+// Skipped on the About page itself (no self-link). Built in JS so it
+// needn't be pasted into every page's HTML.
+function initAboutButton() {
+  if (document.querySelector(".about-toggle")) return;
+  if (/\/about(\.html)?$/.test(window.location.pathname)) return;
+  const a = document.createElement("a");
+  a.className = "about-toggle";
+  a.href = "about.html";
+  a.textContent = "About";
+  document.body.appendChild(a);
+  const russellm = document.getElementById("russellm-toggle");
+  const place = () => {
+    if (russellm) a.style.right = Math.round(russellm.getBoundingClientRect().width + 32) + "px";
+  };
+  place();
+  window.addEventListener("load", place);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initHeader();
@@ -274,6 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initPageTransitions();
   initSmoothScroll();
   initMailtoCopy();
+  initAboutButton();
   const toggle = document.getElementById("theme-toggle");
   if (toggle) toggle.addEventListener("click", toggleTheme);
 });

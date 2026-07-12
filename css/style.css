@@ -169,6 +169,36 @@ body.page-leave .site-footer {
 }
 .russellm-toggle:hover { border-color: var(--badge-accent); }
 
+/* The "About" pill — visually identical to .russellm-toggle, placed
+   just to its left by theme.js (initAboutButton sets `right`). */
+.about-toggle {
+  position: fixed;
+  top: 22px;
+  right: 120px; /* fallback; JS positions it precisely left of RUSSELLM */
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 8px 14px;
+  border-radius: 100px;
+  text-decoration: none;
+  cursor: pointer;
+  z-index: 110;
+}
+.about-toggle:hover { border-color: var(--badge-accent); }
+
+/* Location line, injected into the footer by theme.js (initFooter) now
+   that it's no longer in the header. */
+.footer-location {
+  margin: 0 0 6px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--text-tertiary);
+}
+
 .russellm-overlay {
   position: fixed;
   inset: 0;
@@ -346,9 +376,10 @@ main { padding: 40px; flex: 1; }
 
 .top-grid {
   display: grid;
-  /* About is the star — ~60% of the row — with the two slim columns
-     (Skills [2], Experience [3]) sharing the remaining 40%. */
-  grid-template-columns: 3fr 1fr 1fr;
+  /* About stays the star (~60%); Skills now takes the whole right ~40%,
+     so its rows run longer and the column reads as calm whitespace.
+     (Experience moved to the About page.) */
+  grid-template-columns: 1.5fr 1fr;
   gap: 40px;
   margin-bottom: 56px;
 }
@@ -409,6 +440,26 @@ main { padding: 40px; flex: 1; }
   text-decoration-color: var(--text-tertiary);
 }
 .about-text .about-cta sup { font-size: 9px; margin-left: 1px; }
+
+/* Small "Experience →" cue at the foot of the Skills column — points to
+   the full work history on the About page (where Experience now lives).
+   Sits apart from the accordion with a hairline divider above it. */
+.exp-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  width: 100%;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 140ms ease, gap 140ms ease;
+}
+.exp-cue span { transition: transform 140ms ease; }
+.exp-cue:hover { color: var(--text-primary); }
+.exp-cue:hover span { transform: translateX(3px); }
 
 .list-col { display: flex; flex-direction: column; gap: 10px; }
 .list-col a {
@@ -1089,4 +1140,192 @@ main { padding: 40px; flex: 1; }
 
 @media (max-width: 600px) {
   .site-footer { grid-template-columns: 1fr; padding: 24px 20px 32px; }
+}
+
+/* ---------------- About page (about.html) — editorial ----------------
+   A long-form "story" layout: a single centered reading column, real
+   photos breaking up the prose like a magazine feature, and a compact
+   timeline for the work history. Deliberately unlike the grid-driven
+   home page so About reads as a person, not a résumé. */
+.essay {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.essay-head { margin-bottom: 40px; }
+.essay-title {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(48px, 6vw, 84px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 8px 0 16px;
+  color: var(--text-primary);
+}
+.essay-dek {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(21px, 2.6vw, 29px);
+  line-height: 1.35;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 32ch;
+}
+
+/* Lede image — full reading-column width, gentle landscape crop. */
+.essay-lede { margin: 0 0 40px; }
+.essay-lede img {
+  width: 100%;
+  /* Moderate portrait — big enough to read the face, not a full-width
+     hero. 3/4 matches russel.jpg's native ratio so it isn't cropped. On
+     mobile the column is narrower than the cap, so it stays full width. */
+  max-width: 420px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+}
+
+.essay-body p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin: 0 0 22px;
+}
+.essay-link {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+}
+.essay-link sup { font-size: 10px; margin-left: 1px; }
+
+/* Pull-quote — serif with an accent rule. It deliberately does NOT clear
+   the floated figure, so it nestles into the white space to the left of
+   the photo (magazine sidebar) instead of spanning the full column. */
+.essay-quote {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.26;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  max-width: 380px;
+  margin: 6px 0 30px;
+  padding-left: 20px;
+  border-left: 3px solid var(--text-primary);
+}
+
+/* Inline figure floated right so the prose wraps around it, magazine
+   style. Collapses to full width on narrow screens (see media query). */
+.essay-figure { margin: 8px 0 28px; }
+.essay-figure-right {
+  float: right;
+  width: 300px;
+  max-width: 46%;
+  margin: 6px 0 20px 34px;
+}
+.essay-figure img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+.essay-figure figcaption {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text-tertiary);
+  margin-top: 10px;
+}
+
+/* Work history — a compact timeline with a hairline spine. */
+.essay-exp {
+  clear: both;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.timeline { list-style: none; margin: 18px 0 0; padding: 0; }
+.timeline-item {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 20px;
+  padding: 18px 0;
+  border-top: 1px solid var(--border);
+}
+.timeline-item:first-child { border-top: 0; }
+.timeline-year {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--text-tertiary);
+  padding-top: 3px;
+}
+.timeline-detail { display: flex; flex-direction: column; gap: 3px; }
+.timeline-name { font-size: 18px; color: var(--text-primary); width: fit-content; }
+a.timeline-name {
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+}
+.timeline-role { font-size: 14px; color: var(--text-secondary); }
+/* Honours line under the education entry — the standout credential, so
+   it reads at full contrast with a hair more space above it. */
+.timeline-honor { color: var(--text-primary); margin-top: 4px; }
+
+@media (max-width: 600px) {
+  .essay-figure-right { float: none; width: 100%; max-width: 100%; margin: 8px 0 24px; }
+  .essay-body p { font-size: 15px; }
+  .timeline-item { grid-template-columns: 64px 1fr; gap: 14px; }
+}
+
+/* Scroll cue (about.html) — a small pulsing pill under the tall lede photo
+   that signals there's more below. Fixed at bottom-centre, styled like the
+   site's other pills; pointer-events:none so it never blocks clicks. It
+   fades out (.hidden, toggled in JS) once the reader scrolls. */
+.scroll-cue {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.10);
+  color: var(--text-secondary);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: scroll-cue-pulse 2s ease-in-out infinite;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.scroll-cue-arrow {
+  font-size: 13px;
+  animation: scroll-cue-bounce 2s ease-in-out infinite;
+}
+.scroll-cue.hidden {
+  animation: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
+}
+@keyframes scroll-cue-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+@keyframes scroll-cue-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue, .scroll-cue-arrow { animation: none; }
+}
+@media (max-width: 600px) {
+  .scroll-cue { bottom: 16px; font-size: 10px; padding: 7px 13px; gap: 6px; }
 }

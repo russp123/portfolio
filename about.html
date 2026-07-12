@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="The person behind the work — a bit about Russel A. Pineda, and life outside the code." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Russel A. Pineda" />
+<meta property="og:title" content="About — Russel A. Pineda" />
+<meta property="og:description" content="The person behind the work — a bit about Russel A. Pineda, and life outside the code." />
+<meta property="og:url" content="https://russelpineda.com/about.html" />
+<meta property="og:image" content="https://russelpineda.com/assets/og-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="About — Russel A. Pineda" />
+<meta name="twitter:description" content="The person behind the work — a bit about Russel A. Pineda, and life outside the code." />
+<meta name="twitter:image" content="https://russelpineda.com/assets/og-default.jpg" />
+<title>About — Russel A. Pineda</title>
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.25/dist/lenis.css" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+    <span>Scroll to learn more</span>
+    <span class="scroll-cue-arrow">↓</span>
+  </div>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="index.html"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location"></span></div>
+    </header>
+
+    <main>
+
+      <article class="essay">
+        <header class="essay-head">
+          <div class="section-label">About</div>
+          <h1 class="essay-title">Hey, I'm Russ.</h1>
+          <p class="essay-dek">A software engineer who handles the tech, then automates what's left.</p>
+        </header>
+
+        <figure class="essay-lede">
+          <img src="assets/russel.jpg" alt="Russel A. Pineda" />
+        </figure>
+
+        <div class="essay-body">
+          <p>I'm a full-stack developer curious about form and function, automation, and how a whole business's tech fits together — the website, the security, the brand. I enjoy taking on the entire picture instead of a single slice, building systems that quietly run themselves and closing the gaps most specialists hand off. Previously, I studied information technology — but design keeps pulling me back: brand, type, and the way a product looks and feels.</p>
+
+          <p><a class="essay-link" href="mailto:rsslpnd@gmail.com">get in touch<sup>↗</sup></a></p>
+        </div>
+
+        <section class="essay-exp">
+          <div class="section-label">The path so far</div>
+          <ol class="timeline" id="about-experience"></ol>
+        </section>
+
+        <section class="essay-exp">
+          <div class="section-label">Education</div>
+          <ol class="timeline">
+            <li class="timeline-item">
+              <span class="timeline-year">2021 – 2025</span>
+              <div class="timeline-detail">
+                <span class="timeline-name">Don Honorio Ventura State University</span>
+                <span class="timeline-role">B.S. Information Technology</span>
+                <span class="timeline-role timeline-honor">Summa Cum Laude · Top 1 BSIT Graduation Batch</span>
+              </div>
+            </li>
+          </ol>
+        </section>
+      </article>
+
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Experience — a compact vertical timeline of roles (year on the
+      // left, company + roles on the right). Data still comes from
+      // PORTFOLIO.experience; only the About prose above is hand-written.
+      const expEl = document.getElementById("about-experience");
+      if (expEl && Array.isArray(PORTFOLIO.experience)) {
+        expEl.innerHTML = PORTFOLIO.experience
+          .map((t) => {
+            const linked = t.url && t.url !== "#";
+            const name = linked
+              ? `<a class="timeline-name" href="${t.url}" target="_blank" rel="noopener">${t.name}</a>`
+              : `<span class="timeline-name">${t.name}</span>`;
+            return `<li class="timeline-item">
+              <span class="timeline-year">${t.year}</span>
+              <div class="timeline-detail">
+                ${name}
+                ${(t.roles || []).map((r) => `<span class="timeline-role">${r}</span>`).join("")}
+              </div>
+            </li>`;
+          })
+          .join("");
+      }
+
+      // Scroll cue — the pulsing "scroll to learn more" pill under the tall
+      // lede photo. Fades out as soon as the reader scrolls, comes back at
+      // the very top.
+      const cue = document.getElementById("scroll-cue");
+      if (cue) {
+        const toggleCue = () => cue.classList.toggle("hidden", window.scrollY > 40);
+        window.addEventListener("scroll", toggleCue, { passive: true });
+        toggleCue();
+      }
+    });
+  </script>
+</body>
+</html>

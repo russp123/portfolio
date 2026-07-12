@@ -26,8 +26,8 @@ const PORTFOLIO = {
   // ---- Home page: Experience (shown in the "Experience" column) ----
   experience: [
     { name: "Kingdomes Leisure Pty Ltd", url: "https://kingdomes.com.au", year: "2025 —", roles: ["Lead Full-Stack Developer"] },
-    { name: "La Rose Noire Philippines", url: "#", year: "2025", roles: ["Associate Software Engineer"] },
-    { name: "Cloudstaff Global Workplace Inc.", url: "#", year: "2025", roles: ["Associate Software Engineer Trainee", "Associate Software Quality Assurance Engineer Trainee"] },
+    { name: "La Rose Noire Philippines", url: "https://la-rose-noire.com/", year: "2025", roles: ["Associate Software Engineer"] },
+    { name: "Cloudstaff Global Workplace Inc.", url: "https://www.cloudstaff.com/", year: "2025", roles: ["Associate Software Engineer Trainee", "Associate Software Quality Assurance Engineer Trainee"] },
   ],
 
   // ---- Home page: Skills ----
@@ -80,6 +80,28 @@ const PORTFOLIO = {
       size: "wide",
       video: "assets/configurator.mp4",
       page: "configurator.html",
+    },
+    {
+      id: "kingdomes-assistant",
+      llm: "Kingdomes AI Assistant — a conversational AI embedded on the Kingdomes website and connected to the brand's Facebook and Instagram inboxes, answering dome-kit questions instantly and in the brand's own voice across web and social from a single assistant. Grounded in a curated knowledge base and a friendly, plain-spoken Australian tone that stays helpful rather than salesy. In roughly six months live it engaged 71 unique contacts across 212 messages, doubled average engagement per contact (+100%), and triggered 28 automated actions.",
+      title: "An Omnichannel AI Assistant",
+      tag: "Conversational AI",
+      badge: "Live",
+      cover: "url('assets/chatbot.jpg'), linear-gradient(135deg,#0f2027,#2c5364)",
+      size: "wide",
+      page: "project.html?id=kingdomes-assistant",
+      subtitle: "Conversational AI",
+      body: "A conversational AI assistant embedded on the Kingdomes site and wired into their Facebook and Instagram inboxes, so an inbound question gets an instant, on-brand answer on whichever channel a customer reaches out from. It's grounded in a curated knowledge base and speaks in the brand's own voice — friendly, plain-spoken Australian English, kept short and genuinely helpful rather than salesy — fielding the routine questions about dome kits for glamping, homes, and wellness spaces the moment they land, day or night, before they ever need a human.",
+      role: "Conversational AI & Automation",
+      tools: "GoHighLevel, Meta (Messenger & Instagram)",
+      duration: "~6 months live",
+      stats: [
+        { label: "Unique Contacts", value: "71" },
+        { label: "Messages Handled", value: "212" },
+        { label: "Engagement Lift", value: "+100%" },
+        { label: "Automated Actions", value: "28" },
+      ],
+      links: [{ label: "Kingdomes", url: "https://kingdomes.com.au" }],
     },
     {
       id: "cost-optimization",
@@ -187,6 +209,30 @@ const PORTFOLIO = {
 
 
   ],
+
+  // ---- About page (about.html): intro + gallery ----
+  // Intro text reuses `bio` above; `portrait` is the intro photo
+  // (assets/russel.jpg — converted from russel.HEIC). The gallery is an
+  // Instagram-style masonry built from the `gallery` array below. To drop
+  // in a real photo, replace an item's `gradient` + `ratio` with a
+  // `src: "assets/your-photo.jpg"` (the masonry adapts to any shape).
+  about: {
+    portrait: "assets/russel.jpg",
+    gallery: [
+      // Curated starter set — a deliberate spread of me / gaming / food /
+      // nature / travel / work, with interleaved ratios so the masonry
+      // columns fill evenly. Swap a tile's `gradient` + `ratio` for
+      // `src: "assets/your-photo.jpg"` as the real shots come in.
+      { gradient: "linear-gradient(135deg,#3a2a1a,#c9a227)", ratio: "4 / 5", caption: "Progress is just refactoring — one rep at a time." },
+      { gradient: "linear-gradient(135deg,#0f2027,#2c5364)", ratio: "4 / 3", caption: "Where I practice clutch decisions. Allegedly." },
+      { gradient: "linear-gradient(135deg,#1f3a93,#26d0ce)", ratio: "1 / 1", caption: "Fuel for the automation." },
+      { gradient: "linear-gradient(135deg,#16241a,#3c5a3a)", ratio: "3 / 4", caption: "Touching grass — documented proof." },
+      { gradient: "linear-gradient(135deg,#1a2a3a,#4a6a8a)", ratio: "4 / 3", caption: "Off the clock, somewhere new." },
+      { gradient: "linear-gradient(135deg,#3a1a1a,#8a4a2a)", ratio: "1 / 1", caption: "The people who keep me sane." },
+      { gradient: "linear-gradient(135deg,#141414,#444444)", ratio: "4 / 5", caption: "Where the building actually happens." },
+      { gradient: "linear-gradient(135deg,#2e1a2e,#8a4a6a)", ratio: "1 / 1", caption: "One more game, then I ship. Promise." },
+    ],
+  },
 
   // ---- Footer / top "Links" column (appears on every page) ----
   links: [

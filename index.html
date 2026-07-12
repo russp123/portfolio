@@ -57,7 +57,7 @@
         <a href="index.html"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
       </div>
       <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
-      <div class="col-end"><span class="header-meta-item" id="header-location">Pampanga, Philippines</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location"></span></div>
     </header>
 
     <main>
@@ -77,11 +77,7 @@
         <section>
           <div class="section-label">Skills <span class="section-num">[2]</span></div>
           <div class="skills-accordion" id="skills-list"></div>
-        </section>
-
-        <section>
-          <div class="section-label">Experience <span class="section-num">[3]</span></div>
-          <div class="list-col" id="experience-list"></div>
+          <a class="exp-cue" href="about.html">Experience <span aria-hidden="true">→</span></a>
         </section>
       </div>
 
@@ -107,18 +103,6 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("about-text").innerHTML = `<p>${PORTFOLIO.aboutHtml}</p>`;
-
-      document.getElementById("experience-list").innerHTML = PORTFOLIO.experience
-        .map(
-          (t) => `<a class="experience-row" href="${t.url}" target="_blank" rel="noopener">
-            <div class="experience-row-top">
-              <span class="experience-name">${t.name}</span>
-              <span class="experience-year">${t.year}</span>
-            </div>
-            ${t.roles.map((r) => `<span class="experience-role">${r}</span>`).join("")}
-          </a>`
-        )
-        .join("");
 
       // Skills render as native <details> disclosures: the category
       // name is always visible (the <summary>), and clicking it slides
