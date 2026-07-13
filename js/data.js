@@ -55,7 +55,7 @@ const PORTFOLIO = {
       title: "A 5-Page Funnel System",
       tag: "Funnel & CRM System",
       badge: "Live",
-      cover: "lurl('assets/default.jpg'), inear-gradient(135deg,#1f3a93,#26d0ce)",
+      cover: "url('assets/default.jpg'), linear-gradient(135deg,#1f3a93,#26d0ce)",
       size: "tall",
       page: "council-roadmap.html",
       video: "assets/councilroadmap.mp4",
