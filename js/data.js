@@ -21,7 +21,7 @@ const PORTFOLIO = {
   // ---- Home page: About ----
   // Raw HTML is allowed here so you can inline links the same way
   // joseph.cv does (e.g. an underlined word with a small arrow).
-  aboutHtml: `I'm Russ, a software engineer who handles the tech, then <i>automates what's left</i>. <a href="mailto:rsslpnd@gmail.com" class="about-cta">get in touch<sup>↗</sup></a>`,
+  aboutHtml: `I'm Russ, a software engineer who handles the tech, then <i>automates what's left</i>. <a href="mailto:rsslpnd@gmail.com" class="about-cta">rsslpnd@gmail.com<sup>↗</sup></a>`,
 
   // ---- Long-form bio (plain text) ----
   // The homepage shows `aboutHtml` above; the RUSSELLM chat speaks from
@@ -249,9 +249,15 @@ const PORTFOLIO = {
     },
     {
       quote:
-        "My experiences with Russel have been nothing but exceptional. From a keen listener to an above and beyond executor, he well and truly exceeded my expectations. Not only do I recommend him, I have already rehired him for ongoing work. Russel was tasked with redesigning 5 of my webpages. Compared to other web designers I have worked with before, he took initiative, provided suggestions and pre-designed the pages before executing on the ideas to ensure I liked them. He is also incredibly friendly and proactive.",
-      name: "Jesse Anyan",
-      role: "Founder, Kingdomes & Glamporise",
+        "I had the opportunity to work with Russel at La Rose Noire Philippines as part of the Software Development team, and it has been a great experience working with him. Russel is someone you can count on. He's hardworking, easy to work with, and always willing to help the team whenever needed. He approaches his tasks with a positive attitude, takes feedback well, and is always looking for ways to improve both his technical skills and the quality of his work.",
+      name: "Ashley San Pedro",
+      role: "Software Developer Team Lead, La Rose Noire Philippines",
+    },
+      {
+      quote:
+        "Russel is collaborative, easy to work with, and always willing to support the team when needed. He takes ownership of his work, pays attention to detail, and is committed to continuously improving his skills. His professionalism and positive attitude make him a valuable member of any development team. I highly recommend Russel to any organization looking for a dependable Software Developer who is dedicated to delivering high-quality work and contributing to team success.",
+      name: "Stephen Karlle Dimitui",
+      role: "Full Stack Developer, P&A Grant Thornton",
     },
   ],
 
