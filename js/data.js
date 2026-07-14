@@ -235,6 +235,26 @@ const PORTFOLIO = {
 
   ],
 
+  // ---- Home page: "What clients say" ----
+  // Real client reviews (verbatim, originally left on Upwork before
+  // moving off-platform). Both from Jesse Anyan, Founder of Kingdomes
+  // Leisure Pty Ltd (and Glamporise, the brand under it) — credited by
+  // role rather than repeating "Kingdomes" twice.
+  testimonials: [
+    {
+      quote:
+        "Russ was an absolute whizz at his job. Above and beyond with both work quality and speed. Our website got hacked and he managed to override and remove all traces and abilities for them to continue. That alone was amazing as it wasn't even part of the job. It is time for us to move forward but I would highly recommend Russ. Incredibly knowledgeable, always a pleasant person to work with.",
+      name: "Jesse Anyan",
+      role: "Founder, Kingdomes & Glamporise",
+    },
+    {
+      quote:
+        "My experiences with Russel have been nothing but exceptional. From a keen listener to an above and beyond executor, he well and truly exceeded my expectations. Not only do I recommend him, I have already rehired him for ongoing work. Russel was tasked with redesigning 5 of my webpages. Compared to other web designers I have worked with before, he took initiative, provided suggestions and pre-designed the pages before executing on the ideas to ensure I liked them. He is also incredibly friendly and proactive.",
+      name: "Jesse Anyan",
+      role: "Founder, Kingdomes & Glamporise",
+    },
+  ],
+
   // ---- Footer / top "Links" column (appears on every page) ----
   links: [
     { label: "LinkedIn", url: "https://linkedin.com/in/russel-pineda-4b9441347" },

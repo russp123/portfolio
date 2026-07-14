@@ -758,6 +758,37 @@ main { padding: 40px; flex: 1; }
   white-space: nowrap;
 }
 
+/* "What clients say" — real reviews, quoted verbatim. Sits between the
+   project grid and the footer. */
+.testimonials { margin-top: 64px; }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 18px;
+}
+.testimonial-card {
+  margin: 0;
+  padding: 24px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.testimonial-quote {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+.testimonial-quote::before { content: "\201C"; }
+.testimonial-quote::after { content: "\201D"; }
+.testimonial-attribution { display: flex; flex-direction: column; gap: 2px; }
+.testimonial-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.testimonial-role { font-size: 12px; color: var(--text-secondary); }
+
 @media (max-width: 900px) {
   .top-grid { grid-template-columns: 1fr; gap: 32px; }
   /* Avatar sits above the About text instead of squeezed beside it
@@ -766,6 +797,7 @@ main { padding: 40px; flex: 1; }
   /* keep row-gap 0 so the masonry span math (js/theme.js) stays the
      source of vertical spacing; only the column count/gap changes. */
   .projects-grid { grid-template-columns: repeat(2, 1fr); column-gap: 12px; row-gap: 0; }
+  .testimonials-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   /* Stack the header, and start its content BELOW the fixed top row (the

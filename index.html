@@ -85,6 +85,11 @@
       </div>
 
       <section class="projects-grid" id="projects-grid"></section>
+
+      <section class="testimonials" id="testimonials-section">
+        <div class="section-label">What clients say</div>
+        <div class="testimonials-grid" id="testimonials-grid"></div>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -242,6 +247,25 @@
       // Defined in js/theme.js; called here because the cards above
       // were just built and don't exist during theme.js's own init.
       if (typeof initProjectMasonry === "function") initProjectMasonry();
+
+      // Testimonials — real client reviews (verbatim, from Upwork).
+      const testimonialsGrid = document.getElementById("testimonials-grid");
+      const testimonialsSection = document.getElementById("testimonials-section");
+      if (testimonialsGrid && Array.isArray(PORTFOLIO.testimonials) && PORTFOLIO.testimonials.length) {
+        testimonialsGrid.innerHTML = PORTFOLIO.testimonials
+          .map(
+            (t) => `<figure class="testimonial-card">
+              <blockquote class="testimonial-quote">${t.quote}</blockquote>
+              <figcaption class="testimonial-attribution">
+                <span class="testimonial-name">${t.name}</span>
+                <span class="testimonial-role">${t.role}</span>
+              </figcaption>
+            </figure>`
+          )
+          .join("");
+      } else if (testimonialsSection) {
+        testimonialsSection.remove();
+      }
     });
   </script>
 </body>
