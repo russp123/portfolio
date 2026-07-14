@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="detail-hero">
       ${renderHeroMedia(project)}
       ${renderHeroCredit(project)}
-      <a class="detail-close" href="index.html" title="Close">×</a>
+      <a class="detail-close" href="/" title="Close">×</a>
       <div class="detail-hero-scroll-cue">
         <span class="label">Scroll to view more</span>
         <span class="arrow">↓</span>

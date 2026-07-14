@@ -112,7 +112,7 @@ function initDetailHero() {
   heroEl.innerHTML = `
     ${renderHeroMedia(project)}
     ${renderHeroCredit(project)}
-    <a class="detail-close" href="index.html" title="Close">×</a>
+    <a class="detail-close" href="/" title="Close">×</a>
     <div class="detail-hero-scroll-cue">
       <span class="label">Scroll to view more</span>
       <span class="arrow">↓</span>
@@ -296,7 +296,7 @@ function initAboutButton() {
   if (/\/about(\.html)?$/.test(window.location.pathname)) return;
   const a = document.createElement("a");
   a.className = "about-toggle";
-  a.href = "about.html";
+  a.href = "/about";
   a.textContent = "About";
   document.body.appendChild(a);
   const russellm = document.getElementById("russellm-toggle");
