@@ -13,6 +13,11 @@ const PORTFOLIO = {
   location: "Pampanga, Philippines",
   email: "rsslpnd@gmail.com",
 
+  // Availability pill in the header. Flip `available` to false when
+  // you're booked — the pill hides entirely.
+  available: true,
+  availableText: "Open to work",
+
   // ---- Home page: About ----
   // Raw HTML is allowed here so you can inline links the same way
   // joseph.cv does (e.g. an underlined word with a small arrow).
@@ -31,13 +36,33 @@ const PORTFOLIO = {
   ],
 
   // ---- Home page: Skills ----
-  // Each category renders as a labeled row of comma-separated skills.
+  // The source of truth for skill categories + their items. On the home
+  // page these render as chips under the "What I do" pillars (each pillar
+  // lists which categories it covers, below); clicking a chip reveals its
+  // items. Also fed to RUSSELLM via api/_bio.js.
   skills: [
     { category: "Full-Stack Development", items: "JavaScript, HTML, CSS, PHP, MySQL, Git, GitHub" },
     { category: "WordPress & CMS", items: "WordPress + WP Multisite, Elementor Pro, WooCommerce, API Integration, Database Optimization" },
     { category: "Automation & Marketing", items: "GoHighLevel (CRM workflows, lead scoring), Email Deliverability (SPF/DKIM/DMARC), Mailgun Integration" },
     { category: "DevOps & Infrastructure", items: "Cloudflare (DDoS mitigation, WAF, security hardening), DNS, SSL/TLS" },
     { category: "Design", items: "Adobe Photoshop, Figma, Canva, SVG Design" },
+  ],
+
+  // ---- Home page: "What I do" pillars ----
+  // Each pillar carries a description + the skill categories it covers
+  // (must match a `category` in `skills` above). Rendered in the right
+  // column; the categories appear as click-to-reveal chips.
+  services: [
+    {
+      title: "Websites & Platforms",
+      body: "WordPress & Multisite builds, high-converting landing pages, and the front end to match — architected to load fast and hold up.",
+      skills: ["Full-Stack Development", "WordPress & CMS", "Design", "DevOps & Infrastructure"],
+    },
+    {
+      title: "Automation & CRM",
+      body: "GoHighLevel funnels, lead capture, and the workflows that run the follow-up so you don't have to.",
+      skills: ["Automation & Marketing"],
+    },
   ],
 
   // ---- Home page: Project grid ----
@@ -55,7 +80,7 @@ const PORTFOLIO = {
       title: "A 5-Page Funnel System",
       tag: "Funnel & CRM System",
       badge: "Live",
-      cover: "url('assets/default.jpg'), linear-gradient(135deg,#1f3a93,#26d0ce)",
+      cover: "url('assets/default.jpg')",
       size: "tall",
       page: "/council-roadmap",
       video: "assets/councilroadmap.mp4",
@@ -66,7 +91,7 @@ const PORTFOLIO = {
       title: "Glamporise Website",
       tag: "WordPress Multisite Platform",
       badge: "Live",
-      cover: "url('assets/glamporise.jpg'), linear-gradient(135deg,#06402b,#2e8b6f)",
+      cover: "url('assets/glamporise.jpg')",
       size: "square",
       page: "/glamporise-website",
     },
@@ -76,7 +101,7 @@ const PORTFOLIO = {
       title: "Real-Time Product Configurator",
       tag: "Interactive Web App",
       badge: "Live",
-      cover: "url('assets/default.jpg'), linear-gradient(135deg,#3a2a1a,#c9a227)",
+      cover: "url('assets/default.jpg')",
       size: "wide",
       video: "assets/configurator.mp4",
       page: "/configurator",
@@ -87,7 +112,7 @@ const PORTFOLIO = {
       title: "An Omnichannel AI Assistant",
       tag: "Conversational AI",
       badge: "Live",
-      cover: "url('assets/chatbot.jpg'), linear-gradient(135deg,#0f2027,#2c5364)",
+      cover: "url('assets/chatbot.jpg')",
       size: "wide",
       page: "/project?id=kingdomes-assistant",
       subtitle: "Conversational AI",
@@ -109,7 +134,7 @@ const PORTFOLIO = {
       title: "$1K/Year Plugin Cleanup",
       tag: "Infrastructure Audit",
       badge: null,
-      cover: "url('assets/plugin.jpg'), linear-gradient(135deg,#3a2a1a,#c9a227)",
+      cover: "url('assets/plugin.jpg')",
       size: "square",
       page: "/project?id=cost-optimization",
       subtitle: "Infrastructure Audit",
@@ -125,7 +150,7 @@ const PORTFOLIO = {
       title: "Brand Identity System",
       tag: "Logo & Visual Design",
       badge: null,
-      cover: "url('assets/default.jpg'), linear-gradient(135deg,#3a2a1a,#c9a227)",
+      cover: "url('assets/default.jpg')",
       size: "square",
       page: "/brand-identity",
       subtitle: "Logo & Visual Design",
@@ -141,7 +166,7 @@ const PORTFOLIO = {
       title: "Performance Benchmark",
       tag: "PageSpeed Audit",
       badge: null,
-      cover: "url('assets/plugin-opt.jpg'), linear-gradient(135deg,#0f2027,#2c5364)",
+      cover: "url('assets/plugin-opt.jpg')",
       size: "wide",
       page: "/project?id=performance-benchmark",
       subtitle: "PageSpeed Audit",
@@ -163,7 +188,7 @@ const PORTFOLIO = {
       title: "Masterclass Funnel",
       tag: "Landing Page & Funnel",
       badge: "18 sign-ups",
-      cover: "url('assets/mc-1-hero.jpg'), linear-gradient(135deg,#16241a,#3c5a3a)",
+      cover: "url('assets/mc-1-hero.jpg')",
       size: "wide",
       page: "/masterclass",
     },
@@ -173,7 +198,7 @@ const PORTFOLIO = {
       title: "The NSW Glamping Property Decoder",
       tag: "Ebook Design",
       badge: null,
-      cover: "url('assets/837shots_so.jpeg'), linear-gradient(135deg,#3a2a1a,#c9a227)",
+      cover: "url('assets/837shots_so.jpeg')",
       size: "wide",
       page: "/ebook-design",
       subtitle: "Ebook Design",
@@ -188,7 +213,7 @@ const PORTFOLIO = {
       title: "Founding Offer",
       tag: "Conversion Landing Page",
       badge: null,
-      cover: "url('assets/founding-offer.jpg'), linear-gradient(135deg,#141414,#444444)",
+      cover: "url('assets/founding-offer.jpg')",
       size: "square",
       page: "/founding-offer",
     },
@@ -198,7 +223,7 @@ const PORTFOLIO = {
       title: "Ground Zero Sales Page",
       tag: "Post-Masterclass Sales Page",
       badge: null,
-      cover: "url('assets/default.jpg'), linear-gradient(135deg,#2b2b2b,#c9a227)",
+      cover: "url('assets/default.jpg')",
       size: "wide",
       page: "/ground-zero",
       video: "assets/dome-edit.mp4",
@@ -209,30 +234,6 @@ const PORTFOLIO = {
 
 
   ],
-
-  // ---- About page (about.html): intro + gallery ----
-  // Intro text reuses `bio` above; `portrait` is the intro photo
-  // (assets/russel.jpg — converted from russel.HEIC). The gallery is an
-  // Instagram-style masonry built from the `gallery` array below. To drop
-  // in a real photo, replace an item's `gradient` + `ratio` with a
-  // `src: "assets/your-photo.jpg"` (the masonry adapts to any shape).
-  about: {
-    portrait: "assets/russel.jpg",
-    gallery: [
-      // Curated starter set — a deliberate spread of me / gaming / food /
-      // nature / travel / work, with interleaved ratios so the masonry
-      // columns fill evenly. Swap a tile's `gradient` + `ratio` for
-      // `src: "assets/your-photo.jpg"` as the real shots come in.
-      { gradient: "linear-gradient(135deg,#3a2a1a,#c9a227)", ratio: "4 / 5", caption: "Progress is just refactoring — one rep at a time." },
-      { gradient: "linear-gradient(135deg,#0f2027,#2c5364)", ratio: "4 / 3", caption: "Where I practice clutch decisions. Allegedly." },
-      { gradient: "linear-gradient(135deg,#1f3a93,#26d0ce)", ratio: "1 / 1", caption: "Fuel for the automation." },
-      { gradient: "linear-gradient(135deg,#16241a,#3c5a3a)", ratio: "3 / 4", caption: "Touching grass — documented proof." },
-      { gradient: "linear-gradient(135deg,#1a2a3a,#4a6a8a)", ratio: "4 / 3", caption: "Off the clock, somewhere new." },
-      { gradient: "linear-gradient(135deg,#3a1a1a,#8a4a2a)", ratio: "1 / 1", caption: "The people who keep me sane." },
-      { gradient: "linear-gradient(135deg,#141414,#444444)", ratio: "4 / 5", caption: "Where the building actually happens." },
-      { gradient: "linear-gradient(135deg,#2e1a2e,#8a4a6a)", ratio: "1 / 1", caption: "One more game, then I ship. Promise." },
-    ],
-  },
 
   // ---- Footer / top "Links" column (appears on every page) ----
   links: [

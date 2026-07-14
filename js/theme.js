@@ -27,9 +27,22 @@ function initHeader() {
   const headerLocation = document.getElementById("header-location");
   if (headerName) headerName.textContent = PORTFOLIO.name;
   if (headerTitle) headerTitle.textContent = PORTFOLIO.title;
-  // Location moved to the footer (see initFooter). Strip the header's
-  // hardcoded placeholder so it no longer shows up top.
+  // Location moved to the footer (see initFooter); strip the header's
+  // hardcoded end slot so it no longer shows up top.
   if (headerLocation) headerLocation.remove();
+
+  // Availability pill — sits beside the name on the LEFT, clear of the
+  // fixed About/RUSSELLM pills at the top-right. Hidden when
+  // PORTFOLIO.available is false.
+  if (PORTFOLIO.available) {
+    const colStart = document.querySelector(".site-header .col-start");
+    if (colStart && !colStart.querySelector(".avail-pill")) {
+      const pill = document.createElement("span");
+      pill.className = "avail-pill";
+      pill.innerHTML = `<span class="avail-dot"></span>${PORTFOLIO.availableText || "Available for work"}`;
+      colStart.appendChild(pill);
+    }
+  }
 }
 
 function initFooter() {

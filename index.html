@@ -74,9 +74,12 @@
           </div>
         </section>
 
+        <!-- "What I do" — service pillars, each with its skill categories
+             as chips that reveal the tech on click. Content from
+             PORTFOLIO.services + PORTFOLIO.skills; rendered below. -->
         <section>
-          <div class="section-label">Skills <span class="section-num">[2]</span></div>
-          <div class="skills-accordion" id="skills-list"></div>
+          <div class="section-label">What I do <span class="section-num">[2]</span></div>
+          <div class="services-list" id="services-list"></div>
           <a class="exp-cue" href="/about">Experience <span aria-hidden="true">→</span></a>
         </section>
       </div>
@@ -104,28 +107,44 @@
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("about-text").innerHTML = `<p>${PORTFOLIO.aboutHtml}</p>`;
 
-      // Skills render as native <details> disclosures: the category
-      // name is always visible (the <summary>), and clicking it slides
-      // the detailed item list open. Keeps the top of the page light —
-      // the long comma-lists are hidden until asked for.
-      document.getElementById("skills-list").innerHTML = PORTFOLIO.skills
+      // "What I do" pillars: title + description + the pillar's skill
+      // categories as chips. Clicking a chip reveals that category's items
+      // (from PORTFOLIO.skills) below the chip row — one open per pillar.
+      const escAttr = (s) => (s || "").replace(/"/g, "&quot;");
+      const itemsByCategory = {};
+      PORTFOLIO.skills.forEach((s) => (itemsByCategory[s.category] = s.items));
+      document.getElementById("services-list").innerHTML = (PORTFOLIO.services || [])
         .map(
-          (s) => `<details class="skills-row">
-            <summary class="skill-category">${s.category}</summary>
-            <div class="skill-items">${s.items}</div>
-          </details>`
+          (sv) => `<div class="service">
+            <h3 class="service-title">${sv.title}</h3>
+            <p class="service-body">${sv.body}</p>
+            <div class="service-skills">
+              ${(sv.skills || [])
+                .map(
+                  (cat) =>
+                    `<button type="button" class="skill-chip" data-items="${escAttr(itemsByCategory[cat])}">${cat}</button>`
+                )
+                .join("")}
+            </div>
+            <div class="skill-reveal" hidden></div>
+          </div>`
         )
         .join("");
 
-      // Accordion: only one category open at a time. When one opens,
-      // close the rest — keeps the skills column's height predictable
-      // so expanding an item doesn't shuffle the layout around.
-      const skillRows = document.querySelectorAll("#skills-list .skills-row");
-      skillRows.forEach((row) => {
-        row.addEventListener("toggle", () => {
-          if (!row.open) return;
-          skillRows.forEach((other) => {
-            if (other !== row) other.open = false;
+      document.querySelectorAll("#services-list .service").forEach((pillar) => {
+        const reveal = pillar.querySelector(".skill-reveal");
+        pillar.querySelectorAll(".skill-chip").forEach((chip) => {
+          chip.addEventListener("click", () => {
+            const wasActive = chip.classList.contains("active");
+            pillar.querySelectorAll(".skill-chip").forEach((c) => c.classList.remove("active"));
+            if (wasActive) {
+              reveal.hidden = true;
+              reveal.textContent = "";
+            } else {
+              chip.classList.add("active");
+              reveal.textContent = chip.dataset.items;
+              reveal.hidden = false;
+            }
           });
         });
       });
