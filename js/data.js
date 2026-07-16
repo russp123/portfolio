@@ -30,7 +30,7 @@ const PORTFOLIO = {
 
   // ---- Home page: Experience (shown in the "Experience" column) ----
   experience: [
-    { name: "Kingdomes Leisure Pty Ltd", url: "https://kingdomes.com.au", year: "2025 —", roles: ["Lead Full-Stack Developer"] },
+    { name: "<a href=\"https://kingdomes.com.au\">Kingdomes Leisure Pty Ltd</a> & <a href=\"https://glamporise.com\">Glamporise</a>", url: null, year: "2025 —", roles: ["Lead Full-Stack Developer"] },
     { name: "La Rose Noire Philippines", url: "https://la-rose-noire.com/", year: "2025", roles: ["Associate Software Engineer"] },
     { name: "Cloudstaff Global Workplace Inc.", url: "https://www.cloudstaff.com/", year: "2025", roles: ["Associate Software Engineer Trainee", "Associate Software Quality Assurance Engineer Trainee"] },
   ],
