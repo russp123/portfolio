@@ -27,6 +27,10 @@ let russellmHistory = [];
 let russellmOpen = false;
 let russellmSending = false;
 let russellmLastTopic = null;
+// The greeting isn't part of russellmHistory (it's not sent to the API),
+// so gate it with its own flag — otherwise every open/close/open before
+// the first real message appends another copy of the greeting.
+let russellmGreeted = false;
 
 function initRussellm() {
   const toggle = document.getElementById("russellm-toggle");
@@ -89,7 +93,10 @@ function openRussellmDrawer() {
   drawer.classList.add("open");
   overlay.classList.add("open");
   drawer.setAttribute("aria-hidden", "false");
-  if (russellmHistory.length === 0) renderRussellmGreeting();
+  if (!russellmGreeted) {
+    russellmGreeted = true;
+    renderRussellmGreeting();
+  }
   syncRussellmViewport();
   // Don't auto-focus on touch devices — it forces the keyboard open
   // the instant the drawer appears, which is jarring; let the user tap

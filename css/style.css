@@ -152,6 +152,9 @@ body.page-leave .site-footer {
    under 200, or bump this comment): header=50, .theme-toggle=100,
    .russellm-toggle=110, .russellm-overlay=120, .russellm-drawer=130,
    .mailto-toast=200. */
+/* RUSSELLM is the signature feature, so its pill is the PRIMARY action:
+   solid inverted fill (same accent language as the niche thumb and
+   active skill chips), theme-aware via --text-primary/--bg. */
 .russellm-toggle {
   position: fixed;
   top: 22px;
@@ -159,18 +162,23 @@ body.page-leave .site-footer {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
+  color: var(--bg);
+  border: 1px solid var(--text-primary);
+  background: var(--text-primary);
   padding: 8px 14px;
   border-radius: 100px;
   cursor: pointer;
   z-index: 110;
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
-.russellm-toggle:hover { border-color: var(--badge-accent); }
+.russellm-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
 
-/* The "About" pill — visually identical to .russellm-toggle, placed
-   just to its left by theme.js (initAboutButton sets `right`). */
+/* The "About" pill — the SECONDARY action beside RUSSELLM: outlined,
+   full-contrast text. Placed just left of RUSSELLM by theme.js
+   (initAboutButton sets `right`). */
 .about-toggle {
   position: fixed;
   top: 22px;
@@ -179,15 +187,19 @@ body.page-leave .site-footer {
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--text-primary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--text-tertiary);
   background: var(--bg-elevated);
   padding: 8px 14px;
   border-radius: 100px;
   text-decoration: none;
   cursor: pointer;
   z-index: 110;
+  transition: border-color 160ms ease, transform 160ms ease;
 }
-.about-toggle:hover { border-color: var(--badge-accent); }
+.about-toggle:hover {
+  border-color: var(--text-primary);
+  transform: translateY(-1px);
+}
 
 /* Location line, injected into the footer by theme.js (initFooter) now
    that it's no longer in the header. */
@@ -603,8 +615,11 @@ main { padding: 40px; flex: 1; }
      not — so the first click (which permanently puts real text into
      this span) can't make the widget taller than it started out. */
   min-height: 16px;
-  font-size: 13px;
-  font-weight: 600;
+  /* Status-line quips read as terminal output, so they get the same
+     mono treatment as the site's labels and pills. */
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
   color: var(--text-primary);
   margin-bottom: 6px;
   white-space: nowrap;
@@ -616,12 +631,42 @@ main { padding: 40px; flex: 1; }
 }
 .avatar-word.show { opacity: 1; transform: scale(1); }
 
-/* Static label, no animation/transition — just a plain nudge that
-   it's clickable, sitting underneath the character. */
-.avatar-hint {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  margin-top: 6px;
+/* Click affordances (replacing the old "Click me!" label):
+   1) a small pulsing dot at the avatar's shoulder — the same "alive"
+      visual language as the availability pill's dot — and
+   2) an occasional idle wiggle + a tilt on hover (below). */
+.avatar-dot {
+  position: absolute;
+  /* sits on the upper-right edge of the 100px avatar image, which
+     starts ~22px down (the reserved word row) inside the 120px widget */
+  top: 30px;
+  right: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+  animation: avail-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+.avatar-img {
+  animation: avatar-idle 6s ease-in-out infinite;
+  transition: transform 180ms ease;
+  transform-origin: 50% 85%;
+}
+.avatar-widget:hover .avatar-img { transform: rotate(-4deg) scale(1.05); }
+@keyframes avatar-idle {
+  0%, 88%, 100% { rotate: 0deg; }
+  90% { rotate: -3deg; }
+  92% { rotate: 3deg; }
+  94% { rotate: -2deg; }
+  96% { rotate: 1.5deg; }
+  98% { rotate: 0deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-dot { animation: none; }
+  .avatar-img { animation: none; transition: none; }
+  .avatar-widget:hover .avatar-img { transform: none; }
 }
 
 /* ---------------- Skills ---------------- */
@@ -756,6 +801,73 @@ main { padding: 40px; flex: 1; }
   padding: 2px 8px;
   border-radius: 100px;
   white-space: nowrap;
+}
+
+/* Niche filter — a centered segmented pill above the project grid.
+   Same elevated-pill DNA as the RUSSELLM/About/availability pills:
+   mono uppercase labels, hairline border, and a sliding "thumb" that
+   glides behind the active segment (inverted, like .skill-chip.active).
+   On narrow screens the pill scrolls horizontally (scrollbar hidden). */
+.niche-bar-wrap { display: flex; justify-content: center; margin: 10px 0 36px; }
+.niche-bar {
+  position: relative;
+  display: inline-flex;
+  gap: 4px;
+  padding: 5px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.niche-bar::-webkit-scrollbar { display: none; }
+.niche-thumb {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 0;
+  width: 0;
+  background: var(--text-primary);
+  border-radius: 100px;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+              width 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 0;
+}
+.niche-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border: 0;
+  background: transparent;
+  border-radius: 100px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 180ms ease;
+}
+.niche-btn:hover { color: var(--text-primary); }
+.niche-btn.active { color: var(--bg); }
+.niche-icon { display: inline-flex; }
+.niche-icon svg { width: 12px; height: 12px; display: block; }
+.niche-count {
+  font-size: 9px;
+  opacity: 0.55;
+  transform: translateY(-3px);
+}
+.project-card.filtered-out { display: none; }
+@media (prefers-reduced-motion: reduce) { .niche-thumb { transition: none; } }
+@media (max-width: 600px) {
+  /* Let the pill bleed to the screen edges and scroll. */
+  .niche-bar-wrap { justify-content: flex-start; margin-bottom: 28px; }
+  .niche-btn { padding: 7px 11px; }
 }
 
 /* "What clients say" — real reviews, quoted verbatim. Sits between the

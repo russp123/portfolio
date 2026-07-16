@@ -66,7 +66,7 @@
           <div class="avatar-widget" id="avatar-widget" role="button" tabindex="0" aria-label="Click for a surprise">
             <span class="avatar-word" id="avatar-word"></span>
             <img class="avatar-img" id="avatar-img" src="assets/avatar-neutral.png" alt="Click for a surprise" />
-            <span class="avatar-hint">Click me!</span>
+            <span class="avatar-dot" aria-hidden="true"></span>
           </div>
           <div class="about-row-text">
             <div class="section-label">About <span class="section-num">[1]</span></div>
@@ -82,6 +82,14 @@
           <div class="services-list" id="services-list"></div>
           <a class="exp-cue" href="/about">Experience <span aria-hidden="true">→</span></a>
         </section>
+      </div>
+
+      <!-- Niche filter — a centered segmented pill; segments render from
+           PORTFOLIO.niches, the thumb slides behind the active one. -->
+      <div class="niche-bar-wrap">
+        <div class="niche-bar" id="niche-bar" role="tablist" aria-label="Filter projects by niche">
+          <span class="niche-thumb" id="niche-thumb" aria-hidden="true"></span>
+        </div>
       </div>
 
       <section class="projects-grid" id="projects-grid"></section>
@@ -173,7 +181,7 @@
           const cover = p.video
             ? `<div class="project-cover size-${p.size || "square"}" style="${bg}"><video class="cover-media" data-src="${p.video}" muted loop playsinline preload="none"></video></div>`
             : `<div class="project-cover size-${p.size || "square"}" style="${bg}"></div>`;
-          return `<a class="project-card" href="${p.page}" data-project-id="${p.id}">
+          return `<a class="project-card" href="${p.page}" data-project-id="${p.id}" data-niche="${p.niche || ""}">
             ${cover}
             <div class="project-meta">
               <div class="project-title-row">
@@ -247,6 +255,87 @@
       // Defined in js/theme.js; called here because the cards above
       // were just built and don't exist during theme.js's own init.
       if (typeof initProjectMasonry === "function") initProjectMasonry();
+
+      // ---- Niche filter bar --------------------------------------
+      // Centered segmented pill above the grid. A sliding "thumb"
+      // glides behind the active segment; picking one hides the
+      // non-matching tiles, re-packs the masonry, and replays the
+      // staggered reveal on the survivors.
+      const NICHE_ICONS = {
+        all: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>',
+        web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9.5h18"/></svg>',
+        funnels: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4.5h16l-6 7.5v6.5l-4 1.5v-8L4 4.5z"/></svg>',
+        automation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12l1-8z"/></svg>',
+        security: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l7 2.8V11c0 4.8-3.4 8.3-7 9.7C8.4 19.3 5 15.8 5 11V5.8L12 3z"/></svg>',
+        design: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12.5 18.5 19 12l-4-4-6.5 6.5L7 19l5.5-.5z"/><path d="M14.5 8.5 16 7l4 4-1.5 1.5"/></svg>',
+      };
+      const nicheBar = document.getElementById("niche-bar");
+      const nicheThumb = document.getElementById("niche-thumb");
+      if (nicheBar && nicheThumb && Array.isArray(PORTFOLIO.niches)) {
+        const counts = { all: PORTFOLIO.projects.length };
+        PORTFOLIO.projects.forEach((p) => { counts[p.niche] = (counts[p.niche] || 0) + 1; });
+        const segments = [{ id: "all", label: "All" }, ...PORTFOLIO.niches];
+        nicheBar.insertAdjacentHTML(
+          "beforeend",
+          segments
+            .map(
+              (n) => `<button type="button" class="niche-btn${n.id === "all" ? " active" : ""}" data-niche="${n.id}" role="tab" aria-selected="${n.id === "all"}">
+                <span class="niche-icon">${NICHE_ICONS[n.id] || ""}</span>
+                <span class="niche-label">${n.label}</span>
+                <span class="niche-count">${counts[n.id] || 0}</span>
+              </button>`
+            )
+            .join("")
+        );
+
+        const moveNicheThumb = (btn) => {
+          nicheThumb.style.width = btn.offsetWidth + "px";
+          nicheThumb.style.transform = `translateX(${btn.offsetLeft}px)`;
+        };
+
+        const applyNicheFilter = (niche) => {
+          let shown = 0;
+          document.querySelectorAll(".project-card").forEach((card) => {
+            const show = niche === "all" || card.dataset.niche === niche;
+            card.classList.toggle("filtered-out", !show);
+            if (show) {
+              // reset the reveal so survivors stagger back in
+              card.classList.remove("is-visible");
+              card.style.transitionDelay = `${(shown % 6) * 60}ms`;
+              shown += 1;
+            }
+          });
+          if (typeof initProjectMasonry === "function") initProjectMasonry();
+          // Force a style flush between removing and re-adding .is-visible
+          // so the reveal transition replays (rAF can be throttled in
+          // background tabs, so a synchronous reflow is more reliable).
+          void document.body.offsetHeight;
+          document.querySelectorAll(".project-card:not(.filtered-out)").forEach((c) => c.classList.add("is-visible"));
+        };
+
+        nicheBar.addEventListener("click", (e) => {
+          const btn = e.target.closest(".niche-btn");
+          if (!btn || btn.classList.contains("active")) return;
+          nicheBar.querySelectorAll(".niche-btn").forEach((b) => {
+            b.classList.remove("active");
+            b.setAttribute("aria-selected", "false");
+          });
+          btn.classList.add("active");
+          btn.setAttribute("aria-selected", "true");
+          moveNicheThumb(btn);
+          applyNicheFilter(btn.dataset.niche);
+        });
+
+        // Position the thumb under "All" now, and again once fonts have
+        // loaded (metrics shift) and on resize.
+        const syncThumb = () => {
+          const active = nicheBar.querySelector(".niche-btn.active");
+          if (active) moveNicheThumb(active);
+        };
+        syncThumb();
+        window.addEventListener("load", syncThumb);
+        window.addEventListener("resize", syncThumb);
+      }
 
       // Testimonials — real client reviews (verbatim, from Upwork).
       const testimonialsGrid = document.getElementById("testimonials-grid");
