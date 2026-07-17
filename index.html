@@ -9,13 +9,13 @@
 <meta property="og:title" content="Russel A. Pineda — Full-Stack Developer" />
 <meta property="og:description" content="Full-stack developer in Pampanga, Philippines. I build WordPress platforms, high-converting landing pages, and the automation that runs them." />
 <meta property="og:url" content="https://russelpineda.com/" />
-<meta property="og:image" content="https://russelpineda.com/assets/og-default.jpg" />
+<meta property="og:image" content="https://russelpineda.com/assets/preview.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Russel A. Pineda — Full-Stack Developer" />
 <meta name="twitter:description" content="Full-stack developer in Pampanga, Philippines. I build WordPress platforms, high-converting landing pages, and the automation that runs them." />
-<meta name="twitter:image" content="https://russelpineda.com/assets/og-default.jpg" />
+<meta name="twitter:image" content="https://russelpineda.com/assets/preview.jpg" />
 <title>Russel A. Pineda — Full-Stack Developer</title>
 <script>
   // Runs synchronously, before anything paints — sets the theme
@@ -24,6 +24,15 @@
   // preference would flash dark for a frame on every load (theme.js,
   // which runs later, would be too late to prevent that).
   document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+  // Intro gate — decided here, pre-paint, so the overlay covers the page
+  // from the very first frame (no homepage flash) and repeat visitors
+  // never even see the overlay element. Once per browser session;
+  // reduced-motion users skip it entirely.
+  try {
+    if (!sessionStorage.getItem("introPlayed") && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.setAttribute("data-intro", "1");
+    }
+  } catch (e) {}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,6 +42,12 @@
 <link rel="icon" href="assets/portfolio-logo.jpg" />
 </head>
 <body>
+
+  <!-- Reload intro — testimonial cards stream across a blank screen,
+       then lift to reveal the page. Only shown when <html data-intro="1">
+       (set pre-paint in <head>); populated + sequenced in the script
+       below. -->
+  <div id="intro-overlay" aria-hidden="true"></div>
 
   <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
 
@@ -94,6 +109,12 @@
 
       <section class="projects-grid" id="projects-grid"></section>
 
+      <!-- Poster wall — only visible on the "E-Commerce Posters" tab
+           (deliberately EXCLUDED from "All" so 100+ posters don't drown
+           the case studies). Images come from js/posters.js, which is
+           auto-generated from assets/posters/ by scripts/gen-posters.js. -->
+      <section class="posters-grid" id="posters-grid" hidden></section>
+
       <section class="testimonials" id="testimonials-section">
         <div class="section-label">What people say</div>
         <div class="testimonials-grid" id="testimonials-grid"></div>
@@ -113,11 +134,48 @@
 
   <script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/posters.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/russellm.js"></script>
   <script src="js/avatar.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // ---- Reload intro: testimonials fast-stream ------------------
+      // Cards sweep across the blank overlay in overlapping succession
+      // (in from one side, a beat near center, out the other side),
+      // alternating directions. ~2.5s total; any input skips it.
+      const introOverlay = document.getElementById("intro-overlay");
+      if (introOverlay && document.documentElement.getAttribute("data-intro") === "1" && Array.isArray(PORTFOLIO.testimonials) && PORTFOLIO.testimonials.length) {
+        const introCards = PORTFOLIO.testimonials.slice(0, 5);
+        introOverlay.innerHTML =
+          `<div class="intro-label">What clients say</div>` +
+          introCards
+            .map(
+              (t, i) => `<figure class="intro-card" style="animation-delay:${i * 1050}ms">
+                <blockquote>${t.quote}</blockquote>
+                <figcaption><span>${t.name}</span><span>${t.role}</span></figcaption>
+              </figure>`
+            )
+            .join("");
+        const introTotal = (introCards.length - 1) * 1050 + 1650;
+        let introDone = false;
+        const finishIntro = () => {
+          if (introDone) return;
+          introDone = true;
+          try { sessionStorage.setItem("introPlayed", "1"); } catch (e) {}
+          introOverlay.classList.add("intro-done");
+          setTimeout(() => {
+            introOverlay.remove();
+            document.documentElement.removeAttribute("data-intro");
+          }, 450);
+          ["click", "keydown", "wheel", "touchstart"].forEach((ev) => window.removeEventListener(ev, finishIntro));
+        };
+        ["click", "keydown", "wheel", "touchstart"].forEach((ev) => window.addEventListener(ev, finishIntro, { passive: true }));
+        setTimeout(finishIntro, introTotal);
+      } else if (introOverlay) {
+        introOverlay.remove();
+      }
+
       document.getElementById("about-text").innerHTML = `<p>${PORTFOLIO.aboutHtml}</p>`;
 
       // "What I do" pillars: title + description + the pillar's skill
@@ -268,13 +326,22 @@
         automation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12l1-8z"/></svg>',
         security: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l7 2.8V11c0 4.8-3.4 8.3-7 9.7C8.4 19.3 5 15.8 5 11V5.8L12 3z"/></svg>',
         design: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12.5 18.5 19 12l-4-4-6.5 6.5L7 19l5.5-.5z"/><path d="M14.5 8.5 16 7l4 4-1.5 1.5"/></svg>',
+        posters: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><circle cx="9" cy="9.5" r="1.6"/><path d="M3.5 17l4.5-4.5 3.5 3.5 4-4 5 5"/></svg>',
       };
       const nicheBar = document.getElementById("niche-bar");
       const nicheThumb = document.getElementById("niche-thumb");
+      const postersGrid = document.getElementById("posters-grid");
+      // POSTERS (js/posters.js, auto-generated) is a list of categories:
+      // { dir, label, files } — one section per subfolder of assets/posters/.
+      const posterCats = typeof POSTERS !== "undefined" && Array.isArray(POSTERS) ? POSTERS : [];
+      const posterCount = posterCats.reduce((n, c) => n + c.files.length, 0);
       if (nicheBar && nicheThumb && Array.isArray(PORTFOLIO.niches)) {
-        const counts = { all: PORTFOLIO.projects.length };
+        const counts = { all: PORTFOLIO.projects.length, posters: posterCount };
         PORTFOLIO.projects.forEach((p) => { counts[p.niche] = (counts[p.niche] || 0) + 1; });
+        // "All" deliberately excludes the poster wall — 100+ posters would
+        // drown the case studies, so they live only on their own tab.
         const segments = [{ id: "all", label: "All" }, ...PORTFOLIO.niches];
+        if (posterCount) segments.push({ id: "posters", label: "E-Commerce Posters" });
         nicheBar.insertAdjacentHTML(
           "beforeend",
           segments
@@ -294,12 +361,38 @@
         };
 
         const applyNicheFilter = (niche) => {
+          // The posters tab swaps the project grid out for the poster
+          // wall (built lazily on first open so 103 images don't load
+          // unless someone actually asks for them).
+          const showPosters = niche === "posters";
+          if (postersGrid) {
+            if (showPosters && !postersGrid.childElementCount) {
+              // One titled section per category (subfolder), newest first.
+              postersGrid.innerHTML = posterCats
+                .map(
+                  (c) => `<div class="poster-cat">
+                    <div class="section-label">${c.label} <span class="section-num">[${c.files.length}]</span></div>
+                    <div class="poster-wall">${c.files
+                      .map((f) => {
+                        const folder = c.dir ? encodeURIComponent(c.dir) + "/" : "";
+                        const file = encodeURIComponent(f);
+                        return `<img class="poster-item" loading="lazy" decoding="async" src="assets/posters/${folder}${file}" alt="${c.label} — poster design" />`;
+                      })
+                      .join("")}</div>
+                  </div>`
+                )
+                .join("");
+            }
+            postersGrid.hidden = !showPosters;
+          }
           let shown = 0;
           document.querySelectorAll(".project-card").forEach((card) => {
-            const show = niche === "all" || card.dataset.niche === niche;
+            const wasHidden = card.classList.contains("filtered-out");
+            const show = !showPosters && (niche === "all" || card.dataset.niche === niche);
             card.classList.toggle("filtered-out", !show);
-            if (show) {
-              // reset the reveal so survivors stagger back in
+            // Only replay the reveal on cards that were actually hidden —
+            // cards already on screen stay put (no full-grid "flash").
+            if (show && wasHidden) {
               card.classList.remove("is-visible");
               card.style.transitionDelay = `${(shown % 6) * 60}ms`;
               shown += 1;
@@ -335,6 +428,18 @@
         syncThumb();
         window.addEventListener("load", syncThumb);
         window.addEventListener("resize", syncThumb);
+
+        // Mobile: fade + chevron on the pill's right edge while more
+        // segments are hidden off-screen; disappears at scroll end.
+        const barWrap = nicheBar.parentElement;
+        const updateBarFade = () => {
+          barWrap.classList.toggle("scrollable", nicheBar.scrollWidth > nicheBar.clientWidth + 6);
+          barWrap.classList.toggle("scroll-end", nicheBar.scrollLeft + nicheBar.clientWidth >= nicheBar.scrollWidth - 6);
+        };
+        nicheBar.addEventListener("scroll", updateBarFade, { passive: true });
+        window.addEventListener("resize", updateBarFade);
+        window.addEventListener("load", updateBarFade);
+        updateBarFade();
       }
 
       // Testimonials — real client reviews (verbatim, from Upwork).
