@@ -148,7 +148,7 @@
       if (introOverlay && document.documentElement.getAttribute("data-intro") === "1" && Array.isArray(PORTFOLIO.testimonials) && PORTFOLIO.testimonials.length) {
         const introCards = PORTFOLIO.testimonials.slice(0, 5);
         introOverlay.innerHTML =
-          `<div class="intro-label">What clients say</div>` +
+          `<div class="intro-label">What people say</div>` +
           introCards
             .map(
               (t, i) => `<figure class="intro-card" style="animation-delay:${i * 1050}ms">
