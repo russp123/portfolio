@@ -514,24 +514,32 @@ main { padding: 40px; flex: 1; }
 }
 .about-text .about-cta sup { font-size: 9px; margin-left: 1px; }
 
-/* Small "Experience →" cue at the foot of the Skills column — points to
-   the full work history on the About page (where Experience now lives).
-   Sits apart from the accordion with a hairline divider above it. */
+/* "Experience →" button at the foot of the What-I-do column — points to
+   the full work history on the About page. A proper outlined pill (same
+   secondary-button language as the About toggle) so people actually
+   notice it's clickable, not a footnote. */
 .exp-cue {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border, rgba(0, 0, 0, 0.1));
-  width: 100%;
-  font-size: 13px;
-  color: var(--text-secondary);
+  gap: 8px;
+  margin-top: 24px;
+  padding: 9px 16px;
+  border: 1px solid var(--text-tertiary);
+  border-radius: 100px;
+  background: var(--bg-elevated);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-primary);
   text-decoration: none;
-  transition: color 140ms ease, gap 140ms ease;
+  transition: border-color 160ms ease, transform 160ms ease;
 }
 .exp-cue span { transition: transform 140ms ease; }
-.exp-cue:hover { color: var(--text-primary); }
+.exp-cue:hover {
+  border-color: var(--text-primary);
+  transform: translateY(-1px);
+}
 .exp-cue:hover span { transform: translateX(3px); }
 
 .list-col { display: flex; flex-direction: column; gap: 10px; }

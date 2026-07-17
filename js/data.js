@@ -322,7 +322,7 @@ const PORTFOLIO = {
       size: "wide",
       page: "/ground-zero",
       video: "assets/dome-edit.mp4",
-      heroCredit: { label: "Rendered by: Carlos Jingo", url: "https://www.facebook.com/wearysijey#" },
+      heroCredit: { label: "Rendered by: Carlos Jingco", url: "https://www.facebook.com/wearysijey#" },
 
 
     },
