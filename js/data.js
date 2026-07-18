@@ -84,6 +84,7 @@ const PORTFOLIO = {
   // (portrait). Reorder the objects to reorder tiles; change `size`
   // to reshape a tile. js/theme.js initProjectMasonry() packs them.
   projects: [
+     
     {
       id: "council-roadmap",
       niche: "funnels",
@@ -91,7 +92,6 @@ const PORTFOLIO = {
       title: "Membership Sales Funnel",
       tag: "Funnel & CRM System",
       badge: "Live",
-      cover: "url('assets/default.jpg')",
       size: "tall",
       page: "/council-roadmap",
       video: "assets/councilroadmap.mp4",
@@ -114,12 +114,36 @@ const PORTFOLIO = {
       title: "Interactive Shop Experience",
       tag: "Interactive Web App",
       badge: "Live",
-      cover: "url('assets/default.jpg')",
       size: "wide",
       video: "assets/configurator.mp4",
       page: "/configurator",
     },
     {
+      // Highlight — kept first in the array so it leads the grid.
+      id: "vitals",
+      niche: "web",
+      llm: "Site Health Scanner (Vitals, vitals-ecru.vercel.app) — a solo-built, full-stack Next.js 16 app that scans any URL and grades it A–F across five checks: performance (Google PageSpeed Insights, mobile+desktop, Core Web Vitals), security headers (CSP/HSTS/X-Frame-Options/etc., parsed directly from the response), SSL/TLS (certificate issuer/protocol/expiry via Node's tls module), DNS/WHOIS (via RDAP, IANA's free keyless WHOIS successor), and mobile-friendliness. Weighted into one overall grade (Performance 35%, Security 25%, SSL 20%, Mobile 10%, DNS 10%), checks run in parallel via Promise.allSettled so one failed check never blocks the report, results persist to Neon Postgres via Drizzle ORM at a shareable /report/[id] URL and cache for 24h. Every API used is free-tier or keyless — no paid dependencies. Scanning russelpineda.com itself surfaced a real C grade (73/100): strong SSL/DNS/performance, but 5 of 6 security headers missing.",
+      title: "Site Health Scanner",
+      tag: "Full-Stack Web App",
+      badge: "Live",
+      cover: "url('assets/vitals-preview2.jpg')",
+      size: "wide",
+      page: "/vitals",
+      subtitle: "Vitals — Full-Stack Web App",
+      body: "Vitals is a free, instant site health and security scanner — paste a URL, get a graded report in seconds. It's a solo-built, a Next.js 16 App Router codebase with its own typed API layer, a Postgres database, and five real external checks running in parallel. Every scan produces a permanent, shareable report page and a public history feed — no accounts, no paywall.<br><br>Under the hood, each report combines five checks into one weighted A–F grade: <strong>Performance</strong> (Google PageSpeed Insights, mobile + desktop, Core Web Vitals — 35% of the grade), <strong>Security Headers</strong> (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, parsed directly from the live response — 25%), <strong>SSL/TLS</strong> (certificate issuer, protocol, and days-to-expiry via Node's built-in tls module — 20%), <strong>DNS/WHOIS</strong> (via RDAP, IANA's free keyless WHOIS successor, with an optional paid-key fallback — 10%), and <strong>mobile-friendliness</strong> (derived from the PageSpeed mobile score — 10%). All five run concurrently with Promise.allSettled, so a single failed or rate-limited check degrades gracefully instead of taking down the whole report.<br><br>Turning the scanner on this portfolio itself was the honest test: russelpineda.com came back a <strong>C (73/100)</strong> — an A on SSL/TLS and DNS, a B on performance (95 mobile / 73 desktop, 2.5s LCP), but an F on security headers, missing 5 of 6. That gap is real and exactly the kind of thing the tool is meant to surface.",
+      role: "Full-Stack Developer (solo build)",
+      tools: "Next.js 16, TypeScript, Tailwind CSS v4, Drizzle ORM, Neon Postgres, Vercel",
+      stats: [
+        { label: "Weighted Site Checks", value: "5" },
+        { label: "Paid API Dependencies", value: "0" },
+        { label: "Report Cache Window", value: "24h" },
+      ],
+      links: [
+        { label: "Try Vitals", url: "https://vitals-ecru.vercel.app/" },
+        { label: "Sample Report", url: "https://vitals-ecru.vercel.app/report/0coORfS9" },
+      ],
+    },
+ {
       id: "kingdomes-assistant",
       niche: "automation",
       llm: "AI Customer Assistant (Kingdomes) — a conversational AI answering inbound questions for Kingdomes across three channels (website chat, Facebook DMs, Instagram DMs) from one unified inbox. Rolled out in phases: website first, trained on FAQ content, the product range, and qualifying questions; then extended to the Meta channels once the logic was stable. When a conversation hits a qualification threshold it's flagged for human follow-up, so the team only steps in for warm leads. Production-readiness took systematic QA through realistic test conversations — catching and fixing premature contact-detail requests, false availability confirmations, and references to documents not yet ready to share. In roughly six months live it engaged 71 unique contacts across 212 messages, doubled average engagement per contact (+100%), and triggered 28 automated actions.",
@@ -142,14 +166,16 @@ const PORTFOLIO = {
       ],
       links: [{ label: "Kingdomes", url: "https://kingdomes.com.au" }],
     },
-    {
+    
+   
+      {
       id: "security-response",
       niche: "web",
       llm: "Security Breach Response — in March 2026 kingdomes.com.au came under a layered attack: an 867,000-request volumetric DDoS used as cover while attackers planted four backdoor admin accounts and injected a gambling-spam script into site files. Russel detected, scoped, and contained the breach in two hours — removed all four backdoor accounts, cleaned the injected code, closed the entry point — then spent five more hours hardening the platform (edge-level rate limiting and geographic filtering, CMS file-edit lockdown, credential rotation, active monitoring). No data loss, no extended downtime, no recurrence. It wasn't part of the job scope; the client publicly credited it in a review.",
       title: "Cybersecurity",
       tag: "Security Incident Response",
       badge: null,
-      cover: "url('assets/kingdomes-bg.jpg')",
+      cover: "url('assets/security-breach.jpg')",
       size: "wide",
       page: "/security-response",
     },
@@ -186,16 +212,14 @@ const PORTFOLIO = {
       tools: "Figma, Photoshop",
       links: [],
     },
-    
-    {
+      {
       id: "brand-identity",
       niche: "design",
       llm: "Logo & Brand Design (Glamporise) — designed the complete visual identity for Glamporise, Kingdomes' luxury glamping brand: 25+ exploratory logo concepts narrowed to a final mark combining waratah petals, a crown (the Kingdomes connection), and campfire flames; a five-colour palette led by Deep Sage Emerald (#06402B); a Cartesius + Poppins type system; and a 12-page brand guidelines document. Built in Photoshop and Figma.",
       title: "Logo & Brand Design",
       tag: "Logo & Visual Design",
       badge: null,
-      cover: "url('assets/default.jpg')",
-      size: "square",
+      size: "tall",
       page: "/brand-identity",
       subtitle: "Logo & Visual Design",
       body: "Designed multiple original SVG-based logo concepts for Glamporise, a luxury glamping brand, translating the brand direction — native flora (the waratah flower) and campfire motifs — into minimalist visual concepts in Photoshop and Figma.",
@@ -204,6 +228,8 @@ const PORTFOLIO = {
       links: [{ label: "Glamporise", url: "https://glamporise.com" }],
       video: "assets/glamporise-logo-reveal-hd.mp4",
     },
+
+   
     {
       id: "membership-stack",
       niche: "automation",
@@ -312,6 +338,28 @@ const PORTFOLIO = {
       page: "/email-designs",
     },
     {
+      id: "organic-posts",
+      niche: "design",
+      llm: "Organic Social Posts — static and carousel post designs for Kingdomes/Glamporise's organic Facebook and Instagram feed, covering product education (frameless dome explainers, size/use-case comparisons), lifestyle/social proof (rain at Bilpin, 18 months later), and announcements (Aura Dome launch, masterclass). 19 posts, 4 of them multi-image carousels.",
+      title: "Organic Social Posts",
+      tag: "Social Media Design",
+      badge: null,
+      cover: "url('assets/organic-preview.jpg')",
+      size: "square",
+      page: "/organic-posts",
+    },
+    {
+      id: "paid-ads",
+      niche: "design",
+      llm: "Paid Ad Campaign — static and carousel ad creative designed and run as paid social advertising for Kingdomes/Glamporise on Meta (Facebook & Instagram). 4 ad sets, 2 of them multi-image carousels. Performance analytics to follow once the flight completes.",
+      title: "Paid Ad Campaign",
+      tag: "Paid Social Advertising",
+      badge: null,
+            cover: "url('assets/paid-preview.jpg')",
+      size: "square",
+      page: "/paid-ads",
+    },
+    {
       id: "founding-offer",
       niche: "funnels",
       llm: "Sales Landing Page (the Founding Offer) — a long-form founding-offer landing page for the Kingdomes dome range ('first 5 deposits only'): a scarcity hook, the two dome ranges, an over-$10,000 value stack, buyer track selection, a competitor comparison table, a 36-month guarantee, and the Ground Zero add-on. The same funnel was replicated across two brands (Kingdomes and Glamporise) with copy tweaked to each brand's voice.",
@@ -329,7 +377,6 @@ const PORTFOLIO = {
       title: "Service Offer Page",
       tag: "Post-Masterclass Sales Page",
       badge: null,
-      cover: "url('assets/default.jpg')",
       size: "wide",
       page: "/ground-zero",
       video: "assets/dome-edit.mp4",

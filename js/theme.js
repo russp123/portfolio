@@ -3,6 +3,29 @@
    footer rendering. Include this after data.js.
    ============================================================ */
 
+// Auto-generated placeholder cover — replaces the old static
+// "assets/default.jpg" image for any project with no real cover yet.
+// Solid #e4e5e9 card + a rotating mono status-line phrase (a fresh
+// random pick per render, so it doesn't repeat the same line every
+// time). Used by both the homepage tile (index.html) and the detail
+// hero (renderHeroMedia below).
+const PLACEHOLDER_PHRASES = [
+  "cover: pending",
+  "asset: incoming",
+  "case study loading",
+  "preview: tbd",
+  "img: queued",
+  "render: pending",
+  "cover.jpg — soon",
+  "visual: coming soon",
+];
+function pickPlaceholderPhrase() {
+  return PLACEHOLDER_PHRASES[Math.floor(Math.random() * PLACEHOLDER_PHRASES.length)];
+}
+function renderPlaceholderCover(extraClass) {
+  return `<div class="cover-placeholder${extraClass ? " " + extraClass : ""}"><span class="cover-placeholder-text">${pickPlaceholderPhrase()}</span></div>`;
+}
+
 function initTheme() {
   const saved = localStorage.getItem("theme");
   const theme = saved || "light";
@@ -84,9 +107,11 @@ function initFooter() {
 function renderHeroMedia(project) {
   // autoplay + loop, no controls — matches the homepage tile preview.
   // muted is required for browsers to allow autoplay at all.
-  return project.video
-    ? `<video class="detail-hero-media" src="${project.video}" autoplay muted loop playsinline poster="${project.videoPoster || ""}"></video>`
-    : `<div class="detail-hero-media" style="background-image:${project.cover}"></div>`;
+  if (project.video) {
+    return `<video class="detail-hero-media" src="${project.video}" autoplay muted loop playsinline poster="${project.videoPoster || ""}"></video>`;
+  }
+  if (!project.cover) return renderPlaceholderCover("detail-hero-media");
+  return `<div class="detail-hero-media" style="background-image:${project.cover}"></div>`;
 }
 
 // Optional small attribution label, bottom-left of the hero — e.g.

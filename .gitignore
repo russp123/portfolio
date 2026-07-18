@@ -5,3 +5,8 @@ node_modules
 .DS_Store
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+# Original unoptimized social exports (600MB) — see scripts/import-social-once.js.
+# Optimized copies live in assets/organic-posts/ and assets/paid-ads/, which ARE tracked.
+assets/Organic Static Fb:Instagram Posts/
+assets/Paid Meta Ads Campaign/

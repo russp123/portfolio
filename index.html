@@ -236,9 +236,13 @@
           // cover's background-image/gradient shows as a poster until the
           // video kicks in, so there's always something on screen.
           const bg = p.cover ? `background-image:${p.cover}` : "";
+          // No `cover` and no `video` -> auto-generated placeholder card
+          // (theme.js renderPlaceholderCover) instead of a real image.
           const cover = p.video
             ? `<div class="project-cover size-${p.size || "square"}" style="${bg}"><video class="cover-media" data-src="${p.video}" muted loop playsinline preload="none"></video></div>`
-            : `<div class="project-cover size-${p.size || "square"}" style="${bg}"></div>`;
+            : p.cover
+            ? `<div class="project-cover size-${p.size || "square"}" style="${bg}"></div>`
+            : `<div class="project-cover size-${p.size || "square"}">${renderPlaceholderCover()}</div>`;
           return `<a class="project-card" href="${p.page}" data-project-id="${p.id}" data-niche="${p.niche || ""}">
             ${cover}
             <div class="project-meta">

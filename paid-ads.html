@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Paid Meta ad creative for Kingdomes and Glamporise — static and carousel ads run as paid social advertising on Facebook and Instagram." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Russel A. Pineda" />
+<meta property="og:title" content="Paid Ad Campaign — Russel A. Pineda" />
+<meta property="og:description" content="Paid Meta ad creative for Kingdomes and Glamporise — static and carousel ads run as paid social advertising on Facebook and Instagram." />
+<meta property="og:url" content="https://russelpineda.com/paid-ads" />
+<meta property="og:image" content="https://russelpineda.com/assets/preview.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Paid Ad Campaign — Russel A. Pineda" />
+<meta name="twitter:description" content="Paid Meta ad creative for Kingdomes and Glamporise — static and carousel ads run as paid social advertising on Facebook and Instagram." />
+<meta name="twitter:image" content="https://russelpineda.com/assets/preview.jpg" />
+<title>Paid Ad Campaign — Russel A. Pineda</title>
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.25/dist/lenis.css" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="/"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location"></span></div>
+    </header>
+
+    <main style="padding:0;">
+
+      <!-- Hero is filled in by js/theme.js (initDetailHero) from this
+           project's `cover` field in js/data.js — none set, so it's the
+           auto-generated placeholder card. -->
+      <div class="detail-hero" id="detail-hero" data-project-id="paid-ads"></div>
+
+      <div class="detail-layout">
+
+        <div class="detail-side">
+          <h1 class="detail-title">Paid Ad Campaign</h1>
+          <p class="detail-subtitle">Paid Social Advertising</p>
+        </div>
+
+        <div class="detail-main">
+
+          <div class="detail-section">
+            <div class="detail-text">
+              <p>Static and carousel ad creative designed for Kingdomes/Glamporise and run as paid social advertising on Meta (Facebook &amp; Instagram). Carousels are shown here as a horizontal strip so they read as the multi-image ad units they actually are, not single static images.</p>
+            </div>
+            <!-- Performance numbers (spend, reach, CTR, results) go here
+                 once the flight has run and data is pulled from Meta Ads
+                 Manager — see note below. Never fill this with placeholder
+                 or estimated numbers; leave it out until it's real. -->
+            <div class="detail-meta">
+              <div class="detail-meta-item">
+                <div class="meta-label">Role</div>
+                <div class="meta-value">Paid Social Ad Design</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Clients</div>
+                <div class="meta-value">Kingdomes &amp; Glamporise</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Platform</div>
+                <div class="meta-value">Meta Ads Manager (Facebook &amp; Instagram)</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Performance</div>
+                <div class="meta-value">Reporting once the flight completes</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <!-- Populated by js/paid-ads.js (PAID_ADS, auto-generated by
+                 scripts/gen-social.js) — see script below. -->
+            <div class="social-wall" id="social-wall"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/paid-ads.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const wall = document.getElementById("social-wall");
+      const posts = typeof PAID_ADS !== "undefined" ? PAID_ADS : [];
+      if (wall) {
+        wall.innerHTML = posts
+          .map((p) =>
+            p.type === "carousel"
+              ? `<div class="carousel-block">
+                  <div class="carousel-label">↔ Carousel · ${p.label} · ${p.files.length} images</div>
+                  <div class="carousel-strip">${p.files.map((f) => `<img src="assets/paid-ads/${f}" alt="${p.label}" loading="lazy" decoding="async" />`).join("")}</div>
+                </div>`
+              : `<img class="social-post-img" src="assets/paid-ads/${p.file}" alt="${p.label}" loading="lazy" decoding="async" />`
+          )
+          .join("");
+      }
+    });
+  </script>
+</body>
+</html>

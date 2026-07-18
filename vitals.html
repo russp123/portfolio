@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Vitals — a free, instant site health and security scanner. A solo-built full-stack Next.js app: performance, security headers, SSL, DNS, and mobile-friendliness, graded A–F." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Russel A. Pineda" />
+<meta property="og:title" content="Site Health Scanner — Russel A. Pineda" />
+<meta property="og:description" content="Vitals — a free, instant site health and security scanner. A solo-built full-stack Next.js app: performance, security headers, SSL, DNS, and mobile-friendliness, graded A–F." />
+<meta property="og:url" content="https://russelpineda.com/vitals" />
+<meta property="og:image" content="https://russelpineda.com/assets/preview.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Site Health Scanner — Russel A. Pineda" />
+<meta name="twitter:description" content="Vitals — a free, instant site health and security scanner. A solo-built full-stack Next.js app: performance, security headers, SSL, DNS, and mobile-friendliness, graded A–F." />
+<meta name="twitter:image" content="https://russelpineda.com/assets/preview.jpg" />
+<title>Site Health Scanner — Russel A. Pineda</title>
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.25/dist/lenis.css" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="/"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location"></span></div>
+    </header>
+
+    <main style="padding:0;">
+
+      <!-- Hero is filled in by js/theme.js (initDetailHero) from this
+           project's `cover` field in js/data.js — none set yet (still
+           being made), so it's the auto-generated placeholder card. -->
+      <div class="detail-hero" id="detail-hero" data-project-id="vitals"></div>
+
+      <div class="detail-layout">
+
+        <div class="detail-side">
+          <h1 class="detail-title">Site Health Scanner</h1>
+          <p class="detail-subtitle">Vitals — Full-Stack Web App</p>
+        </div>
+
+        <div class="detail-main">
+
+          <div class="detail-section">
+            <div class="detail-text">
+              <p><strong>Vitals</strong> is a free, instant site health and security scanner — paste a URL, get a graded report in seconds. Unlike the rest of this portfolio, it's not a client build: it's a solo-built, full-stack piece made specifically to prove application engineering — no WordPress, no no-code platform. A Next.js 16 App Router codebase with its own typed API layer, a Postgres database, and five real external checks running in parallel. Every scan produces a permanent, shareable report page and a public history feed, no account required.</p>
+            </div>
+            <div class="detail-stats">
+              <div><div class="stat-value">5</div><div class="stat-label">Weighted Site Checks</div></div>
+              <div><div class="stat-value">0</div><div class="stat-label">Paid API Dependencies</div></div>
+              <div><div class="stat-value">24h</div><div class="stat-label">Report Cache Window</div></div>
+            </div>
+            <div class="detail-meta">
+              <div class="detail-meta-item">
+                <div class="meta-label">Role</div>
+                <div class="meta-value">Full-Stack Developer (solo build)</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Status</div>
+                <div class="meta-value">Live</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Stack</div>
+                <div class="meta-value">Next.js 16, TypeScript, Tailwind CSS v4, Drizzle ORM, Neon Postgres</div>
+              </div>
+              <div class="detail-meta-item">
+                <div class="meta-label">Hosting</div>
+                <div class="meta-value">Vercel</div>
+              </div>
+            </div>
+            <div class="detail-links">
+              <a href="https://vitals-ecru.vercel.app/" target="_blank" rel="noopener">Try Vitals<sup>↗</sup></a>
+              <a href="https://vitals-ecru.vercel.app/report/0coORfS9" target="_blank" rel="noopener">Sample Report<sup>↗</sup></a>
+              <a href="https://vitals-ecru.vercel.app/recent" target="_blank" rel="noopener">Recent Scans<sup>↗</sup></a>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">How the Grade Is Built</h2>
+            <div class="detail-text">
+              <p>Five checks combine into one weighted A–F grade: <strong>Performance</strong> (Google PageSpeed Insights, mobile + desktop, Core Web Vitals — 35% of the grade), <strong>Security Headers</strong> (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, parsed directly from the live response — 25%), <strong>SSL/TLS</strong> (certificate issuer, protocol, and days-to-expiry via Node's built-in <code>tls</code> module — 20%), <strong>DNS/WHOIS</strong> (via RDAP, IANA's free keyless WHOIS successor, with an optional paid-key fallback — 10%), and <strong>mobile-friendliness</strong> (derived from the PageSpeed mobile score — 10%). All five run concurrently with <code>Promise.allSettled</code>, so one failed or rate-limited check degrades gracefully instead of taking the whole report down — and if the PageSpeed key is ever missing, performance/mobile just report as "skipped" instead of crashing the scan.</p>
+            </div>
+                        <div class="detail-image" style="background-image:url('assets/vitals-image1.jpg')"></div>
+
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">A Full Report</h2>
+            <div class="detail-text">
+              <p>Every category renders as its own graded card — grade circle top-right, the raw numbers underneath. This is the real russelpineda.com report referenced above.</p>
+            </div>
+            <div class="detail-image" style="background-image:url('assets/vitals-image3.jpg')"></div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">Public History</h2>
+            <div class="detail-text">
+              <p>Every scan is public and permanent — a lightweight <code>/recent</code> feed with grade-filter pills, no login required.</p>
+            </div>
+            <div class="detail-image" style="background-image:url('assets/vitals-image4.jpg')"></div>
+          </div>
+
+          <!-- ============ COPY THIS BLOCK to add more sections ============
+               Each section = a title + one landscape screenshot (fixed
+               16:9 frame, cropped to fill — swap the url('...') for your
+               image and the heading text, then paste another copy of this
+               whole <div class="detail-section">...</div> right below it
+               for the next screenshot. -->
+          <!--
+          <div class="detail-section">
+            <h2 class="detail-section-title">Section Title</h2>
+            <div class="detail-image" style="background-image:url('assets/vitals-4.jpg')"></div>
+          </div>
+          -->
+          <!-- ============ end copy block ============ -->
+
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+</body>
+</html>

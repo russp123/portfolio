@@ -781,6 +781,29 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
   object-fit: cover;
   display: block;
 }
+/* Auto-generated placeholder cover (theme.js renderPlaceholderCover) —
+   replaces the old static "default.jpg" for any project with no real
+   cover yet. Fixed neutral bg (not a theme var — same flat gray in
+   light/dark) with a centered mono status-line, same type as the niche
+   pill. A fresh random phrase every render. */
+.cover-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 160px;
+  background: #e4e5e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.cover-placeholder-text {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #54565f;
+  text-align: center;
+}
 .project-cover::after {
   content: "";
   position: absolute;
@@ -982,6 +1005,53 @@ html[data-intro="1"] #intro-overlay { perspective: 1100px; }
 @media (max-width: 600px) {
   .poster-wall { grid-template-columns: repeat(1, minmax(0, 1fr)); }
 }
+
+/* Social post wall (organic-posts.html / paid-ads.html) — same grid
+   language as the poster wall, but carousels break out of the grid as a
+   full-width HORIZONTAL scroll strip so they read as multi-image posts
+   at a glance, instead of blending in as more vertical tiles. */
+.social-wall {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.social-post-img {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+.carousel-block { grid-column: 1 / -1; }
+.carousel-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.carousel-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+}
+.carousel-strip img {
+  flex: 0 0 auto;
+  height: 340px;
+  width: auto;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  scroll-snap-align: start;
+}
+@media (max-width: 1000px) { .social-wall { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .social-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); } .carousel-strip img { height: 260px; } }
+@media (max-width: 600px) { .social-wall { grid-template-columns: repeat(1, minmax(0, 1fr)); } .carousel-strip img { height: 220px; } }
 
 /* Right-edge fade + chevron on the niche pill while it can still be
    scrolled (mobile); hidden once you reach the end. */
