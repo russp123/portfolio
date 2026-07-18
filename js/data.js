@@ -340,7 +340,7 @@ const PORTFOLIO = {
     {
       id: "organic-posts",
       niche: "design",
-      llm: "Organic Social Posts — static and carousel post designs for Kingdomes/Glamporise's organic Facebook and Instagram feed, covering product education (frameless dome explainers, size/use-case comparisons), lifestyle/social proof (rain at Bilpin, 18 months later), and announcements (Aura Dome launch, masterclass). 19 posts, 4 of them multi-image carousels.",
+      llm: "Organic Social Posts — static and carousel post designs for Kingdomes' organic Facebook and Instagram feed, covering product education (frameless dome explainers, size/use-case comparisons), lifestyle/social proof (rain at Bilpin, 18 months later), and announcements (Aura Dome launch, masterclass). 19 posts, 4 of them multi-image carousels.",
       title: "Organic Social Posts",
       tag: "Social Media Design",
       badge: null,
@@ -351,7 +351,7 @@ const PORTFOLIO = {
     {
       id: "paid-ads",
       niche: "design",
-      llm: "Paid Ad Campaign — static and carousel ad creative designed and run as paid social advertising for Kingdomes/Glamporise on Meta (Facebook & Instagram). 4 ad sets, 2 of them multi-image carousels. Performance analytics to follow once the flight completes.",
+      llm: "Paid Ad Campaign — static and carousel ad creative designed and run as paid social advertising for Kingdomes on Meta (Facebook & Instagram). 4 ad sets, 2 of them multi-image carousels. Performance analytics to follow once the flight completes.",
       title: "Paid Ad Campaign",
       tag: "Paid Social Advertising",
       badge: null,
