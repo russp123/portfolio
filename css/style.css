@@ -878,79 +878,6 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
   .niche-btn { padding: 7px 11px; }
 }
 
-/* ---- Reload intro (index.html) ----
-   Testimonial cards fast-stream across a blank theme-colored overlay:
-   in from one side, a slowed beat near center, out the other — with a
-   slight downward drift and tilt so they feel thrown, not slid. Only
-   rendered when <html data-intro="1"> (set pre-paint; once per session,
-   never for reduced-motion). Any input skips. */
-#intro-overlay { display: none; }
-html[data-intro="1"] { overflow: hidden; }
-html[data-intro="1"] #intro-overlay {
-  display: block;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: var(--bg);
-}
-#intro-overlay.intro-done { opacity: 0; transition: opacity 420ms ease; }
-.intro-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(420px, 84vw);
-  margin: 0;
-  padding: 22px 24px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.14);
-  opacity: 0;
-  will-change: transform, opacity;
-}
-.intro-card blockquote {
-  margin: 0 0 12px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-primary);
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.intro-card blockquote::before { content: "\201C"; }
-.intro-card blockquote::after { content: "\201D"; }
-.intro-card figcaption { display: flex; flex-direction: column; gap: 2px; }
-.intro-card figcaption span:first-child { font-size: 12px; font-weight: 600; color: var(--text-primary); }
-.intro-card figcaption span:last-child { font-size: 11px; color: var(--text-secondary); }
-html[data-intro="1"] #intro-overlay { perspective: 1100px; }
-/* Each card rises from the bottom LARGE and tilted toward the viewer
-   (perspective), flattens out for a readable beat at center, then lifts
-   away and fades. Cards run sequentially (delays set in JS). */
-.intro-card { animation: intro-rise 1.65s cubic-bezier(0.25, 0.8, 0.35, 1) both; width: min(520px, 90vw); }
-@keyframes intro-rise {
-  0%   { opacity: 0; transform: translate(-50%, 58vh) rotateX(38deg) scale(1.22); }
-  14%  { opacity: 1; }
-  38%  { transform: translate(-50%, -50%) rotateX(0deg) scale(1); }
-  68%  { transform: translate(-50%, -52%) rotateX(0deg) scale(1); }
-  86%  { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -120%) rotateX(-14deg) scale(0.92); }
-}
-/* Quiet identifier pinned low center — says what the flying cards are. */
-.intro-label {
-  position: absolute;
-  left: 50%;
-  bottom: 7vh;
-  transform: translateX(-50%);
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-  animation: intro-label-in 700ms ease 200ms both;
-}
-@keyframes intro-label-in { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%); } }
-
 /* Poster wall — Behance-style wall for the "E-Commerce Posters" tab.
    Pure image tiles (no titles/captions — the filenames are raw exports
    and never need renaming). Use grid so the order matches filenames
@@ -1065,27 +992,68 @@ html[data-intro="1"] #intro-overlay { perspective: 1100px; }
    edges, and the attribution pinned to the bottom so the two columns
    always align. */
 .testimonials { margin-top: 64px; }
-.testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 28px;
-  margin-top: 22px;
+/* One-at-a-time slider: cards stack in the same grid cell, .active
+   fades/slides in; the stage is as tall as the longest quote so the
+   page never jumps between slides. */
+.testimonial-slider {
+  max-width: 720px;
+  margin: 22px auto 0;
 }
+.testimonial-stage { display: grid; }
 .testimonial-card {
+  grid-area: 1 / 1;
   margin: 0;
-  padding: 34px 42px 34px;
+  padding: 32px 38px 30px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  gap: 20px;
+  opacity: 0;
+  transform: translateX(22px);
+  pointer-events: none;
+  transition: opacity 380ms ease, transform 380ms ease;
 }
-.testimonial-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--text-tertiary);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+.testimonial-card.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.testimonial-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 18px;
+}
+.t-nav {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+.t-nav:hover {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg);
+  transform: translateY(-1px);
+}
+.t-count {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  min-width: 64px;
+  text-align: center;
 }
 /* Oversized serif quotation mark — decorative, sits above the quote. */
 .testimonial-mark {
@@ -1145,7 +1113,6 @@ html[data-intro="1"] #intro-overlay { perspective: 1100px; }
   /* keep row-gap 0 so the masonry span math (js/theme.js) stays the
      source of vertical spacing; only the column count/gap changes. */
   .projects-grid { grid-template-columns: repeat(2, 1fr); column-gap: 12px; row-gap: 0; }
-  .testimonials-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   /* Compact header: name with "Full-Stack Developer" right below it on
