@@ -1841,57 +1841,10 @@ a.timeline-name {
   .timeline-item { grid-template-columns: 64px 1fr; gap: 14px; }
 }
 
-/* Scroll cue (about.html) — a small pulsing pill under the tall lede photo
-   that signals there's more below. Fixed at bottom-centre, styled like the
-   site's other pills; pointer-events:none so it never blocks clicks. It
-   fades out (.hidden, toggled in JS) once the reader scrolls. */
-.scroll-cue {
-  position: fixed;
-  left: 50%;
-  bottom: 24px;
-  transform: translateX(-50%);
-  z-index: 50;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.10);
-  color: var(--text-secondary);
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  pointer-events: none;
-  animation: scroll-cue-pulse 2s ease-in-out infinite;
-  transition: opacity 0.45s ease, transform 0.45s ease;
-}
-.scroll-cue-arrow {
-  font-size: 13px;
-  animation: scroll-cue-bounce 2s ease-in-out infinite;
-}
-.scroll-cue.hidden {
-  animation: none;
-  opacity: 0;
-  transform: translateX(-50%) translateY(10px);
-}
-@keyframes scroll-cue-pulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-@keyframes scroll-cue-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(3px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .scroll-cue, .scroll-cue-arrow { animation: none; }
-}
-@media (max-width: 600px) {
-  .scroll-cue { bottom: 16px; font-size: 10px; padding: 7px 13px; gap: 6px; }
-}
+/* The bespoke .scroll-cue (about.html only) was replaced with the same
+   .hero-scroll-cue overlay pill the homepage hero uses — one scroll
+   -cue design site-wide instead of two near-duplicates. See
+   .hero-scroll-cue below for the shared rule. */
 
 /* ============================================================
    HERO — full first screen: headline + curved infinite carousel
@@ -2122,6 +2075,9 @@ html, body { overflow-x: clip; }
    the skill chips inside keep their click-to-reveal behavior.
    ============================================================ */
 .what-i-do { margin: 84px 0 72px; }
+/* Centered like Projects [2] / What people say [3] below it — the
+   rows themselves stay left-aligned/full-width, just the title. */
+.what-i-do > .section-label { text-align: center; }
 
 /* "Projects" label above the niche bar — same section-label
    treatment as "What I do", centered to match the filter pill and

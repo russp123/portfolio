@@ -45,9 +45,11 @@
     </form>
   </aside>
 
-  <div class="scroll-cue" id="scroll-cue" aria-hidden="true">
-    <span>Scroll to learn more</span>
-    <span class="scroll-cue-arrow">↓</span>
+  <!-- Same overlaid "Scroll for more" pill as the homepage hero — fixed
+       at the viewport's bottom center, not a bespoke per-page cue. -->
+  <div class="hero-scroll-cue" id="hero-scroll-cue" aria-hidden="true">
+    <span class="label">Scroll for more</span>
+    <span class="arrow">↓</span>
   </div>
 
   <div class="wrap">
@@ -140,14 +142,14 @@
           .join("");
       }
 
-      // Scroll cue — the pulsing "scroll to learn more" pill under the tall
-      // lede photo. Fades out as soon as the reader scrolls, comes back at
-      // the very top.
-      const cue = document.getElementById("scroll-cue");
-      if (cue) {
-        const toggleCue = () => cue.classList.toggle("hidden", window.scrollY > 40);
-        window.addEventListener("scroll", toggleCue, { passive: true });
-        toggleCue();
+      // Scroll cue — same overlaid pill + fade-after-scrolling behavior
+      // as the homepage hero (window.innerHeight * 0.35 threshold),
+      // instead of a bespoke per-page cue.
+      const heroCue = document.getElementById("hero-scroll-cue");
+      if (heroCue) {
+        const updateHeroCue = () => heroCue.classList.toggle("hidden", window.scrollY > window.innerHeight * 0.35);
+        window.addEventListener("scroll", updateHeroCue, { passive: true });
+        updateHeroCue();
       }
     });
   </script>
