@@ -240,13 +240,8 @@
         const heroCards = Array.from(heroTrack.children);
 
         const N = heroCards.length;
-        // Degrees between neighboring cards. This is the WARP dial: a
-        // bigger angle = a curvier wall, so the cards at the viewport
-        // edges sit at a steeper angle and flare harder. The loop runs
-        // on a virtual circumference of N*ANGLE (>= 360 so no gap ever
-        // rotates through the front; the seam hides behind the viewer).
-        const ANGLE = Math.max(20, 360 / N);
-        const WRAP = N * ANGLE;
+        const ANGLE = 360 / N;   // deg between neighboring cards — closes the cylinder
+        const WRAP = N * ANGLE;  // = 360: one full turn is one seamless loop
         const GAP = 14;          // px between cards along the wall
         const RATIO = 1.1;       // card height : width (reference's near-square shape)
         const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -270,10 +265,10 @@
           R = (w + GAP) / (2 * Math.tan(((ANGLE / 2) * Math.PI) / 180));
           heroCarousel.style.setProperty("--hc-w", w.toFixed(1) + "px");
           heroCarousel.style.setProperty("--hc-h", h.toFixed(1) + "px");
-          // Viewer distance. Counter-intuitively, LOWER values push the
-          // side cards off-screen (leaving only flat-looking center
-          // cards) — make the warp stronger with ANGLE above, not here.
-          heroCarousel.style.perspective = Math.round(R * 2.0) + "px";
+          // Viewer distance — the 984ab14 warp. (Counter-intuitively,
+          // LOWER values push the warped side cards off-screen leaving
+          // flat center cards, so don't go below ~1.5.)
+          heroCarousel.style.perspective = Math.round(R * 1.9) + "px";
           // Match the drift to a steady ~30px/s along the wall
           // regardless of how big the cylinder came out.
           cruiseSpeed = 30 / ((R * Math.PI) / 180);
