@@ -1751,6 +1751,7 @@ a.timeline-name {
 html, body { overflow-x: clip; }
 
 .hero {
+  position: relative;
   min-height: calc(100vh - var(--header-h));
   display: flex;
   flex-direction: column;
@@ -1759,6 +1760,28 @@ html, body { overflow-x: clip; }
   justify-content: flex-start;
   gap: 8px;
   padding: clamp(10px, 2.5vh, 28px) 0 10px;
+}
+
+/* Subtle blueprint grid in the hero's whitespace — the classic
+   landing-page texture: faint 1px lines, masked so the center (where
+   the intro text sits) stays clean and the grid emerges toward the
+   sides. Uses --border so it adapts to light/dark. Full-bleed like
+   the wall, so the lines run to the viewport edges. */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px),
+    linear-gradient(to right, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 72% 62% at 50% 32%, transparent 32%, #000 74%);
+  mask-image: radial-gradient(ellipse 72% 62% at 50% 32%, transparent 32%, #000 74%);
 }
 
 /* Guaranteed air between the hero texts and the wall (the flared
