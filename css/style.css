@@ -991,25 +991,29 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
    decorative mark, roomy padding so the text never hugs the card
    edges, and the attribution pinned to the bottom so the two columns
    always align. */
-.testimonials { margin-top: 64px; }
-/* One-at-a-time slider: cards stack in the same grid cell, .active
-   fades/slides in; the stage is as tall as the longest quote so the
-   page never jumps between slides. */
+.testimonials { margin-top: 72px; }
+/* Centered pull-quote slider — no box. Everything sits on one center
+   axis (label, mark, quote, attribution, controls), which reads far
+   calmer than a floating card. Cards stack in the same grid cell,
+   vertically centered so short and long quotes both sit balanced;
+   .active fades/slides the current one in. */
+.testimonials .section-label { text-align: center; }
 .testimonial-slider {
-  max-width: 720px;
-  margin: 22px auto 0;
+  max-width: 760px;
+  margin: 26px auto 0;
 }
-.testimonial-stage { display: grid; }
+.testimonial-stage {
+  display: grid;
+  align-items: center;
+}
 .testimonial-card {
   grid-area: 1 / 1;
   margin: 0;
-  padding: 32px 38px 30px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
   opacity: 0;
   transform: translateX(22px);
   pointer-events: none;
@@ -1058,17 +1062,18 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
 /* Oversized serif quotation mark — decorative, sits above the quote. */
 .testimonial-mark {
   font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
-  font-size: 58px;
-  line-height: 0.4;
-  height: 22px;
+  font-size: 64px;
+  line-height: 0.45;
+  height: 26px;
   color: var(--text-tertiary);
   opacity: 0.75;
   user-select: none;
 }
 .testimonial-quote {
   margin: 0;
+  max-width: 680px;
   font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
-  font-size: 19.5px;
+  font-size: 21px;
   line-height: 1.55;
   letter-spacing: -0.005em;
   color: var(--text-primary);
@@ -1076,12 +1081,11 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
 .testimonial-attribution {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 14px;
-  /* Pushes attribution to the card's bottom edge so neighboring cards
-     of different quote lengths still read as one aligned row. */
-  margin-top: auto;
-  padding-top: 4px;
+  padding-top: 6px;
 }
+.testimonial-who { text-align: left; }
 .testimonial-avatar {
   flex: none;
   width: 42px;
@@ -1101,8 +1105,7 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
 .testimonial-name { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
 .testimonial-role { font-size: 12.5px; color: var(--text-secondary); }
 @media (max-width: 600px) {
-  .testimonial-card { padding: 26px 24px; }
-  .testimonial-quote { font-size: 17.5px; }
+  .testimonial-quote { font-size: 18px; }
 }
 
 @media (max-width: 900px) {
