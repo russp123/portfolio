@@ -1745,7 +1745,10 @@ a.timeline-name {
    would create a scroll container and break the sticky header) stops
    it from opening a horizontal scrollbar on OSes with visible
    scrollbars. */
-body { overflow-x: clip; }
+/* On html TOO, not just body: the RUSSELLM drawer parks off-canvas at
+   translateX(100%), and mobile browsers let you pan sideways to fixed
+   elements hanging past the viewport unless the ROOT clips the x axis. */
+html, body { overflow-x: clip; }
 
 .hero {
   min-height: calc(100vh - var(--header-h));

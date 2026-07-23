@@ -240,7 +240,13 @@
         const heroCards = Array.from(heroTrack.children);
 
         const N = heroCards.length;
-        const ANGLE = 360 / N;   // deg between neighboring cards — closes the cylinder
+        // Degrees between neighboring cards. This is the WARP dial: a
+        // bigger angle = a curvier wall, so the cards at the viewport
+        // edges sit at a steeper angle and flare harder. The loop runs
+        // on a virtual circumference of N*ANGLE (>= 360 so no gap ever
+        // rotates through the front; the seam hides behind the viewer).
+        const ANGLE = Math.max(20, 360 / N);
+        const WRAP = N * ANGLE;
         const GAP = 14;          // px between cards along the wall
         const RATIO = 1.1;       // card height : width (reference's near-square shape)
         const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -264,9 +270,10 @@
           R = (w + GAP) / (2 * Math.tan(((ANGLE / 2) * Math.PI) / 180));
           heroCarousel.style.setProperty("--hc-w", w.toFixed(1) + "px");
           heroCarousel.style.setProperty("--hc-h", h.toFixed(1) + "px");
-          // Viewer distance sets how strong the warp reads — how much
-          // the outer cards flare taller than the center pair.
-          heroCarousel.style.perspective = Math.round(R * 0.9) + "px";
+          // Viewer distance. Counter-intuitively, LOWER values push the
+          // side cards off-screen (leaving only flat-looking center
+          // cards) — make the warp stronger with ANGLE above, not here.
+          heroCarousel.style.perspective = Math.round(R * 2.0) + "px";
           // Match the drift to a steady ~30px/s along the wall
           // regardless of how big the cylinder came out.
           cruiseSpeed = 30 / ((R * Math.PI) / 180);
@@ -275,10 +282,10 @@
 
         const layout = () => {
           heroCards.forEach((card, i) => {
-            // This card's angle around the cylinder, normalized to
-            // (-180, 180] so 0 is dead-center of the viewport.
-            let phi = (((base - i * ANGLE) % 360) + 360) % 360;
-            if (phi > 180) phi -= 360;
+            // This card's angle around the (virtual) cylinder,
+            // normalized so 0 is dead-center of the viewport.
+            let phi = (((base - i * ANGLE) % WRAP) + WRAP) % WRAP;
+            if (phi > WRAP / 2) phi -= WRAP;
             // Anything past ±80° is far outside the viewport — hide it
             // (also stops cards from reappearing behind the viewer).
             if (Math.abs(phi) > 80) {
@@ -297,16 +304,19 @@
           const dt = Math.min((now - lastT) / 1000, 0.05);
           lastT = now;
           speed += (targetSpeed - speed) * 0.08;
-          base = (base + speed * dt) % 360;
+          base = (base + speed * dt) % WRAP;
           layout();
           updateHeroCue();
           requestAnimationFrame(step);
         };
 
         size();
+        // Position the wall synchronously so there's never a frame of
+        // unplaced cards before the animation loop's first tick.
+        layout();
         window.addEventListener("resize", () => {
           size();
-          if (reducedMotion) layout();
+          layout();
         });
 
         if (reducedMotion) {
