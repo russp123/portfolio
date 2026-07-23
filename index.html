@@ -520,7 +520,20 @@
             entries.forEach((entry) => {
               const v = entry.target;
               if (entry.isIntersecting) {
-                if (!v.src && v.dataset.src) v.src = v.dataset.src;
+                if (!v.src && v.dataset.src) {
+                  v.src = v.dataset.src;
+                  // Fallback: some mobile browsers don't reliably fire
+                  // loadeddata/canplay for a <video> whose src was set
+                  // dynamically after page load, which would otherwise
+                  // leave the placeholder stuck forever even though the
+                  // clip is actually fine (it plays once you're on the
+                  // project's own page, a completely different, non
+                  // -lazy path). This guarantees it clears either way.
+                  setTimeout(() => {
+                    const stalePlaceholder = v.parentElement.querySelector(".cover-media-placeholder");
+                    if (stalePlaceholder) stalePlaceholder.remove();
+                  }, 4000);
+                }
                 v.play().catch(() => {});
               } else {
                 v.pause();
@@ -533,9 +546,17 @@
           // Clears the cover-media-placeholder (see the cover-cards
           // build above) once this clip actually has a frame ready —
           // not the instant it starts loading, so slow connections
-          // keep showing "loading" text instead of a blank gap.
+          // keep showing "loading" text instead of a blank gap. Three
+          // events raced (whichever fires first wins) plus the 4s
+          // fallback above, since no single event is 100% reliable
+          // across every mobile browser for a dynamically-loaded video.
           const placeholder = v.parentElement.querySelector(".cover-media-placeholder");
-          if (placeholder) v.addEventListener("loadeddata", () => placeholder.remove(), { once: true });
+          if (placeholder) {
+            const clearPlaceholder = () => placeholder.remove();
+            v.addEventListener("loadeddata", clearPlaceholder, { once: true });
+            v.addEventListener("canplay", clearPlaceholder, { once: true });
+            v.addEventListener("playing", clearPlaceholder, { once: true });
+          }
           videoObserver.observe(v);
         });
       }
