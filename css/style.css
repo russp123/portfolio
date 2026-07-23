@@ -513,6 +513,15 @@ main { padding: 40px; flex: 1; }
 }
 .exp-cue:hover span { transform: translateX(3px); }
 
+/* "Back home" pill — reuses .exp-cue's pill styling (same outlined,
+   mono-uppercase language as the About toggle), sitting where the old
+   "About" caption used to be at the top of the essay. Its arrow leads
+   AND retreats further left on hover, the mirror of .exp-cue's
+   trailing/advancing arrow, since this link goes back rather than
+   forward. */
+.home-cue { margin-top: 0; margin-bottom: 28px; }
+.home-cue:hover span { transform: translateX(-3px); }
+
 .list-col { display: flex; flex-direction: column; gap: 10px; }
 .list-col a {
   font-size: 14px;
