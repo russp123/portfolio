@@ -1065,7 +1065,38 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
    decorative mark, roomy padding so the text never hugs the card
    edges, and the attribution pinned to the bottom so the two columns
    always align. */
-.testimonials { margin-top: 72px; }
+.testimonials {
+  position: relative;
+  margin-top: 72px;
+  padding: 64px 0;
+}
+/* Same blueprint-grid mechanic as the homepage hero (.hero-top::before):
+   faint 1px lines full-bleed across the viewport, radial-masked so the
+   label/quote/attribution stay clean and the grid emerges toward the
+   sides, with a top+bottom fade (in ONE gradient this time, since the
+   section isn't pinned to the page edges like the hero) so it blends
+   into the surrounding content instead of cutting off sharply. */
+.testimonials::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px),
+    linear-gradient(to right, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image:
+    radial-gradient(ellipse 62% 75% at 50% 50%, transparent 30%, #000 72%),
+    linear-gradient(to bottom, transparent 0, #000 64px, #000 calc(100% - 64px), transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(ellipse 62% 75% at 50% 50%, transparent 30%, #000 72%),
+    linear-gradient(to bottom, transparent 0, #000 64px, #000 calc(100% - 64px), transparent 100%);
+  mask-composite: intersect;
+}
 /* Centered pull-quote slider — no box. Everything sits on one center
    axis (label, mark, quote, attribution, controls), which reads far
    calmer than a floating card. Cards stack in the same grid cell,
@@ -1154,28 +1185,11 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
 }
 .testimonial-attribution {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
+  gap: 2px;
   padding-top: 6px;
 }
-.testimonial-who { text-align: left; }
-.testimonial-avatar {
-  flex: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 12px;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-}
-.testimonial-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .testimonial-name { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
 .testimonial-role { font-size: 12.5px; color: var(--text-secondary); }
 @media (max-width: 600px) {

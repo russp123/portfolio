@@ -135,7 +135,7 @@
            time: card stack + prev/next + a mono counter. Auto-advances
            (paused on hover); rendered by the script below. -->
       <section class="testimonials" id="testimonials-section">
-        <div class="section-label">What people say</div>
+        <div class="section-label big-label">What people say <span class="section-num">[3]</span></div>
         <div class="testimonial-slider" id="testimonial-slider">
           <div class="testimonial-stage" id="testimonial-stage"></div>
           <div class="testimonial-controls">
@@ -645,18 +645,14 @@
       const tStage = document.getElementById("testimonial-stage");
       const testimonialsSection = document.getElementById("testimonials-section");
       if (tStage && Array.isArray(PORTFOLIO.testimonials) && PORTFOLIO.testimonials.length) {
-        const initials = (name) => name.trim().split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
         tStage.innerHTML = PORTFOLIO.testimonials
           .map(
             (t) => `<figure class="testimonial-card" aria-hidden="true">
               <span class="testimonial-mark" aria-hidden="true">“</span>
               <blockquote class="testimonial-quote">${t.quote}</blockquote>
               <figcaption class="testimonial-attribution">
-                <span class="testimonial-avatar" aria-hidden="true">${initials(t.name)}</span>
-                <span class="testimonial-who">
-                  <span class="testimonial-name">${t.name}</span>
-                  <span class="testimonial-role">${t.role}</span>
-                </span>
+                <span class="testimonial-name">${t.name}</span>
+                <span class="testimonial-role">${t.role}</span>
               </figcaption>
             </figure>`
           )
