@@ -61,6 +61,15 @@
     </form>
   </aside>
 
+  <!-- Poster lightbox — clicking any tile in the E-Commerce Posters
+       wall opens it here, centered and capped to a modest size (not a
+       full-bleed takeover), on both mobile and desktop. Populated +
+       wired up by the script below, alongside the poster wall itself. -->
+  <div class="lightbox" id="poster-lightbox" role="dialog" aria-modal="true" aria-label="Poster preview" aria-hidden="true">
+    <button type="button" class="lightbox-close" id="poster-lightbox-close" title="Close" aria-label="Close">×</button>
+    <img class="lightbox-img" id="poster-lightbox-img" src="" alt="" />
+  </div>
+
   <div class="wrap">
 
     <header class="site-header">
@@ -97,14 +106,14 @@
            Clicking a row applies that niche's filter on the project
            grid and scrolls down to it. Rendered by the script below. -->
       <section class="what-i-do">
-        <div class="section-label">What I do <span class="section-num">[1]</span></div>
+        <div class="section-label big-label">What I do <span class="section-num">[1]</span></div>
         <div class="wid-list" id="wid-list"></div>
       </section>
 
       <!-- Projects — same section-label pattern as "What I do" above,
            so the tile wall reads as its own titled section instead of
            just floating grid + filter pill. -->
-      <div class="section-label projects-label">Projects <span class="section-num">[2]</span></div>
+      <div class="section-label projects-label big-label">Projects <span class="section-num">[2]</span></div>
 
       <!-- Niche filter — a centered segmented pill; segments render from
            PORTFOLIO.niches, the thumb slides behind the active one. -->
@@ -232,7 +241,7 @@
           // Viewer distance — the 984ab14 warp. (Counter-intuitively,
           // LOWER values push the warped side cards off-screen leaving
           // flat center cards, so don't go below ~1.5.)
-          heroCarousel.style.perspective = Math.round(R * 1.9) + "px";
+          heroCarousel.style.perspective = Math.round(R * 0.9) + "px";
           // Match the drift to a steady ~30px/s along the wall
           // regardless of how big the cylinder came out.
           cruiseSpeed = 30 / ((R * Math.PI) / 180);
@@ -588,6 +597,44 @@
         window.addEventListener("resize", updateBarFade);
         window.addEventListener("load", updateBarFade);
         updateBarFade();
+      }
+
+      // ---- Poster lightbox -------------------------------------------
+      // Delegated on postersGrid (not per-image) since the poster tiles
+      // are built lazily on first opening the "E-Commerce Posters" tab —
+      // a single listener here still catches clicks on images added
+      // after the fact. Opens the same image at a capped size, centered;
+      // closes on the × button, backdrop click, or Escape.
+      const lightbox = document.getElementById("poster-lightbox");
+      const lightboxImg = document.getElementById("poster-lightbox-img");
+      if (postersGrid && lightbox && lightboxImg) {
+        const openLightbox = (img) => {
+          lightboxImg.src = img.src;
+          lightboxImg.alt = img.alt;
+          lightbox.classList.add("open");
+          lightbox.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        };
+        const closeLightbox = () => {
+          lightbox.classList.remove("open");
+          lightbox.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+          // Clear the src once the fade-out finishes so a stale image
+          // doesn't flash on the next open before the new one loads.
+          setTimeout(() => { if (!lightbox.classList.contains("open")) lightboxImg.src = ""; }, 200);
+        };
+        postersGrid.addEventListener("click", (e) => {
+          const img = e.target.closest(".poster-item");
+          if (img) openLightbox(img);
+        });
+        document.getElementById("poster-lightbox-close").addEventListener("click", closeLightbox);
+        // Click the dark backdrop (not the image itself) to close.
+        lightbox.addEventListener("click", (e) => {
+          if (e.target === lightbox) closeLightbox();
+        });
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
+        });
       }
 
       // Testimonials — real client reviews (verbatim, from Upwork),

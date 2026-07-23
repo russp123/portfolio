@@ -977,6 +977,75 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
   border-radius: 10px;
   break-inside: avoid;
   background: var(--bg-elevated);
+  cursor: zoom-in;
+  transition: opacity 160ms ease;
+}
+.poster-item:hover { opacity: 0.88; }
+
+/* Poster lightbox — dark backdrop (same language as the RUSSELLM
+   overlay) with the image capped to a modest size and centered,
+   rather than a full-bleed takeover. Works identically on mobile and
+   desktop; only the max dimensions scale down. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.lightbox.open { opacity: 1; pointer-events: auto; }
+.lightbox-img {
+  display: block;
+  max-width: min(560px, 100%);
+  max-height: 78vh;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  background: var(--bg-elevated);
+  /* Starts slightly scaled down and settles in, so opening reads as a
+     deliberate motion rather than an instant pop. */
+  transform: scale(0.96);
+  transition: transform 200ms ease;
+}
+.lightbox.open .lightbox-img { transform: scale(1); }
+.lightbox-close {
+  position: fixed;
+  /* 84px, not 22px — clears the fixed RUSSELLM/About pills that sit
+     at top:22px in that same corner (same offset .mailto-toast uses
+     for the same reason). */
+  top: 84px;
+  right: 22px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 160ms ease, transform 160ms ease;
+}
+.lightbox-close:hover { background: rgba(0, 0, 0, 0.65); transform: translateY(-1px); }
+@media (max-width: 600px) {
+  .lightbox { padding: 20px; }
+  .lightbox-img { max-height: 72vh; }
+  /* About/RUSSELLM stay pinned at top:22/right:22 on mobile too (no
+     mobile override for them), so keep clearing that same corner. */
+  .lightbox-close { top: 78px; right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lightbox, .lightbox-img { transition: none; }
 }
 @media (max-width: 600px) {
   /* NOT a multicol on .posters-grid — that was an old masonry approach
@@ -2035,6 +2104,31 @@ html, body { overflow-x: clip; }
    treatment as "What I do", centered to match the filter pill and
    grid below it instead of the left-aligned reading-column style. */
 .projects-label { text-align: center; margin-bottom: 0; }
+
+/* Big display treatment for these two homepage section labels —
+   scaled like the hero headline (a size down) instead of the small
+   mono caption every OTHER section-label uses (About, testimonials,
+   poster categories). Scoped to .big-label specifically so those
+   other labels are untouched. The bracketed number stays in mono at
+   a modest size, like a small index tag beside the big word. */
+.big-label {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(38px, 5.6vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: var(--text-primary);
+  margin-bottom: 28px;
+}
+.big-label .section-num {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+.projects-label.big-label { margin-bottom: 20px; }
 
 .wid-list { border-top: 1px solid var(--border); }
 
