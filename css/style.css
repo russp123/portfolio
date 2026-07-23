@@ -1764,16 +1764,17 @@ html, body { overflow-x: clip; }
 /* Subtle blueprint grid in the hero's whitespace — the classic
    landing-page texture: faint 1px lines, masked so the center (where
    the intro text sits) stays clean and the grid emerges toward the
-   sides. Uses --border so it adapts to light/dark. Full-bleed like
-   the wall, so the lines run to the viewport edges. */
-.hero::before {
+   sides. Uses --border so it adapts to light/dark. Anchored to the
+   TEXT block only (not the whole hero) so it ends just above the
+   wall — no grid peeking out under the scrolling images. */
+.hero-top::before {
   content: "";
   position: absolute;
   /* Reaches up past main's padding to the header itself (whose bg is
      translucent, so the grid shows through faintly and the two blend
-     with no divider line). */
+     with no divider line); stops just above the carousel below. */
   top: -120px;
-  bottom: 0;
+  bottom: -10px;
   left: calc(50% - 50vw);
   width: 100vw;
   z-index: -1;
@@ -1782,8 +1783,8 @@ html, body { overflow-x: clip; }
     linear-gradient(to bottom, var(--border) 1px, transparent 1px),
     linear-gradient(to right, var(--border) 1px, transparent 1px);
   background-size: 64px 64px;
-  -webkit-mask-image: radial-gradient(ellipse 72% 62% at 50% 32%, transparent 32%, #000 74%);
-  mask-image: radial-gradient(ellipse 72% 62% at 50% 32%, transparent 32%, #000 74%);
+  -webkit-mask-image: radial-gradient(ellipse 72% 68% at 50% 56%, transparent 34%, #000 76%);
+  mask-image: radial-gradient(ellipse 72% 68% at 50% 56%, transparent 34%, #000 76%);
 }
 
 /* Guaranteed air between the hero texts and the wall (the flared
@@ -1791,6 +1792,9 @@ html, body { overflow-x: clip; }
 .hero-carousel { margin-top: 34px; margin-bottom: 26px; }
 
 .hero-top {
+  /* Positioned so its ::before (the blueprint grid) sizes against
+     THIS box and ends with the text block, not the whole hero. */
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
