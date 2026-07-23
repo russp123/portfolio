@@ -76,28 +76,39 @@
     </header>
 
     <main>
-      <div class="top-grid">
-        <section class="about-row">
+      <!-- Hero — the full first screen: big intro headline, then the
+           curved, infinitely drifting carousel of project covers (built
+           from PORTFOLIO.projects by the inline script below), then a
+           scroll cue. Replaces the old About [1] section. -->
+      <section class="hero">
+        <div class="hero-top">
           <div class="avatar-widget" id="avatar-widget" role="button" tabindex="0" aria-label="Click for a surprise">
             <span class="avatar-word" id="avatar-word"></span>
             <img class="avatar-img" id="avatar-img" src="assets/avatar-neutral.png" alt="Click for a surprise" />
             <span class="avatar-dot" aria-hidden="true"></span>
           </div>
-          <div class="about-row-text">
-            <div class="section-label">About <span class="section-num">[1]</span></div>
-            <div class="about-text" id="about-text"></div>
-          </div>
-        </section>
+          <h1 class="hero-headline">I&rsquo;m Russ,</h1>
+          <p class="hero-sub">a software engineer who handles the tech, then <i>automates what&rsquo;s left</i>.</p>
+          <a class="hero-email" id="hero-email" href="#"></a>
+        </div>
+        <div class="hero-carousel" id="hero-carousel">
+          <div class="hero-carousel-track" id="hero-carousel-track"></div>
+        </div>
+        <div class="hero-scroll-cue" aria-hidden="true">
+          <span class="label">Scroll for more</span>
+          <span class="arrow">↓</span>
+        </div>
+      </section>
 
-        <!-- "What I do" — service pillars, each with its skill categories
-             as chips that reveal the tech on click. Content from
-             PORTFOLIO.services + PORTFOLIO.skills; rendered below. -->
-        <section>
-          <div class="section-label">What I do <span class="section-num">[2]</span></div>
-          <div class="services-list" id="services-list"></div>
-          <a class="exp-cue" href="/about">Experience <span aria-hidden="true">→</span></a>
-        </section>
-      </div>
+      <!-- "What I do" — one full-width row per niche (from
+           PORTFOLIO.services), each with click-to-reveal skill chips.
+           Clicking a row applies that niche's filter on the project
+           grid and scrolls down to it. Rendered by the script below. -->
+      <section class="what-i-do">
+        <div class="section-label">What I do <span class="section-num">[1]</span></div>
+        <div class="wid-list" id="wid-list"></div>
+        <a class="exp-cue" href="/about">Experience <span aria-hidden="true">→</span></a>
+      </section>
 
       <!-- Niche filter — a centered segmented pill; segments render from
            PORTFOLIO.niches, the thumb slides behind the active one. -->
@@ -176,49 +187,147 @@
         introOverlay.remove();
       }
 
-      document.getElementById("about-text").innerHTML = `<p>${PORTFOLIO.aboutHtml}</p>`;
+      // ---- Hero: email chip -----------------------------------------
+      // mailto: gets the site-wide copy-to-clipboard + toast behavior
+      // from theme.js (initMailtoCopy) for free.
+      const heroEmail = document.getElementById("hero-email");
+      if (heroEmail) {
+        heroEmail.href = "mailto:" + PORTFOLIO.email;
+        heroEmail.innerHTML = `${PORTFOLIO.email}<sup>↗</sup>`;
+      }
 
-      // "What I do" pillars: title + description + the pillar's skill
-      // categories as chips. Clicking a chip reveals that category's items
-      // (from PORTFOLIO.skills) below the chip row — one open per pillar.
+      // ---- Hero: curved infinite carousel ---------------------------
+      // Every project with a real cover image drifts by on an arc —
+      // cards rise + tilt toward the viewport edges (like they're
+      // riding the inside of a circle) and the container's CSS mask
+      // fades them out at either side. The set is rendered twice; when
+      // one full set has scrolled past, the offset wraps seamlessly.
+      // Cards are real links to their project pages.
+      const heroTrack = document.getElementById("hero-carousel-track");
+      const heroCarousel = document.getElementById("hero-carousel");
+      if (heroTrack && heroCarousel) {
+        const coverProjects = PORTFOLIO.projects.filter((p) => p.cover);
+        const renderSet = (dup) => coverProjects
+          .map(
+            (p) => `<a class="hero-card" href="${p.page}" style="background-image:${p.cover}"${dup ? ' aria-hidden="true" tabindex="-1"' : ` aria-label="${p.title}"`}>
+              <span class="hero-card-label">${p.title}</span>
+            </a>`
+          )
+          .join("");
+        heroTrack.innerHTML = renderSet(false) + renderSet(true);
+        const heroCards = Array.from(heroTrack.children);
+
+        const ARC = 44;   // px the edge cards rise above the center
+        const ROT = 6;    // deg the edge cards tilt (tangent to the arc)
+        const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        let offset = 0;
+        let speed = 30;         // px/s — slow, ambient drift
+        let targetSpeed = 30;
+        let lastT = 0;
+
+        const layout = () => {
+          const mid = window.innerWidth / 2;
+          heroTrack.style.transform = `translate3d(${-offset}px,0,0)`;
+          heroCards.forEach((card) => {
+            const x = card.offsetLeft - offset + card.offsetWidth / 2;
+            // -1 at left viewport edge … 1 at right; clamped so far
+            // off-screen cards (clipped anyway) don't get huge transforms.
+            const t = Math.max(-1.5, Math.min(1.5, (x - mid) / mid));
+            card.style.transform = `translateY(${(ARC * t * t).toFixed(1)}px) rotate(${(-ROT * t).toFixed(2)}deg)`;
+          });
+        };
+
+        const step = (now) => {
+          const dt = Math.min((now - lastT) / 1000, 0.05);
+          lastT = now;
+          speed += (targetSpeed - speed) * 0.08;
+          offset += speed * dt;
+          const setWidth = heroTrack.scrollWidth / 2;
+          if (setWidth > 0) offset %= setWidth;
+          layout();
+          requestAnimationFrame(step);
+        };
+
+        if (reducedMotion) {
+          // Static arc, no drift.
+          layout();
+          window.addEventListener("resize", layout);
+        } else {
+          // Ease down to a crawl while hovered so cards are easy to click.
+          heroCarousel.addEventListener("mouseenter", () => (targetSpeed = 7));
+          heroCarousel.addEventListener("mouseleave", () => (targetSpeed = 30));
+          requestAnimationFrame((t0) => {
+            lastT = t0;
+            requestAnimationFrame(step);
+          });
+        }
+      }
+
+      // ---- "What I do" rows -----------------------------------------
+      // One row per PORTFOLIO.services pillar. Skill-category chips
+      // reveal their items on click (stopPropagation so the row's own
+      // click — jump to the grid with that niche filter applied —
+      // doesn't fire at the same time).
       const escAttr = (s) => (s || "").replace(/"/g, "&quot;");
       const itemsByCategory = {};
       PORTFOLIO.skills.forEach((s) => (itemsByCategory[s.category] = s.items));
-      document.getElementById("services-list").innerHTML = (PORTFOLIO.services || [])
-        .map(
-          (sv) => `<div class="service">
-            <h3 class="service-title">${sv.title}</h3>
-            <p class="service-body">${sv.body}</p>
-            <div class="service-skills">
-              ${(sv.skills || [])
-                .map(
-                  (cat) =>
-                    `<button type="button" class="skill-chip" data-items="${escAttr(itemsByCategory[cat])}">${cat}</button>`
-                )
-                .join("")}
-            </div>
-            <div class="skill-reveal" hidden></div>
-          </div>`
-        )
-        .join("");
+      const widList = document.getElementById("wid-list");
+      if (widList) {
+        widList.innerHTML = (PORTFOLIO.services || [])
+          .map(
+            (sv, i) => `<div class="wid-row" data-niche="${sv.niche || ""}" role="link" tabindex="0" aria-label="See ${escAttr(sv.title)} projects">
+              <span class="wid-num">0${i + 1}</span>
+              <h3 class="wid-title">${sv.title}</h3>
+              <div class="wid-detail">
+                <p class="wid-body">${sv.body}</p>
+                <div class="service-skills">
+                  ${(sv.skills || [])
+                    .map(
+                      (cat) =>
+                        `<button type="button" class="skill-chip" data-items="${escAttr(itemsByCategory[cat])}">${cat}</button>`
+                    )
+                    .join("")}
+                </div>
+                <div class="skill-reveal" hidden></div>
+              </div>
+              <span class="wid-arrow" aria-hidden="true">→</span>
+            </div>`
+          )
+          .join("");
 
-      document.querySelectorAll("#services-list .service").forEach((pillar) => {
-        const reveal = pillar.querySelector(".skill-reveal");
-        pillar.querySelectorAll(".skill-chip").forEach((chip) => {
-          chip.addEventListener("click", () => {
-            const wasActive = chip.classList.contains("active");
-            pillar.querySelectorAll(".skill-chip").forEach((c) => c.classList.remove("active"));
-            if (wasActive) {
-              reveal.hidden = true;
-              reveal.textContent = "";
-            } else {
-              chip.classList.add("active");
-              reveal.textContent = chip.dataset.items;
-              reveal.hidden = false;
+        widList.querySelectorAll(".wid-row").forEach((row) => {
+          const reveal = row.querySelector(".skill-reveal");
+          row.querySelectorAll(".skill-chip").forEach((chip) => {
+            chip.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const wasActive = chip.classList.contains("active");
+              row.querySelectorAll(".skill-chip").forEach((c) => c.classList.remove("active"));
+              if (wasActive) {
+                reveal.hidden = true;
+                reveal.textContent = "";
+              } else {
+                chip.classList.add("active");
+                reveal.textContent = chip.dataset.items;
+                reveal.hidden = false;
+              }
+            });
+          });
+          // Row click → apply this niche's filter and scroll to the grid.
+          const go = () => {
+            const btn = document.querySelector(`.niche-btn[data-niche="${row.dataset.niche}"]`);
+            if (btn && !btn.classList.contains("active")) btn.click();
+            const bar = document.querySelector(".niche-bar-wrap");
+            if (bar) bar.scrollIntoView({ behavior: "smooth", block: "start" });
+          };
+          row.addEventListener("click", go);
+          row.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              go();
             }
           });
         });
-      });
+      }
 
       document.getElementById("projects-grid").innerHTML = PORTFOLIO.projects
         .map((p) => {

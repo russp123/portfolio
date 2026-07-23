@@ -49,19 +49,35 @@ const PORTFOLIO = {
   ],
 
   // ---- Home page: "What I do" pillars ----
-  // Each pillar carries a description + the skill categories it covers
-  // (must match a `category` in `skills` above). Rendered in the right
-  // column; the categories appear as click-to-reveal chips.
+  // One pillar per niche (mirrors the filter bar — `niche` must match an
+  // id in `niches` below; clicking the row on the homepage jumps to the
+  // grid with that filter applied). Each carries a description + the
+  // skill categories it covers (must match a `category` in `skills`
+  // above), which appear as click-to-reveal chips.
   services: [
     {
-      title: "Websites & Platforms",
-      body: "WordPress & Multisite builds, high-converting landing pages, and the front end to match — architected to load fast and hold up.",
-      skills: ["Full-Stack Development", "WordPress & CMS", "Design", "DevOps & Infrastructure"],
+      title: "Websites & Apps",
+      niche: "web",
+      body: "WordPress and Multisite platforms, custom web apps, and the infrastructure underneath — built to load fast, stay secure, and hold up under real traffic.",
+      skills: ["Full-Stack Development", "WordPress & CMS", "DevOps & Infrastructure"],
     },
     {
-      title: "Automation & CRM",
-      body: "GoHighLevel funnels, lead capture, and the workflows that run the follow-up so you don't have to.",
+      title: "Funnels & Pages",
+      niche: "funnels",
+      body: "High-converting landing pages, sales funnels, and sign-up flows that carry a visitor from first click all the way to payment.",
+      skills: ["WordPress & CMS", "Automation & Marketing"],
+    },
+    {
+      title: "Automation & AI",
+      niche: "automation",
+      body: "GoHighLevel workflows, lead scoring, email deliverability, and AI assistants — the follow-up runs itself so you don't have to.",
       skills: ["Automation & Marketing"],
+    },
+    {
+      title: "Design",
+      niche: "design",
+      body: "Brand identity, paid ebooks, and e-commerce creative — design work that holds the same standard as the builds it promotes.",
+      skills: ["Design"],
     },
   ],
 

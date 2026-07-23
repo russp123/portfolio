@@ -1764,3 +1764,222 @@ a.timeline-name {
 @media (max-width: 600px) {
   .scroll-cue { bottom: 16px; font-size: 10px; padding: 7px 13px; gap: 6px; }
 }
+
+/* ============================================================
+   HERO — full first screen: headline + curved infinite carousel
+   of project covers + scroll cue. (Replaced the old About [1] /
+   compact What-I-do top grid.)
+   ============================================================ */
+/* The full-bleed carousel is 100vw wide; `clip` (not `hidden` — that
+   would create a scroll container and break the sticky header) stops
+   it from opening a horizontal scrollbar on OSes with visible
+   scrollbars. */
+body { overflow-x: clip; }
+
+.hero {
+  min-height: calc(100vh - var(--header-h));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding-bottom: 10px;
+}
+
+.hero-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.hero-headline {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(56px, 9vw, 124px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.hero-sub {
+  font-size: clamp(15px, 1.6vw, 19px);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0;
+}
+
+.hero-email {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 16px;
+  margin-top: 4px;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.hero-email:hover { border-color: var(--text-primary); transform: translateY(-1px); }
+.hero-email sup { font-size: 9px; margin-left: 1px; color: var(--text-tertiary); }
+
+/* Full-bleed strip. The mask fades the cards out toward either edge
+   (the "blurred sides" effect); top padding gives the edge cards
+   headroom to rise on the arc without clipping. */
+.hero-carousel {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  padding: 48px 0 16px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
+}
+
+.hero-carousel-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  will-change: transform;
+}
+
+.hero-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(210px, 21vw, 320px);
+  height: clamp(240px, 34vh, 400px);
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  overflow: hidden;
+  will-change: transform;
+}
+/* Hover darken + project-title label, same language as the grid tiles. */
+.hero-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 180ms ease;
+}
+.hero-card:hover::after { background: rgba(0, 0, 0, 0.32); }
+.hero-card-label {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  z-index: 1;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.hero-card:hover .hero-card-label { opacity: 1; transform: translateY(0); }
+
+/* "Scroll for more" — small hop + flicker to point below the fold. */
+.hero-scroll-cue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.hero-scroll-cue .label { animation: hero-cue-flicker 1.8s ease-in-out infinite; }
+.hero-scroll-cue .arrow { animation: hero-cue-hop 1.8s ease-in-out infinite; }
+@keyframes hero-cue-flicker {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes hero-cue-hop {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-cue .label, .hero-scroll-cue .arrow { animation: none; }
+}
+
+/* ============================================================
+   WHAT I DO — full-width numbered rows, one per niche. The whole
+   row is clickable (jumps to the grid with that filter applied);
+   the skill chips inside keep their click-to-reveal behavior.
+   ============================================================ */
+.what-i-do { margin: 84px 0 72px; }
+
+.wid-list { border-top: 1px solid var(--border); }
+
+.wid-row {
+  display: grid;
+  grid-template-columns: 52px 1.1fr 1.3fr 36px;
+  gap: 28px;
+  align-items: start;
+  padding: 34px 10px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+.wid-row:hover { background: var(--bg-elevated); }
+
+.wid-num {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  padding-top: 12px;
+}
+
+.wid-title {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(28px, 3.2vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.wid-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+
+.wid-arrow {
+  font-size: 20px;
+  color: var(--text-tertiary);
+  padding-top: 8px;
+  transition: transform 180ms ease, color 180ms ease;
+}
+.wid-row:hover .wid-arrow { transform: translateX(5px); color: var(--text-primary); }
+
+/* Landing spot for the wid-row jump — clear the 70px sticky header. */
+.niche-bar-wrap { scroll-margin-top: 90px; }
+
+@media (max-width: 800px) {
+  .wid-row {
+    grid-template-columns: 1fr 36px;
+    gap: 10px 14px;
+    padding: 26px 6px;
+  }
+  .wid-num { grid-column: 1 / -1; padding-top: 0; }
+  .wid-title { grid-row: 2; }
+  .wid-arrow { grid-row: 2; padding-top: 6px; justify-self: end; }
+  .wid-detail { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+  .hero { min-height: calc(100svh - var(--header-h)); }
+  .hero-card { width: 64vw; height: 300px; }
+  .hero-carousel { padding-top: 40px; }
+  .what-i-do { margin: 56px 0 48px; }
+}
