@@ -900,9 +900,6 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
 @media (max-width: 700px) {
   .poster-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 600px) {
-  .poster-wall { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-}
 
 /* Social post wall (organic-posts.html / paid-ads.html) — same grid
    language as the poster wall, but carousels break out of the grid as a
@@ -982,7 +979,15 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
   background: var(--bg-elevated);
 }
 @media (max-width: 600px) {
-  .posters-grid { columns: 2 140px; column-gap: 10px; }
+  /* NOT a multicol on .posters-grid — that was an old masonry approach
+     that predates the current per-category .poster-cat > .poster-wall
+     structure. A 2-column multicol container wrapping several
+     independent grid sections doesn't flow them in order; it balances
+     content across its own two columns by height, splitting sections
+     across the middle and interleaving them out of order. Each
+     .poster-wall already handles its own responsive column count
+     (see the max-width:700px rule above), so nothing extra is needed
+     here beyond this cosmetic sizing. */
   .poster-item { margin-bottom: 10px; border-radius: 8px; }
 }
 
