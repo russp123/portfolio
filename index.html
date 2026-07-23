@@ -469,8 +469,17 @@
           const bg = p.cover ? `background-image:${p.cover}` : "";
           // No `cover` and no `video` -> auto-generated placeholder card
           // (theme.js renderPlaceholderCover) instead of a real image.
+          // A project with a VIDEO but no cover ALSO gets that same
+          // placeholder as an interim state: an empty <video> with no
+          // poster paints as a bare gray rectangle in every browser
+          // until its data actually arrives, which on mobile can sit
+          // there a while. The placeholder is a normal (non-positioned)
+          // sibling BEFORE the video, so with .project-cover's
+          // overflow:hidden it's what actually paints — the video loads
+          // invisibly underneath and the videoObserver below removes the
+          // placeholder once its `loadeddata` fires.
           const cover = p.video
-            ? `<div class="project-cover size-${p.size || "square"}" style="${bg}"><video class="cover-media" data-src="${p.video}" muted loop playsinline preload="none"></video></div>`
+            ? `<div class="project-cover size-${p.size || "square"}" style="${bg}">${p.cover ? "" : renderPlaceholderCover("cover-media-placeholder")}<video class="cover-media" data-src="${p.video}" muted loop playsinline preload="none"></video></div>`
             : p.cover
             ? `<div class="project-cover size-${p.size || "square"}" style="${bg}"></div>`
             : `<div class="project-cover size-${p.size || "square"}">${renderPlaceholderCover()}</div>`;
@@ -520,7 +529,15 @@
           },
           { rootMargin: "300px 0px" }
         );
-        videos.forEach((v) => videoObserver.observe(v));
+        videos.forEach((v) => {
+          // Clears the cover-media-placeholder (see the cover-cards
+          // build above) once this clip actually has a frame ready —
+          // not the instant it starts loading, so slow connections
+          // keep showing "loading" text instead of a blank gap.
+          const placeholder = v.parentElement.querySelector(".cover-media-placeholder");
+          if (placeholder) v.addEventListener("loadeddata", () => placeholder.remove(), { once: true });
+          videoObserver.observe(v);
+        });
       }
 
       // Staggered scroll-reveal: each tile fades/slides in as it enters
