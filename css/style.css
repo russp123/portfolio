@@ -1059,36 +1059,83 @@ html[data-intro="1"] #intro-overlay { perspective: 1100px; }
   .poster-item { margin-bottom: 10px; border-radius: 8px; }
 }
 
-/* "What clients say" — real reviews, quoted verbatim. Sits between the
-   project grid and the footer. */
+/* "What people say" — real reviews, quoted verbatim. Sits between the
+   project grid and the footer. Serif pull-quote treatment: a big
+   decorative mark, roomy padding so the text never hugs the card
+   edges, and the attribution pinned to the bottom so the two columns
+   always align. */
 .testimonials { margin-top: 64px; }
 .testimonials-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-top: 18px;
+  gap: 28px;
+  margin-top: 22px;
 }
 .testimonial-card {
   margin: 0;
-  padding: 24px;
+  padding: 34px 42px 34px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
+  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+.testimonial-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--text-tertiary);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+}
+/* Oversized serif quotation mark — decorative, sits above the quote. */
+.testimonial-mark {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-size: 58px;
+  line-height: 0.4;
+  height: 22px;
+  color: var(--text-tertiary);
+  opacity: 0.75;
+  user-select: none;
 }
 .testimonial-quote {
   margin: 0;
-  font-size: 14.5px;
-  line-height: 1.65;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-size: 19.5px;
+  line-height: 1.55;
+  letter-spacing: -0.005em;
   color: var(--text-primary);
 }
-.testimonial-quote::before { content: "\201C"; }
-.testimonial-quote::after { content: "\201D"; }
-.testimonial-attribution { display: flex; flex-direction: column; gap: 2px; }
-.testimonial-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-.testimonial-role { font-size: 12px; color: var(--text-secondary); }
+.testimonial-attribution {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  /* Pushes attribution to the card's bottom edge so neighboring cards
+     of different quote lengths still read as one aligned row. */
+  margin-top: auto;
+  padding-top: 4px;
+}
+.testimonial-avatar {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+.testimonial-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.testimonial-name { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+.testimonial-role { font-size: 12.5px; color: var(--text-secondary); }
+@media (max-width: 600px) {
+  .testimonial-card { padding: 26px 24px; }
+  .testimonial-quote { font-size: 17.5px; }
+}
 
 @media (max-width: 900px) {
   .top-grid { grid-template-columns: 1fr; gap: 32px; }

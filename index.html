@@ -630,13 +630,18 @@
       const testimonialsGrid = document.getElementById("testimonials-grid");
       const testimonialsSection = document.getElementById("testimonials-section");
       if (testimonialsGrid && Array.isArray(PORTFOLIO.testimonials) && PORTFOLIO.testimonials.length) {
+        const initials = (name) => name.trim().split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
         testimonialsGrid.innerHTML = PORTFOLIO.testimonials
           .map(
             (t) => `<figure class="testimonial-card">
+              <span class="testimonial-mark" aria-hidden="true">“</span>
               <blockquote class="testimonial-quote">${t.quote}</blockquote>
               <figcaption class="testimonial-attribution">
-                <span class="testimonial-name">${t.name}</span>
-                <span class="testimonial-role">${t.role}</span>
+                <span class="testimonial-avatar" aria-hidden="true">${initials(t.name)}</span>
+                <span class="testimonial-who">
+                  <span class="testimonial-name">${t.name}</span>
+                  <span class="testimonial-role">${t.role}</span>
+                </span>
               </figcaption>
             </figure>`
           )
