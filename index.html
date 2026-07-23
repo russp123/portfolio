@@ -196,44 +196,81 @@
         heroEmail.innerHTML = `${PORTFOLIO.email}<sup>↗</sup>`;
       }
 
-      // ---- Hero: curved infinite carousel ---------------------------
-      // Every project with a real cover image drifts by on an arc —
-      // cards rise + tilt toward the viewport edges (like they're
-      // riding the inside of a circle) and the container's CSS mask
-      // fades them out at either side. The set is rendered twice; when
-      // one full set has scrolled past, the offset wraps seamlessly.
-      // Cards are real links to their project pages.
+      // ---- Hero: cylindrical infinite carousel ----------------------
+      // The real 3D version: every project cover/video is a flat plane
+      // placed on the inside wall of a cylinder (rotateY around a
+      // shared axis + CSS perspective on the container). The whole
+      // wall rotates as ONE rigid surface — cards never tilt or move
+      // individually, the warp comes entirely from the cylinder's
+      // curvature: vertical edges foreshorten and the strip's top and
+      // bottom edges bow toward the viewport edges. Because the N
+      // cards close the full 360°, the rotation loops seamlessly with
+      // no duplicated set. Cards are real links to their project pages.
       const heroTrack = document.getElementById("hero-carousel-track");
       const heroCarousel = document.getElementById("hero-carousel");
       if (heroTrack && heroCarousel) {
-        const coverProjects = PORTFOLIO.projects.filter((p) => p.cover);
-        const renderSet = (dup) => coverProjects
+        const coverUrl = (p) => ((p.cover || "").match(/url\(['"]?([^'")]+)/) || [])[1] || "";
+        const items = PORTFOLIO.projects.filter((p) => p.cover || p.video);
+        heroTrack.innerHTML = items
           .map(
-            (p) => `<a class="hero-card" href="${p.page}" style="background-image:${p.cover}"${dup ? ' aria-hidden="true" tabindex="-1"' : ` aria-label="${p.title}"`}>
+            (p) => `<a class="hero-card" href="${p.page}" aria-label="${p.title}"${p.cover ? ` style="background-image:${p.cover}"` : ""}>
+              ${p.video ? `<video class="hero-card-media" src="${p.video}" autoplay muted loop playsinline preload="metadata"${coverUrl(p) ? ` poster="${coverUrl(p)}"` : ""}></video>` : ""}
               <span class="hero-card-label">${p.title}</span>
             </a>`
           )
           .join("");
-        heroTrack.innerHTML = renderSet(false) + renderSet(true);
         const heroCards = Array.from(heroTrack.children);
 
-        const ARC = 44;   // px the edge cards rise above the center
-        const ROT = 6;    // deg the edge cards tilt (tangent to the arc)
+        const N = heroCards.length;
+        const ANGLE = 360 / N;   // deg between neighboring cards — closes the cylinder
+        const GAP = 14;          // px between cards along the wall
+        const RATIO = 1.42;      // card height : width (reference's portrait shape)
         const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-        let offset = 0;
-        let speed = 30;         // px/s — slow, ambient drift
-        let targetSpeed = 30;
+        let R = 0;               // cylinder radius, from card width + gap
+        let base = 0;            // current wall rotation, deg
+        let cruiseSpeed = 2;     // deg/s equivalent of ~30px/s, set by size()
+        let speed = 0;
+        let targetSpeed = 0;
+        let hovered = false;
         let lastT = 0;
 
+        // Card size from the reference's proportions: ~4.3 portrait
+        // cards across on desktop (~2.2 on phones), capped by viewport
+        // height so short screens don't overflow the hero.
+        const size = () => {
+          const vw = window.innerWidth;
+          const visible = vw < 700 ? 2.2 : 4.3;
+          let h = Math.min((vw / visible) * RATIO, window.innerHeight * 0.54);
+          const w = h / RATIO;
+          R = (w + GAP) / (2 * Math.tan(((ANGLE / 2) * Math.PI) / 180));
+          heroCarousel.style.setProperty("--hc-w", w.toFixed(1) + "px");
+          heroCarousel.style.setProperty("--hc-h", h.toFixed(1) + "px");
+          // Viewer distance sets how strong the warp reads; ~2x the
+          // radius keeps it gentle like the reference.
+          heroCarousel.style.perspective = Math.round(R * 2.2) + "px";
+          // Match the drift to a steady ~30px/s along the wall
+          // regardless of how big the cylinder came out.
+          cruiseSpeed = 30 / ((R * Math.PI) / 180);
+          if (!hovered) targetSpeed = cruiseSpeed;
+        };
+
         const layout = () => {
-          const mid = window.innerWidth / 2;
-          heroTrack.style.transform = `translate3d(${-offset}px,0,0)`;
-          heroCards.forEach((card) => {
-            const x = card.offsetLeft - offset + card.offsetWidth / 2;
-            // -1 at left viewport edge … 1 at right; clamped so far
-            // off-screen cards (clipped anyway) don't get huge transforms.
-            const t = Math.max(-1.5, Math.min(1.5, (x - mid) / mid));
-            card.style.transform = `translateY(${(ARC * t * t).toFixed(1)}px) rotate(${(-ROT * t).toFixed(2)}deg)`;
+          heroCards.forEach((card, i) => {
+            // This card's angle around the cylinder, normalized to
+            // (-180, 180] so 0 is dead-center of the viewport.
+            let phi = (((base - i * ANGLE) % 360) + 360) % 360;
+            if (phi > 180) phi -= 360;
+            // Anything past ±80° is far outside the viewport — hide it
+            // (also stops cards from reappearing behind the viewer).
+            if (Math.abs(phi) > 80) {
+              card.style.visibility = "hidden";
+              return;
+            }
+            card.style.visibility = "visible";
+            // translateZ(R) rotateY(phi) translateZ(-R): rotate around
+            // the cylinder's axis, with the wall's nearest point kept
+            // at z=0 so the center card renders at its CSS size.
+            card.style.transform = `translateX(-50%) translateZ(${R.toFixed(1)}px) rotateY(${phi.toFixed(3)}deg) translateZ(${(-R).toFixed(1)}px)`;
           });
         };
 
@@ -241,21 +278,30 @@
           const dt = Math.min((now - lastT) / 1000, 0.05);
           lastT = now;
           speed += (targetSpeed - speed) * 0.08;
-          offset += speed * dt;
-          const setWidth = heroTrack.scrollWidth / 2;
-          if (setWidth > 0) offset %= setWidth;
+          base = (base + speed * dt) % 360;
           layout();
           requestAnimationFrame(step);
         };
 
+        size();
+        window.addEventListener("resize", () => {
+          size();
+          if (reducedMotion) layout();
+        });
+
         if (reducedMotion) {
-          // Static arc, no drift.
+          // Static cylinder, no drift.
           layout();
-          window.addEventListener("resize", layout);
         } else {
           // Ease down to a crawl while hovered so cards are easy to click.
-          heroCarousel.addEventListener("mouseenter", () => (targetSpeed = 7));
-          heroCarousel.addEventListener("mouseleave", () => (targetSpeed = 30));
+          heroCarousel.addEventListener("mouseenter", () => {
+            hovered = true;
+            targetSpeed = cruiseSpeed * 0.2;
+          });
+          heroCarousel.addEventListener("mouseleave", () => {
+            hovered = false;
+            targetSpeed = cruiseSpeed;
+          });
           requestAnimationFrame((t0) => {
             lastT = t0;
             requestAnimationFrame(step);

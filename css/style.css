@@ -1796,12 +1796,17 @@ body { overflow-x: clip; }
 .hero-headline {
   font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
   font-weight: 400;
-  font-size: clamp(56px, 9vw, 124px);
+  font-size: clamp(48px, 7.5vw, 100px);
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--text-primary);
   margin: 0;
 }
+
+/* The reference gives most of the first screen to the image wall, so
+   the avatar runs a size down inside the hero. */
+.hero-top .avatar-img { width: 84px; height: 84px; }
+.hero-top .avatar-dot { top: 26px; right: 24px; }
 
 .hero-sub {
   font-size: clamp(15px, 1.6vw, 19px);
@@ -1826,35 +1831,55 @@ body { overflow-x: clip; }
 .hero-email:hover { border-color: var(--text-primary); transform: translateY(-1px); }
 .hero-email sup { font-size: 9px; margin-left: 1px; color: var(--text-tertiary); }
 
-/* Full-bleed strip. The mask fades the cards out toward either edge
-   (the "blurred sides" effect); top padding gives the edge cards
-   headroom to rise on the arc without clipping. */
+/* Full-bleed 3D stage for the cylinder. `perspective` is set inline
+   by the script (derived from the cylinder radius); the mask fades
+   the wall out toward either edge. --hc-w/--hc-h (card size) also
+   come from the script, computed from the viewport. */
 .hero-carousel {
+  position: relative;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   overflow: hidden;
-  padding: 48px 0 16px;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
+  padding: 10px 0 16px;
+  perspective-origin: 50% 50%;
+  /* The curved window from the reference: the strip's top and bottom
+     edges are arcs (the page background sweeps over the taller side
+     cards), so the wall reads as seen through a warped opening —
+     matching the cylinder's own bow. */
+  border-radius: 45% 45% 45% 45% / 95px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
 }
 
+/* The rotating wall. Its children are flat planes positioned by the
+   script with rotateY around the shared axis — no grouping props
+   (overflow/mask/filter) here or the 3D flattens. */
 .hero-carousel-track {
-  display: flex;
-  gap: 16px;
-  width: max-content;
-  will-change: transform;
+  position: relative;
+  height: var(--hc-h, 400px);
+  transform-style: preserve-3d;
 }
 
 .hero-card {
-  position: relative;
-  flex: 0 0 auto;
-  width: clamp(210px, 21vw, 320px);
-  height: clamp(240px, 34vh, 400px);
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--hc-w, 300px);
+  height: var(--hc-h, 400px);
+  background-color: var(--bg-elevated);
   background-size: cover;
   background-position: center;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
+  backface-visibility: hidden;
   will-change: transform;
+}
+.hero-card-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 /* Hover darken + project-title label, same language as the grid tiles. */
 .hero-card::after {
@@ -1979,7 +2004,5 @@ body { overflow-x: clip; }
 
 @media (max-width: 600px) {
   .hero { min-height: calc(100svh - var(--header-h)); }
-  .hero-card { width: 64vw; height: 300px; }
-  .hero-carousel { padding-top: 40px; }
   .what-i-do { margin: 56px 0 48px; }
 }
