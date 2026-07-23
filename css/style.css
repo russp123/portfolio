@@ -1780,10 +1780,15 @@ body { overflow-x: clip; }
   min-height: calc(100vh - var(--header-h));
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* Top-aligned (not centered): the full-size wall may be taller than
+     the fold, and centering would shove the headline off the top. */
+  justify-content: flex-start;
   gap: 8px;
-  padding-bottom: 10px;
+  padding: clamp(24px, 6vh, 64px) 0 10px;
 }
+
+/* Guaranteed air between the hero texts and the wall. */
+.hero-carousel { margin-top: 28px; }
 
 .hero-top {
   display: flex;

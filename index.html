@@ -224,7 +224,7 @@
         const N = heroCards.length;
         const ANGLE = 360 / N;   // deg between neighboring cards — closes the cylinder
         const GAP = 14;          // px between cards along the wall
-        const RATIO = 1.42;      // card height : width (reference's portrait shape)
+        const RATIO = 1.25;      // card height : width (reference's near-square shape)
         const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
         let R = 0;               // cylinder radius, from card width + gap
         let base = 0;            // current wall rotation, deg
@@ -234,14 +234,15 @@
         let hovered = false;
         let lastT = 0;
 
-        // Card size from the reference's proportions: ~4.3 portrait
-        // cards across on desktop (~2.2 on phones), capped by viewport
-        // height so short screens don't overflow the hero.
+        // Card size from the reference's proportions: ~4.3 cards across
+        // on desktop (~2.2 on phones). Deliberately NOT capped by the
+        // viewport height — the reference gives the wall its full size
+        // and lets it run past the fold on shorter screens.
         const size = () => {
           const vw = window.innerWidth;
           const visible = vw < 700 ? 2.2 : 4.3;
-          let h = Math.min((vw / visible) * RATIO, window.innerHeight * 0.54);
-          const w = h / RATIO;
+          const w = vw / visible;
+          const h = w * RATIO;
           R = (w + GAP) / (2 * Math.tan(((ANGLE / 2) * Math.PI) / 180));
           heroCarousel.style.setProperty("--hc-w", w.toFixed(1) + "px");
           heroCarousel.style.setProperty("--hc-h", h.toFixed(1) + "px");
