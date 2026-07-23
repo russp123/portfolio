@@ -1821,11 +1821,6 @@ html, body { overflow-x: clip; }
   width: 100vw;
   margin-left: calc(50% - 50vw);
   perspective-origin: 50% 50%;
-  /* Soft fade at either side. Kept RIGHT at the edges (5%) — any wider
-     and it paints over the flared outer cards, visually erasing the
-     warp they carry. */
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
 }
 
 /* The rotating wall. Its children are flat planes positioned by the
