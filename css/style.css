@@ -1574,7 +1574,25 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
   max-width: 720px;
   margin: 0 auto;
 }
-.essay-head { margin-bottom: 40px; }
+/* Solid backdrop so the grid behind (.essay::before) doesn't run
+   through the actual text — same "fade behind text" mechanic as the
+   hero, just done per content block instead of one page-wide mask.
+   Genuinely empty whitespace (like beside the narrower lede photo
+   below) has no such backdrop, so the grid still shows there. */
+.essay-head, .essay-body, .essay-exp {
+  position: relative;
+  background: var(--bg);
+  /* Padding so the text has breathing room INSIDE its own solid
+     backdrop, instead of sitting flush against the edge where the
+     grid begins. Negative margin on the sides cancels the padding's
+     horizontal shift so the column still lines up as before; .essay
+     -exp's own padding-top/margin-top (set further below, for the
+     border-top rule) override this block's top values. */
+  padding: 16px 20px;
+  margin-left: -20px;
+  margin-right: -20px;
+}
+.essay-head { margin-top: -16px; margin-bottom: 40px; }
 /* Same blueprint-grid texture as the homepage hero, running the
    length of the WHOLE page (reaching up behind the header, fading out
    at the very bottom before the footer) instead of one hero pocket.
