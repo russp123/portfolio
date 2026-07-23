@@ -1570,22 +1570,23 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
    timeline for the work history. Deliberately unlike the grid-driven
    home page so About reads as a person, not a résumé. */
 .essay {
+  position: relative;
   max-width: 720px;
   margin: 0 auto;
 }
-.essay-head {
-  position: relative;
-  margin-bottom: 40px;
-}
-/* Same subtle blueprint-grid mechanic as the homepage hero: faint 1px
-   lines, masked so the title/dek text stays clean and the grid shows
-   at the sides, reaching up behind the header. Fades out before the
-   lede photo below — grid stays confined to the text area only. */
-.essay-head::before {
+.essay-head { margin-bottom: 40px; }
+/* Same blueprint-grid texture as the homepage hero, running the
+   length of the WHOLE page (reaching up behind the header, fading out
+   at the very bottom before the footer) instead of one hero pocket.
+   Uniform across the full width — no column-shaped cutout — so it
+   doesn't leave an odd flat-white gap beside narrower elements like
+   the lede photo. It's faint enough (1px hairlines) that text and
+   images read fine sitting on top of it. */
+.essay::before {
   content: "";
   position: absolute;
   top: -120px;
-  bottom: -20px;
+  bottom: 0;
   left: calc(50% - 50vw);
   width: 100vw;
   z-index: -1;
@@ -1594,14 +1595,8 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
     linear-gradient(to bottom, var(--border) 1px, transparent 1px),
     linear-gradient(to right, var(--border) 1px, transparent 1px);
   background-size: 64px 64px;
-  -webkit-mask-image:
-    radial-gradient(ellipse 60% 70% at 50% 40%, transparent 28%, #000 70%),
-    linear-gradient(to bottom, #000 calc(100% - 90px), transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    radial-gradient(ellipse 60% 70% at 50% 40%, transparent 28%, #000 70%),
-    linear-gradient(to bottom, #000 calc(100% - 90px), transparent 100%);
-  mask-composite: intersect;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 80px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 80px), transparent 100%);
 }
 .essay-title {
   font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
@@ -1696,6 +1691,9 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
   padding-top: 32px;
   border-top: 1px solid var(--border);
 }
+/* Extra breathing room after the last section (Education) so it
+   doesn't crowd the footer. */
+.essay-exp:last-of-type { margin-bottom: 72px; }
 .timeline { list-style: none; margin: 18px 0 0; padding: 0; }
 .timeline-item {
   display: grid;
