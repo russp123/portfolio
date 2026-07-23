@@ -51,6 +51,17 @@
 
   <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
 
+  <!-- "Scroll for more" — fixed overlay at the viewport's bottom
+       center over the hero wall; hidden by the script below once the
+       visitor actually scrolls. Lives at body level (NOT inside
+       .hero-carousel) because `perspective` on an ancestor would
+       re-anchor position:fixed to the carousel instead of the
+       viewport. -->
+  <div class="hero-scroll-cue" id="hero-scroll-cue" aria-hidden="true">
+    <span class="label">Scroll for more</span>
+    <span class="arrow">↓</span>
+  </div>
+
   <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
   <div class="russellm-overlay" id="russellm-overlay"></div>
   <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
@@ -94,10 +105,6 @@
         <div class="hero-carousel" id="hero-carousel">
           <div class="hero-carousel-track" id="hero-carousel-track"></div>
         </div>
-        <div class="hero-scroll-cue" aria-hidden="true">
-          <span class="label">Scroll for more</span>
-          <span class="arrow">↓</span>
-        </div>
       </section>
 
       <!-- "What I do" — one full-width row per niche (from
@@ -107,7 +114,6 @@
       <section class="what-i-do">
         <div class="section-label">What I do <span class="section-num">[1]</span></div>
         <div class="wid-list" id="wid-list"></div>
-        <a class="exp-cue" href="/about">Experience <span aria-hidden="true">→</span></a>
       </section>
 
       <!-- Niche filter — a centered segmented pill; segments render from
@@ -196,6 +202,18 @@
         heroEmail.innerHTML = `${PORTFOLIO.email}<sup>↗</sup>`;
       }
 
+      // ---- Hero: scroll cue -----------------------------------------
+      // Fixed pill at the viewport's bottom center; fades out once the
+      // visitor scrolls a third of a screen down, comes back at the
+      // top. Checked from BOTH a scroll listener and the carousel's
+      // rAF loop below, so it works however the scrolling is driven.
+      const heroCue = document.getElementById("hero-scroll-cue");
+      const updateHeroCue = () => {
+        if (heroCue) heroCue.classList.toggle("hidden", window.scrollY > window.innerHeight * 0.35);
+      };
+      window.addEventListener("scroll", updateHeroCue, { passive: true });
+      updateHeroCue();
+
       // ---- Hero: cylindrical infinite carousel ----------------------
       // The real 3D version: every project cover/video is a flat plane
       // placed on the inside wall of a cylinder (rotateY around a
@@ -248,7 +266,7 @@
           heroCarousel.style.setProperty("--hc-h", h.toFixed(1) + "px");
           // Viewer distance sets how strong the warp reads — how much
           // the outer cards flare taller than the center pair.
-          heroCarousel.style.perspective = Math.round(R * 1.9) + "px";
+          heroCarousel.style.perspective = Math.round(R * 0.9) + "px";
           // Match the drift to a steady ~30px/s along the wall
           // regardless of how big the cylinder came out.
           cruiseSpeed = 30 / ((R * Math.PI) / 180);
@@ -281,6 +299,7 @@
           speed += (targetSpeed - speed) * 0.08;
           base = (base + speed * dt) % 360;
           layout();
+          updateHeroCue();
           requestAnimationFrame(step);
         };
 

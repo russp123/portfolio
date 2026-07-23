@@ -13,11 +13,6 @@ const PORTFOLIO = {
   location: "Pampanga, Philippines",
   email: "rsslpnd@gmail.com",
 
-  // Availability pill in the header. Flip `available` to false when
-  // you're booked — the pill hides entirely.
-  available: true,
-  availableText: "Open to work",
-
   // ---- Home page: About ----
   // Raw HTML is allowed here so you can inline links the same way
   // joseph.cv does (e.g. an underlined word with a small arrow).
@@ -58,7 +53,7 @@ const PORTFOLIO = {
     {
       title: "Websites & Apps",
       niche: "web",
-      body: "WordPress and Multisite platforms, custom web apps, and the infrastructure underneath — built to load fast, stay secure, and hold up under real traffic.",
+      body: "WordPress and Multisite platforms, custom web apps, and the infrastructure underneath, built to load fast, stay secure, and hold up under real traffic.",
       skills: ["Full-Stack Development", "WordPress & CMS", "DevOps & Infrastructure"],
     },
     {
@@ -70,13 +65,13 @@ const PORTFOLIO = {
     {
       title: "Automation & AI",
       niche: "automation",
-      body: "GoHighLevel workflows, lead scoring, email deliverability, and AI assistants — the follow-up runs itself so you don't have to.",
+      body: "GoHighLevel workflows, lead scoring, email deliverability, and AI assistants. The follow-up runs itself so you don't have to.",
       skills: ["Automation & Marketing"],
     },
     {
       title: "Design",
       niche: "design",
-      body: "Brand identity, paid ebooks, and e-commerce creative — design work that holds the same standard as the builds it promotes.",
+      body: "Brand identity, paid ebooks, and e-commerce creative. Design work that holds the same standard as the builds it promotes.",
       skills: ["Design"],
     },
   ],
