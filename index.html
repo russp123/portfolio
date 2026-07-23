@@ -224,7 +224,7 @@
         const N = heroCards.length;
         const ANGLE = 360 / N;   // deg between neighboring cards — closes the cylinder
         const GAP = 14;          // px between cards along the wall
-        const RATIO = 1.25;      // card height : width (reference's near-square shape)
+        const RATIO = 1.1;       // card height : width (reference's near-square shape)
         const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
         let R = 0;               // cylinder radius, from card width + gap
         let base = 0;            // current wall rotation, deg
@@ -234,21 +234,21 @@
         let hovered = false;
         let lastT = 0;
 
-        // Card size from the reference's proportions: ~4.3 cards across
-        // on desktop (~2.2 on phones). Deliberately NOT capped by the
-        // viewport height — the reference gives the wall its full size
-        // and lets it run past the fold on shorter screens.
+        // Card size straight from the reference: ~3.5 cards across on
+        // desktop — TWO fully visible in the center, the outer two cut
+        // off by the viewport edges (~2 on phones). Not capped by the
+        // viewport height; the wall may run past the fold.
         const size = () => {
           const vw = window.innerWidth;
-          const visible = vw < 700 ? 2.2 : 4.3;
+          const visible = vw < 700 ? 2.0 : 3.5;
           const w = vw / visible;
           const h = w * RATIO;
           R = (w + GAP) / (2 * Math.tan(((ANGLE / 2) * Math.PI) / 180));
           heroCarousel.style.setProperty("--hc-w", w.toFixed(1) + "px");
           heroCarousel.style.setProperty("--hc-h", h.toFixed(1) + "px");
-          // Viewer distance sets how strong the warp reads; ~2x the
-          // radius keeps it gentle like the reference.
-          heroCarousel.style.perspective = Math.round(R * 2.2) + "px";
+          // Viewer distance sets how strong the warp reads — how much
+          // the outer cards flare taller than the center pair.
+          heroCarousel.style.perspective = Math.round(R * 1.9) + "px";
           // Match the drift to a steady ~30px/s along the wall
           // regardless of how big the cylinder came out.
           cruiseSpeed = 30 / ((R * Math.PI) / 180);

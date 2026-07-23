@@ -1787,8 +1787,9 @@ body { overflow-x: clip; }
   padding: clamp(24px, 6vh, 64px) 0 10px;
 }
 
-/* Guaranteed air between the hero texts and the wall. */
-.hero-carousel { margin-top: 28px; }
+/* Guaranteed air between the hero texts and the wall (the flared
+   outer corners rise above the track box, so this stays generous). */
+.hero-carousel { margin-top: 34px; margin-bottom: 26px; }
 
 .hero-top {
   display: flex;
@@ -1837,23 +1838,17 @@ body { overflow-x: clip; }
 .hero-email sup { font-size: 9px; margin-left: 1px; color: var(--text-tertiary); }
 
 /* Full-bleed 3D stage for the cylinder. `perspective` is set inline
-   by the script (derived from the cylinder radius); the mask fades
-   the wall out toward either edge. --hc-w/--hc-h (card size) also
-   come from the script, computed from the viewport. */
+   by the script (derived from the cylinder radius); --hc-w/--hc-h
+   (card size) also come from the script, computed from the viewport.
+   NO clipping, mask, or rounding here — the reference shows the raw
+   projection: the outer cards flare taller (top corners pulled up,
+   bottom corners pulled down) and are cut only by the viewport edges
+   (body has overflow-x: clip). */
 .hero-carousel {
   position: relative;
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  overflow: hidden;
-  padding: 10px 0 16px;
   perspective-origin: 50% 50%;
-  /* The curved window from the reference: the strip's top and bottom
-     edges are arcs (the page background sweeps over the taller side
-     cards), so the wall reads as seen through a warped opening —
-     matching the cylinder's own bow. */
-  border-radius: 45% 45% 45% 45% / 95px;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
 }
 
 /* The rotating wall. Its children are flat planes positioned by the
