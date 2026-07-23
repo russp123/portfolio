@@ -1707,7 +1707,6 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
   clear: both;
   margin-top: 56px;
   padding-top: 32px;
-  border-top: 1px solid var(--border);
 }
 /* Extra breathing room after the last section (Education) so it
    doesn't crowd the footer. */
