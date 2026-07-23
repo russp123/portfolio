@@ -202,15 +202,79 @@
       if (heroTrack && heroCarousel) {
         const coverUrl = (p) => ((p.cover || "").match(/url\(['"]?([^'")]+)/) || [])[1] || "";
         const items = PORTFOLIO.projects.filter((p) => p.cover || p.video);
+        // Cards start as the site's standard "asset loading" placeholder
+        // (theme.js renderPlaceholderCover — same flat card + rotating
+        // mono status phrase used for projects with no cover yet), NOT
+        // the real image/video. All 19 cards (4 of them video) loading
+        // at once on page load was real weight; each card's actual
+        // media is swapped in lazily by loadHeroCard() below, the first
+        // time it nears the visible window.
         heroTrack.innerHTML = items
           .map(
-            (p) => `<a class="hero-card" href="${p.page}" aria-label="${p.title}"${p.cover ? ` style="background-image:${p.cover}"` : ""}>
-              ${p.video ? `<video class="hero-card-media" src="${p.video}" autoplay muted loop playsinline preload="metadata"${coverUrl(p) ? ` poster="${coverUrl(p)}"` : ""}></video>` : ""}
+            (p) => `<a class="hero-card" href="${p.page}" aria-label="${p.title}" data-cover="${p.cover ? coverUrl(p) : ""}" data-video="${p.video || ""}">
+              ${renderPlaceholderCover("hero-card-placeholder")}
               <span class="hero-card-label">${p.title}</span>
             </a>`
           )
           .join("");
         const heroCards = Array.from(heroTrack.children);
+
+        // Swaps a card's placeholder for its real cover background and/
+        // or video element. Called once, the first time the card enters
+        // LOAD_MARGIN in the layout loop below. The placeholder is only
+        // cleared once the real media has actually finished loading
+        // (image `onload` / video `loadeddata`), not the instant loading
+        // STARTS — otherwise a slow connection would show a flash of
+        // plain background between "placeholder removed" and "image
+        // visibly painted".
+        const loadHeroCard = (card) => {
+          card.dataset.loaded = "1";
+          const cover = card.dataset.cover;
+          const video = card.dataset.video;
+          const placeholder = card.querySelector(".hero-card-placeholder");
+          const clearPlaceholder = () => { if (placeholder) placeholder.remove(); };
+
+          if (video) {
+            const v = document.createElement("video");
+            v.className = "hero-card-media";
+            v.muted = true;
+            v.loop = true;
+            v.playsInline = true;
+            v.preload = "auto";
+            if (cover) v.poster = cover;
+            // Absolutely-positioned elements paint above static-flow
+            // siblings regardless of DOM order, so without this the
+            // video would cover the placeholder the instant it's
+            // inserted — opacity:0 keeps it invisible until it truly
+            // has a frame ready.
+            v.style.opacity = "0";
+            v.addEventListener(
+              "loadeddata",
+              () => {
+                v.style.opacity = "1";
+                clearPlaceholder();
+              },
+              { once: true }
+            );
+            card.insertBefore(v, card.firstChild);
+            v.src = video;
+            card._video = v;
+            v.play().catch(() => {});
+          } else if (cover) {
+            // background-image itself has no load event to hook, so
+            // preload it via a real Image() and only clear the
+            // placeholder once that fires.
+            const img = new Image();
+            img.onload = () => {
+              card.style.backgroundImage = `url('${cover}')`;
+              clearPlaceholder();
+            };
+            img.onerror = clearPlaceholder;
+            img.src = cover;
+          } else {
+            clearPlaceholder();
+          }
+        };
 
         const N = heroCards.length;
         const ANGLE = 360 / N;   // deg between neighboring cards — closes the cylinder
@@ -248,23 +312,37 @@
           if (!hovered) targetSpeed = cruiseSpeed;
         };
 
+        const LOAD_MARGIN = 95; // deg — a touch past the 80° hide cutoff,
+                                 // so a card's real media is already in
+                                 // place by the time it becomes visible
+                                 // (no placeholder-to-image pop-in).
         const layout = () => {
           heroCards.forEach((card, i) => {
             // This card's angle around the (virtual) cylinder,
             // normalized so 0 is dead-center of the viewport.
             let phi = (((base - i * ANGLE) % WRAP) + WRAP) % WRAP;
             if (phi > WRAP / 2) phi -= WRAP;
+            const abs = Math.abs(phi);
             // Anything past ±80° is far outside the viewport — hide it
             // (also stops cards from reappearing behind the viewer).
-            if (Math.abs(phi) > 80) {
+            if (abs > 80) {
               card.style.visibility = "hidden";
-              return;
+            } else {
+              card.style.visibility = "visible";
+              // translateZ(R) rotateY(phi) translateZ(-R): rotate around
+              // the cylinder's axis, with the wall's nearest point kept
+              // at z=0 so the center card renders at its CSS size.
+              card.style.transform = `translateX(-50%) translateZ(${R.toFixed(1)}px) rotateY(${phi.toFixed(3)}deg) translateZ(${(-R).toFixed(1)}px)`;
             }
-            card.style.visibility = "visible";
-            // translateZ(R) rotateY(phi) translateZ(-R): rotate around
-            // the cylinder's axis, with the wall's nearest point kept
-            // at z=0 so the center card renders at its CSS size.
-            card.style.transform = `translateX(-50%) translateZ(${R.toFixed(1)}px) rotateY(${phi.toFixed(3)}deg) translateZ(${(-R).toFixed(1)}px)`;
+            // Lazy-load once within the (wider) load margin; pause any
+            // playing video once a card rotates back out past it, so an
+            // infinite loop doesn't leave every video decoding forever.
+            if (abs <= LOAD_MARGIN) {
+              if (!card.dataset.loaded) loadHeroCard(card);
+              if (card._video && card._video.paused) card._video.play().catch(() => {});
+            } else if (card._video && !card._video.paused) {
+              card._video.pause();
+            }
           });
         };
 

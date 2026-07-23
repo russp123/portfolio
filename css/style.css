@@ -2001,6 +2001,11 @@ html, body { overflow-x: clip; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Starts at opacity:0 (set inline in JS) and fades in once the video
+     actually has a frame ready — otherwise, being absolutely
+     positioned, it would paint OVER the static placeholder underneath
+     the instant it's inserted, showing a black flash instead. */
+  transition: opacity 240ms ease;
 }
 /* Hover darken + project-title label, same language as the grid tiles. */
 .hero-card::after {
