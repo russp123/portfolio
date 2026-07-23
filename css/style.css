@@ -1988,7 +1988,13 @@ html, body { overflow-x: clip; }
   .wid-detail { grid-column: 1 / -1; }
 }
 
+@media (max-width: 700px) {
+  /* Natural height on phones: the wall is short here, and forcing the
+     hero to a full screen just leaves a block of dead whitespace
+     between the wall and the next section. */
+  .hero { min-height: 0; padding-bottom: 26px; }
+  .hero-carousel { margin-bottom: 0; }
+}
 @media (max-width: 600px) {
-  .hero { min-height: calc(100svh - var(--header-h)); }
   .what-i-do { margin: 56px 0 48px; }
 }
