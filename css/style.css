@@ -2027,6 +2027,11 @@ html, body { overflow-x: clip; }
    ============================================================ */
 .what-i-do { margin: 84px 0 72px; }
 
+/* "Projects" label above the niche bar — same section-label
+   treatment as "What I do", centered to match the filter pill and
+   grid below it instead of the left-aligned reading-column style. */
+.projects-label { text-align: center; margin-bottom: 0; }
+
 .wid-list { border-top: 1px solid var(--border); }
 
 .wid-row {
