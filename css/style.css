@@ -371,7 +371,6 @@ body.page-leave .site-footer {
      The × close button is positioned absolutely and floats over this
      padding rather than reserving its own space. */
   padding: 0 40px;
-  border-bottom: 1px solid var(--border);
   background: var(--bg);
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(14px) saturate(160%);
@@ -1770,7 +1769,10 @@ html, body { overflow-x: clip; }
 .hero::before {
   content: "";
   position: absolute;
-  top: 0;
+  /* Reaches up past main's padding to the header itself (whose bg is
+     translucent, so the grid shows through faintly and the two blend
+     with no divider line). */
+  top: -120px;
   bottom: 0;
   left: calc(50% - 50vw);
   width: 100vw;
