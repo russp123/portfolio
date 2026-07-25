@@ -93,7 +93,7 @@
             <span class="avatar-dot" aria-hidden="true"></span>
           </div>
           <h1 class="hero-headline">Hey, I&rsquo;m Russ</h1>
-          <p class="hero-sub">a software engineer who handles the tech, then <i>automates what&rsquo;s left</i>.</p>
+          <p class="hero-sub">a designer who engineers, then <i>automates</i> what&rsquo;s left.</p>
           <a class="hero-email" id="hero-email" href="#"></a>
         </div>
         <div class="hero-carousel" id="hero-carousel">
@@ -145,6 +145,19 @@
           </div>
         </div>
       </section>
+
+      <!-- Connect — closing CTA, same centered composition + pill
+           language as the hero (title, subtext, then a chip that
+           reuses .hero-email's exact styling and the site-wide
+           copy-to-clipboard mailto behavior). Sits on the same grid
+           layer as the testimonials above it (see .testimonials::before)
+           so the texture fades continuously through both instead of
+           cutting off at the testimonials' edge. -->
+      <section class="connect">
+        <h2 class="connect-title">Got something in mind?</h2>
+        <p class="connect-sub">I&rsquo;m always open to a new project, a good idea, or just a hello.</p>
+        <a class="hero-email" id="connect-email" href="#">get in touch<sup>↗</sup></a>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -174,6 +187,13 @@
         heroEmail.href = "mailto:" + PORTFOLIO.email;
         heroEmail.innerHTML = `${PORTFOLIO.email}<sup>↗</sup>`;
       }
+
+      // ---- Connect: email chip ---------------------------------------
+      // Same mailto + copy-to-clipboard toast as the hero's chip; text
+      // stays "get in touch" (set in the HTML) rather than the raw
+      // address here, so only the href needs wiring up.
+      const connectEmail = document.getElementById("connect-email");
+      if (connectEmail) connectEmail.href = "mailto:" + PORTFOLIO.email;
 
       // ---- Hero: scroll cue -----------------------------------------
       // Fixed pill at the viewport's bottom center; fades out once the

@@ -1088,7 +1088,13 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
 .testimonials::before {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  /* Extends 200px PAST testimonials' own bottom edge, into the Connect
+     section below — the fade (see the linear-gradient stop below) now
+     dissolves gradually across that stretch instead of cutting off
+     sharply right at the testimonials/connect boundary, so the grid
+     reads as one continuous, subtly fading texture across both. */
+  bottom: -200px;
   left: calc(50% - 50vw);
   width: 100vw;
   z-index: -1;
@@ -1098,12 +1104,12 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
     linear-gradient(to right, var(--border) 1px, transparent 1px);
   background-size: 64px 64px;
   -webkit-mask-image:
-    radial-gradient(ellipse 62% 75% at 50% 50%, transparent 30%, #000 72%),
-    linear-gradient(to bottom, transparent 0, #000 64px, #000 calc(100% - 64px), transparent 100%);
+    radial-gradient(ellipse 62% 75% at 50% 42%, transparent 30%, #000 72%),
+    linear-gradient(to bottom, transparent 0, #000 64px, #000 calc(100% - 240px), transparent 100%);
   -webkit-mask-composite: source-in;
   mask-image:
-    radial-gradient(ellipse 62% 75% at 50% 50%, transparent 30%, #000 72%),
-    linear-gradient(to bottom, transparent 0, #000 64px, #000 calc(100% - 64px), transparent 100%);
+    radial-gradient(ellipse 62% 75% at 50% 42%, transparent 30%, #000 72%),
+    linear-gradient(to bottom, transparent 0, #000 64px, #000 calc(100% - 240px), transparent 100%);
   mask-composite: intersect;
 }
 /* Centered pull-quote slider — no box. Everything sits on one center
@@ -1203,6 +1209,43 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
 .testimonial-role { font-size: 12.5px; color: var(--text-secondary); }
 @media (max-width: 600px) {
   .testimonial-quote { font-size: 18px; }
+}
+
+/* ============================================================
+   CONNECT — closing CTA. Same centered composition as the hero
+   (title, subtext, pill chip); the pill reuses .hero-email verbatim
+   so it's the literal same component, not a lookalike.
+   ============================================================ */
+.connect {
+  position: relative;
+  margin-top: 88px;
+  /* Even, generous rhythm on both sides — was 8px, which left the pill
+     sitting almost flush against the footer's border-top right below. */
+  padding-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+.connect-title {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(34px, 4.2vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+.connect-sub {
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 440px;
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .connect { margin-top: 64px; padding-bottom: 72px; }
 }
 
 @media (max-width: 900px) {
