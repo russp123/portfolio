@@ -131,6 +131,15 @@
            auto-generated from assets/posters/ by scripts/gen-posters.js. -->
       <section class="posters-grid" id="posters-grid" hidden></section>
 
+      <!-- Featured video testimonial — one spoken highlight between the
+           portfolio and the text quotes below. Landscape, capped width
+           (not full-bleed like the hero wall), click-to-play. Hover
+           "pop" only on real pointer devices (see the (hover:hover)
+           media query in CSS — never triggers on touch). Rendered by
+           the script below; PORTFOLIO.videoTestimonial with no `video`
+           set yet shows the standard loading placeholder instead. -->
+      <section class="video-testimonial" id="video-testimonial"></section>
+
       <!-- Testimonials — a compact slider showing ONE review at a
            time: card stack + prev/next + a mono counter. Auto-advances
            (paused on hover); rendered by the script below. -->
@@ -801,6 +810,54 @@
         window.addEventListener("keydown", (e) => {
           if (e.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
         });
+      }
+
+      // ---- Featured video testimonial ---------------------------------
+      // No `video` set yet -> the standard loading placeholder (same
+      // component as everywhere else). Once set, it's a plain poster +
+      // native controls that only loads the real file on click — never
+      // autoplay/preload, both because it's someone's actual voice (not
+      // a silent muted loop like the project previews) and because
+      // these clips are large.
+      const vt = PORTFOLIO.videoTestimonial;
+      const vtSection = document.getElementById("video-testimonial");
+      if (vtSection && vt) {
+        if (!vt.video) {
+          vtSection.innerHTML = `
+            <div class="video-testimonial-frame">${renderPlaceholderCover()}</div>
+            <div class="video-testimonial-caption">
+              <span class="testimonial-name">${vt.name}</span>
+              <span class="testimonial-role">${vt.role}</span>
+            </div>
+          `;
+        } else {
+          vtSection.innerHTML = `
+            <button type="button" class="video-testimonial-frame" id="vt-play" aria-label="Play video testimonial from ${vt.name}">
+              ${vt.poster ? `<img class="video-testimonial-poster" src="${vt.poster}" alt="" />` : ""}
+              <span class="video-testimonial-play" aria-hidden="true">▶</span>
+            </button>
+            <div class="video-testimonial-caption">
+              <span class="testimonial-name">${vt.name}</span>
+              <span class="testimonial-role">${vt.role}</span>
+            </div>
+          `;
+          const playBtn = document.getElementById("vt-play");
+          playBtn.addEventListener("click", () => {
+            const video = document.createElement("video");
+            video.className = "video-testimonial-media";
+            video.src = vt.video;
+            video.controls = true;
+            // Keeps the clip contained to its own section instead of
+            // blowing up to a full-screen player, and drops the native
+            // download button from the controls bar (Chrome/Edge only —
+            // controlsList is advisory, other browsers just ignore it).
+            video.setAttribute("controlsList", "nofullscreen nodownload");
+            video.playsInline = true;
+            if (vt.poster) video.poster = vt.poster;
+            playBtn.replaceWith(video);
+            video.play().catch(() => {});
+          });
+        }
       }
 
       // Testimonials — real client reviews (verbatim, from Upwork),

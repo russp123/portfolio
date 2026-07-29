@@ -431,6 +431,21 @@ const PORTFOLIO = {
     },
   ],
 
+  // ---- Home page: Featured video testimonial ----
+  // Sits between the project grid and the text testimonials below it —
+  // one spoken highlight, not folded into that slider. `video` is
+  // deliberately blank until the compressed clip is ready: the section
+  // shows the standard loading placeholder (theme.js
+  // renderPlaceholderCover) instead of an empty box in the meantime.
+  // Click-to-play once it's set, never autoplay/preload — it's someone's
+  // actual voice, and the file is large.
+  videoTestimonial: {
+    name: "Jesse Anyan",
+    role: "Founder, Kingdomes & Glamporise",
+    video: "assets/Jesse-testimonial.mp4",
+    poster: "assets/jesse-testimonial-poster.jpg",
+  },
+
   // ---- Footer / top "Links" column (appears on every page) ----
   links: [
     { label: "LinkedIn", url: "https://linkedin.com/in/russel-pineda-4b9441347" },
