@@ -14,18 +14,31 @@
 
 const P = require("../js/data.js");
 
+// Some data.js strings carry display markup (e.g. the Kingdomes &
+// Glamporise experience name has <a> links for the About timeline).
+// Strip tags here so the bot only ever sees plain text, without
+// changing the shape of data.js. The year-range glue characters are
+// normalized too: \u2060 (word joiner) is removed and \u00A0 (no-break
+// space) becomes a normal space.
+const plain = (s) =>
+  String(s == null ? "" : s)
+    .replace(/<[^>]*>/g, "")
+    .replace(/\u2060/g, "")
+    .replace(/\u00A0/g, " ")
+    .trim();
+
 module.exports = {
-  name: P.name,
-  title: P.title,
-  location: P.location,
-  email: P.email,
-  about: P.bio,
+  name: plain(P.name),
+  title: plain(P.title),
+  location: plain(P.location),
+  email: plain(P.email),
+  about: plain(P.bio),
   experience: P.experience.map(
-    (e) => `${e.name} — ${e.year}${e.roles && e.roles.length ? ` (${e.roles.join(", ")})` : ""}`
+    (e) => `${plain(e.name)}, ${plain(e.year)}${e.roles && e.roles.length ? ` (${e.roles.map(plain).join(", ")})` : ""}`
   ),
-  skills: P.skills.map((s) => `${s.category}: ${s.items}`),
+  skills: P.skills.map((s) => `${plain(s.category)}: ${plain(s.items)}`),
   // Only projects that carry an `llm` summary are exposed to the bot.
-  projects: P.projects.map((p) => p.llm).filter(Boolean),
-  links: P.links.map((l) => `${l.label}: ${l.url}`),
-  cta: P.cta,
+  projects: P.projects.map((p) => plain(p.llm)).filter(Boolean),
+  links: P.links.map((l) => `${plain(l.label)}: ${plain(l.url)}`),
+  cta: plain(P.cta),
 };

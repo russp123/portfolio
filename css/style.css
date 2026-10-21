@@ -1846,7 +1846,9 @@ a.timeline-name { text-decoration: underline; text-decoration-color: var(--text-
 }
 .essay-dek {
   font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
-  font-style: italic;
+  /* Upright, with only the <i>automates</i> word italic — matches the
+     homepage hero subtext. */
+  font-style: normal;
   font-size: clamp(21px, 2.6vw, 29px);
   line-height: 1.35;
   color: var(--text-secondary);

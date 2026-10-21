@@ -21,13 +21,18 @@ const PORTFOLIO = {
   // ---- Long-form bio (plain text) ----
   // The homepage shows `aboutHtml` above; the RUSSELLM chat speaks from
   // this fuller version instead. api/_bio.js reads it as `about`.
-  bio: "I'm interested in what happens when one person ends up holding the whole picture of a business's tech instead of just one slice of it — the website, the automation, the security, the brand. That's mostly how things unfolded with my current work, as trust-building did its thing, one piece kept leading to the next. If something you're working on needs that kind of range, get in touch.",
+  bio: "I'm a full-stack developer who looks after the whole technical side of a service business, not just one slice of it. Since October 2025 I've been lead developer for Kingdomes Leisure in Australia, working remotely. I built their Glamporise site on WordPress Multisite (94 for performance on Google PageSpeed), set up GoHighLevel as the CRM behind their landing pages and Stripe checkout funnels, and handle the email side through Mailgun. When their sites were hit by a coordinated DDoS attack, I stopped it within two hours and then hardened everything with Cloudflare.\n\nBefore that I was an associate software engineer at La Rose Noire Philippines, where I built internal web apps in PHP, JavaScript and Python, and a trainee at Cloudstaff, where I worked on their Floors product in CakePHP. If something you're working on needs that kind of range, I'd be glad to hear about it.",
 
-  // ---- Home page: Experience (shown in the "Experience" column) ----
+  // ---- About page: Experience timeline ("The path so far") ----
+  // Rendered by about.html; each roles[] entry is its own title line.
+  // Year ranges are: en dash + \u2060 (word joiner) + \u00A0 (no-break
+  // space), so the narrow year column wraps as "Oct 2025" / "– Now".
+  // The no-break space alone is not enough: line breaking allows a break
+  // right after an en dash ("Oct 2025 –" / "Now"); the word joiner forbids it.
   experience: [
-    { name: "<a href=\"https://kingdomes.com.au\">Kingdomes Leisure Pty Ltd</a> & <a href=\"https://glamporise.com\">Glamporise</a>", url: null, year: "2025 —", roles: ["Lead Full-Stack Developer"] },
-    { name: "La Rose Noire Philippines", url: "https://la-rose-noire.com/", year: "2025", roles: ["Associate Software Engineer"] },
-    { name: "Cloudstaff Global Workplace Inc.", url: "https://www.cloudstaff.com/", year: "2025", roles: ["Associate Software Engineer Trainee", "Associate Software Quality Assurance Engineer Trainee"] },
+    { name: "<a href=\"https://kingdomes.com.au\">Kingdomes Leisure Pty Ltd</a> & <a href=\"https://glamporise.com\">Glamporise</a>", url: null, year: "Oct 2025 –\u2060\u00A0Now", roles: ["Lead Full-Stack Developer"] },
+    { name: "La Rose Noire Philippines", url: "https://la-rose-noire.com/", year: "Jun –\u2060\u00A0Aug 2025", roles: ["Associate Software Engineer"] },
+    { name: "Cloudstaff Global Workplace Inc.", url: "https://www.cloudstaff.com/", year: "Feb –\u2060\u00A0May 2025", roles: ["Associate Software Engineer Trainee", "Associate Software Quality Assurance Engineer Trainee"] },
   ],
 
   // ---- Home page: Skills ----
@@ -36,7 +41,7 @@ const PORTFOLIO = {
   // lists which categories it covers, below); clicking a chip reveals its
   // items. Also fed to RUSSELLM via api/_bio.js.
   skills: [
-    { category: "Full-Stack Development", items: "JavaScript, HTML, CSS, PHP, MySQL, Git, GitHub" },
+    { category: "Full-Stack Development", items: "JavaScript, HTML, CSS, PHP, Laravel, Filament, MySQL, Git, GitHub" },
     { category: "WordPress & CMS", items: "WordPress + WP Multisite, Elementor Pro, WooCommerce, API Integration, Database Optimization" },
     { category: "Automation & Marketing", items: "GoHighLevel (CRM workflows, lead scoring), Email Deliverability (SPF/DKIM/DMARC), Mailgun Integration" },
     { category: "DevOps & Infrastructure", items: "Cloudflare (DDoS mitigation, WAF, security hardening), DNS, SSL/TLS" },
