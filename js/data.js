@@ -190,7 +190,7 @@ const PORTFOLIO = {
       id: "security-response",
       niche: "web",
       llm: "Security Breach Response — in March 2026 kingdomes.com.au came under a layered attack: an 867,000-request volumetric DDoS used as cover while attackers planted four backdoor admin accounts and injected a gambling-spam script into site files. Russel detected, scoped, and contained the breach in two hours — removed all four backdoor accounts, cleaned the injected code, closed the entry point — then spent five more hours hardening the platform (edge-level rate limiting and geographic filtering, CMS file-edit lockdown, credential rotation, active monitoring). No data loss, no extended downtime, no recurrence. It wasn't part of the job scope; the client publicly credited it in a review.",
-      title: "Cybersecurity",
+      title: "Security Breach Response",
       tag: "Security Incident Response",
       badge: null,
       cover: "url('assets/security-breach.jpg')",
