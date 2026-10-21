@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://russelpineda.com/sitemap.xml

@@ -4,6 +4,8 @@
    grid, the footer, and the generic project.html template all
    read from this file — you don't need to touch the HTML/CSS/JS
    for content changes.
+
+   Rerun scripts/gen-sitemap.js after adding or renaming a project.
    ============================================================ */
 
 const PORTFOLIO = {
