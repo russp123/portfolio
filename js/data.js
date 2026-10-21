@@ -184,6 +184,15 @@ const PORTFOLIO = {
       ],
       links: [{ label: "Kingdomes", url: "https://kingdomes.com.au" }],
     },
+    {
+      id: "agents",
+      niche: "automation",
+      llm: "AI Business Agents (russelpineda.com/agents): an interactive showcase of small AI agents built for service-business problems, each working only from a fictional business's fact sheet. The first live agent is the Speed-to-Lead Responder for Harbourline Plumbing, a fictional Sydney Inner West plumber. It qualifies a new lead as hot, warm or cold, decides whether the job is an emergency and, if so, drafts an alert for the on-call plumber, writes a text reply under 320 characters that asks only for what is missing and quotes the correct call-out fee, suggests a booking window, and fills a CRM card. Each step is a node on a pannable workflow canvas that lights up in order after a single Gemini 2.5 Flash call with structured JSON output, and server-side checks enforce the fee and length rules. Sample leads replay recorded runs; custom input runs live. Three more agents are in training: AI Front Desk (Brightwater Dental), Review Guardian (Torque & Co Auto Service) and Dead Lead Revival (Stonebridge Bathrooms). Built in plain HTML, CSS and JavaScript with one Vercel serverless function.",
+      title: "AI Business Agents",
+      tag: "AI Agents Demo",
+      size: "wide",
+      page: "/agents",
+    },
     
    
       {

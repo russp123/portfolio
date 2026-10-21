@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="Four small AI agents built for real service-business problems. Run a lead through the Speed-to-Lead Responder and watch every step. A demo by Russel Pineda." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Russel A. Pineda" />
+<meta property="og:title" content="AI Business Agents | Russel Pineda" />
+<meta property="og:description" content="Four small AI agents built for real service-business problems. Run a lead through the Speed-to-Lead Responder and watch every step. A demo by Russel Pineda." />
+<meta property="og:url" content="https://russelpineda.com/agents" />
+<meta property="og:image" content="https://russelpineda.com/assets/preview.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="AI Business Agents | Russel Pineda" />
+<meta name="twitter:description" content="Four small AI agents built for real service-business problems. Run a lead through the Speed-to-Lead Responder and watch every step. A demo by Russel Pineda." />
+<meta name="twitter:image" content="https://russelpineda.com/assets/preview.jpg" />
+<title>AI Business Agents | Russel Pineda</title>
+<link rel="canonical" href="https://russelpineda.com/agents" />
+<script>
+  // Before first paint: same theme key as the rest of the site.
+  try {
+    document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") === "dark" ? "dark" : "light");
+  } catch (e) {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/agents.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body class="agents-app">
+
+<main class="ag-landing" id="ag-landing">
+  <div class="ag-wrap">
+    <a class="ag-homelink" href="/">← russelpineda.com</a>
+
+    <header class="ag-hero">
+      <h1 class="ag-headline">Agents that do the busywork.</h1>
+      <p class="ag-dek">Four small AI tools built for real business problems. Pick one, run it, and watch every step.</p>
+    </header>
+
+    <div class="ag-cards" id="ag-cards"></div>
+    <noscript><p class="ag-fine">This demo needs JavaScript to run.</p></noscript>
+
+    <section class="ag-how" aria-labelledby="ag-how-title">
+      <h2 class="ag-section-title" id="ag-how-title">How it works</h2>
+      <ol class="ag-steps">
+        <li>
+          <h3>Pick an agent</h3>
+          <p>Each one does a single job for a single business, working only from that business's fact sheet.</p>
+        </li>
+        <li>
+          <h3>Give it something to handle</h3>
+          <p>Use a sample or write your own. Samples replay a recorded run. Anything you write runs live.</p>
+        </li>
+        <li>
+          <h3>Watch every step</h3>
+          <p>Each step lights up as it finishes. Click one to see exactly what it decided and why.</p>
+        </li>
+      </ol>
+      <p class="ag-fine">The businesses are fictional. This site stores nothing you type, and your run history stays in your browser.</p>
+    </section>
+
+    <section class="ag-cta" aria-labelledby="ag-cta-title">
+      <div>
+        <h2 id="ag-cta-title">Want one built for your business?</h2>
+        <p>Built around your own facts, prices and hours, and wired into the tools you already use.</p>
+      </div>
+      <a class="ag-pill" id="ag-mail" href="mailto:rsslpnd@gmail.com">Get in touch</a>
+    </section>
+  </div>
+</main>
+
+<section class="ag-workspace" id="ag-workspace" aria-label="Agent workspace" hidden>
+  <header class="ag-topbar">
+    <button type="button" class="ag-icon-btn ag-back" id="ag-back" aria-label="Back to all agents" data-icon="back"></button>
+    <div class="ag-title">
+      <h1 class="ag-title-name" id="ag-title-name"></h1>
+      <span class="ag-title-biz" id="ag-title-biz"></span>
+    </div>
+    <button type="button" class="ag-btn ag-logs-btn" id="ag-logs-btn" aria-expanded="false" aria-controls="ag-panel" data-icon="logs" data-size="18">
+      <span class="ag-logs-long">Execution logs</span><span class="ag-logs-short">Logs</span>
+      <span class="ag-logs-count" id="ag-logs-count" hidden></span>
+    </button>
+  </header>
+
+  <div class="ag-canvas" id="ag-canvas">
+    <div class="ag-status" id="ag-status" role="status" aria-live="polite" hidden></div>
+    <div class="ag-canvas-ui ag-zoom" role="group" aria-label="Canvas view">
+      <button type="button" class="ag-icon-btn" id="ag-zoom-in" aria-label="Zoom in" data-icon="plus" data-size="18"></button>
+      <button type="button" class="ag-icon-btn" id="ag-zoom-out" aria-label="Zoom out" data-icon="minus" data-size="18"></button>
+      <button type="button" class="ag-icon-btn" id="ag-zoom-fit" aria-label="Fit to screen" data-icon="fit" data-size="18"></button>
+    </div>
+  </div>
+</section>
+
+<!-- Fixed overlays live at body level so no transformed ancestor can trap them. -->
+<nav class="ag-dock" id="ag-dock" aria-label="Agents"></nav>
+<div class="ag-tooltip" id="ag-tooltip" role="tooltip" hidden></div>
+<aside class="ag-panel" id="ag-panel" role="dialog" aria-labelledby="ag-panel-title" hidden></aside>
+<div class="ag-toast" id="ag-toast" role="status" aria-live="polite"></div>
+
+<script src="js/data.js"></script>
+<script src="js/agents/registry.js"></script>
+<script src="js/agents/samples.js"></script>
+<script src="js/agents/canvas.js"></script>
+<script src="js/agents/app.js"></script>
+</body>
+</html>
