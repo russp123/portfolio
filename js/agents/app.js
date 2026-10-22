@@ -30,7 +30,6 @@
   const LOG_KEY = "agents.logs.v1";
   const LOG_MAX = 20;
   const STEP_MS = 500;
-  const MAX_INPUT = 2000;
   const LIVE_TIMEOUT_MS = 30000;
   // Chat mode. Limits mirror api/agent.js so the visitor is told before
   // the server would refuse.
@@ -59,6 +58,7 @@
     left: '<path d="m14 6-6 6 6 6"/>',
     right: '<path d="m10 6 6 6-6 6"/>',
     send: '<path d="M12 19V5"/><path d="m6 11 6-6 6 6"/>',
+    newChat: '<path d="M20 12V6a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h1.5v3.5L11 17h1.5"/><path d="M18 14.5v6M15 17.5h6"/>',
   };
   Object.assign(AGENT_ICONS, UI);
 
@@ -244,17 +244,38 @@
   }
 
   /* ---------------- Landing ---------------- */
-  function miniFlow(agent) {
-    const main = agent.nodes.filter((n) => n.row === 0).sort((a, b) => a.col - b.col);
-    return `<div class="ag-mini" aria-hidden="true">${main
-      .map((n, i) => `${i ? '<span class="ag-mini-edge"></span>' : ""}<span class="ag-mini-node" data-type="${n.type}">${agentIcon(n.icon, 16)}</span>`)
-      .join("")}</div>`;
-  }
+  // Landing thumbnails: a small static sketch of each agent's OUTPUT,
+  // placeholder lines only (no readable copy), grays plus the accent.
+  const line = (w) => `<i class="ag-pv-line" style="width:${w}%"></i>`;
+  const PREVIEWS = {
+    phone: () => `
+      <div class="ag-pv ag-pv-phone">
+        <div class="ag-pv-bubble is-in">${line(92)}${line(64)}</div>
+        <div class="ag-pv-bubble is-reply">${line(94)}${line(88)}${line(52)}</div>
+      </div>`,
+    chat: () => `
+      <div class="ag-pv ag-pv-chat">
+        <div class="ag-pv-bubble is-me">${line(84)}</div>
+        <div class="ag-pv-bubble is-reply">${line(94)}${line(66)}</div>
+        <div class="ag-pv-bubble is-me">${line(58)}</div>
+      </div>`,
+    review: () => `
+      <div class="ag-pv ag-pv-review">
+        <div class="ag-pv-stars">${[1, 2, 3, 4, 5].map((n) => `<span class="${n <= 4 ? "is-on" : ""}">${agentIcon("star", 12)}</span>`).join("")}</div>
+        ${line(94)}${line(70)}
+        <div class="ag-pv-reply">${line(90)}${line(58)}</div>
+      </div>`,
+    table: () => `
+      <div class="ag-pv ag-pv-table">
+        ${["accent", "strong", "muted"].map((tone, i) => `<div class="ag-pv-row">${line([54, 46, 50][i])}<span class="ag-pv-tag" data-tone="${tone}"></span></div>`).join("")}
+      </div>`,
+  };
+  const previewHtml = (agent) => `<div class="ag-pv-wrap" aria-hidden="true">${(PREVIEWS[agent.preview] || PREVIEWS.phone)()}</div>`;
   function buildCards() {
     els.cards.innerHTML = AGENTS.map((a) => {
       const live = a.status === "live";
       const media = live
-        ? `<div class="ag-card-media">${miniFlow(a)}</div>`
+        ? `<div class="ag-card-media">${previewHtml(a)}</div>`
         : `<div class="ag-card-media ag-ph"><span class="ag-ph-text">agent: in training</span></div>`;
       const meta = `
         <div class="ag-card-meta">
@@ -416,16 +437,11 @@
     el.dataset.kind = s.kind;
     el.innerHTML = `<span class="ag-status-dot" aria-hidden="true"></span><span>${esc(s.text)}</span>`;
   }
+  // The canvas pill only appears while a live call runs and when the
+  // resting fallback plays: those tell the visitor something real.
+  // Samples, finished live runs and replays show no label.
   function statusFor(run, replay) {
-    const pre = replay ? "Replay · " : "";
-    if (run.chat) {
-      if (run.source === "fallback") return { kind: "resting", text: replay ? "Replay · Recorded conversation (live demo was resting)" : FALLBACK_NOTE };
-      if (run.source === "custom") return { kind: "live", text: `${pre}Live · turn ${run.turn} · ${fmtSecs(run.clientMs || run.ms)}` };
-      return { kind: "sample", text: `${pre}Recorded sample · turn ${run.turn}` };
-    }
-    if (run.source === "fallback") return { kind: "resting", text: replay ? "Replay · Recorded run (live demo was resting)" : FALLBACK_NOTE };
-    if (run.source === "custom") return { kind: "live", text: `${pre}Live run · ${fmtSecs(run.clientMs || run.ms)}` };
-    return { kind: "sample", text: `${pre}Recorded sample run` };
+    return run.source === "fallback" && !replay ? { kind: "resting", text: FALLBACK_NOTE } : null;
   }
   const fmtSecs = (ms) => `${(Math.max(0, ms || 0) / 1000).toFixed(1)}s`;
 
@@ -500,19 +516,20 @@
     }
   }
 
-  function panelShell({ icon, kind, title, body, footer, tabs = "", footClass = "" }) {
+  function panelShell({ icon, kind, title, body, footer, tabs = "", footClass = "", actions = "", bodyClass = "" }) {
     return `
       <div class="ag-panel-grip" aria-hidden="true"></div>
       <header class="ag-panel-head">
-        <span class="ag-panel-icon">${agentIcon(icon, 20)}</span>
+        ${icon ? `<span class="ag-panel-icon">${agentIcon(icon, 20)}</span>` : ""}
         <div class="ag-panel-heading">
-          <span class="ag-panel-kind">${esc(kind)}</span>
+          ${kind ? `<span class="ag-panel-kind">${esc(kind)}</span>` : ""}
           <h2 class="ag-panel-title" id="ag-panel-title" tabindex="-1">${esc(title)}</h2>
         </div>
+        ${actions}
         <button type="button" class="ag-icon-btn ag-panel-close" aria-label="Close panel">${agentIcon("close", 20)}</button>
       </header>
       ${tabs}
-      <div class="ag-panel-body">${body}</div>
+      <div class="ag-panel-body${bodyClass ? ` ${bodyClass}` : ""}">${body}</div>
       ${footer ? `<footer class="ag-panel-foot${footClass ? ` ${footClass}` : ""}">${footer}</footer>` : ""}`;
   }
 
@@ -638,12 +655,20 @@
     } else if (nodeState === "error") {
       body += `<div class="ag-empty"><p>This step couldn't finish on this run.</p></div>`;
     } else if (nodeState === "skipped") {
-      body += `<div class="ag-empty"><p>Not used on this run. The decision before it took the other path.</p></div>`;
+      let own = false;
+      try { own = !!(def.skip && state.run && def.skip(state.run.result, state.run)); } catch (e) { own = false; }
+      if (own && def.skippedView) {
+        let blocks = [];
+        try { blocks = def.skippedView(state.run) || []; } catch (e) { blocks = []; }
+        body += blocks.map(renderBlock).join("");
+      } else {
+        body += `<div class="ag-empty"><p>Not used on this run. The decision before it took the other path.</p></div>`;
+      }
     } else if (nodeState !== "done" || state.busy) {
       body += `<div class="ag-empty is-working"><span class="ag-spinner" aria-hidden="true"></span><p>Working on it…</p></div>`;
     } else {
-      if (def.type === "output") {
-        body += `<div class="ag-run-meta" data-kind="${esc(state.status ? state.status.kind : "")}">${esc(state.status ? state.status.text : "")}</div>`;
+      if (def.type === "output" && state.status && state.status.kind === "resting") {
+        body += `<div class="ag-run-meta" data-kind="resting">${esc(state.status.text)}</div>`;
       }
       let blocks = [];
       try { blocks = def.view(state.run) || []; } catch (e) { blocks = [{ type: "note", body: "This step has nothing to show for this run." }]; }
@@ -679,10 +704,25 @@
           : `<ul class="ag-list">${b.items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`
       }`,
     sms: (b) => {
-      const len = (b.body || "").length;
-      const pct = Math.min(100, Math.round((len / (b.limit || 320)) * 100));
+      const byWords = b.unit === "words";
+      const limit = b.limit || 320;
+      const len = byWords ? String(b.body || "").trim().split(/\s+/).filter(Boolean).length : (b.body || "").length;
+      const pct = Math.min(100, Math.round((len / limit) * 100));
       return `<div class="ag-sms"><div class="ag-bubble is-out">${esc(b.body)}</div></div>
-        <div class="ag-meter" ${len > (b.limit || 320) ? 'data-over="true"' : ""}><span class="ag-meter-bar"><i style="width:${pct}%"></i></span><span>${len} / ${b.limit || 320} characters</span></div>`;
+        <div class="ag-meter" ${len > limit ? 'data-over="true"' : ""}><span class="ag-meter-bar"><i style="width:${pct}%"></i></span><span>${len} / ${limit} ${byWords ? "words" : "characters"}</span></div>`;
+    },
+    // A Google-style review with the owner's response underneath (mock).
+    review: (b) => {
+      const stars = [1, 2, 3, 4, 5].map((n) => `<span class="${n <= b.rating ? "is-on" : ""}">${agentIcon("star", 15)}</span>`).join("");
+      return `${title(b.title)}
+      <div class="ag-review">
+        <div class="ag-review-head">
+          <span class="ag-avatar">${esc(initials(b.name))}</span>
+          <div><strong>${esc(b.name || "Customer")}</strong><span class="ag-review-stars" role="img" aria-label="${esc(b.rating)} out of 5 stars">${stars}</span></div>
+        </div>
+        <p class="ag-review-text">${esc(b.text)}</p>
+        <div class="ag-review-reply"><span>Response from the owner</span><p>${esc(b.reply)}</p></div>
+      </div>`;
     },
     thread: (b) => `${title(b.title)}
       <div class="ag-phone">
@@ -726,10 +766,11 @@
   const renderBlock = (b) => `<section class="ag-block" data-block="${esc(b.type)}">${(BLOCKS[b.type] || (() => ""))(b)}</section>`;
 
   /* ---------------- Trigger panel (the only place a run starts) ---------------- */
-  function sydneyNowLocal() {
+  // The form is built from agent.trigger.fields (see registry.js).
+  function zonedNowLocal(timeZone) {
     try {
       const parts = new Intl.DateTimeFormat("en-CA", {
-        timeZone: "Australia/Sydney",
+        timeZone: timeZone || "Australia/Sydney",
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
@@ -744,23 +785,61 @@
     }
   }
 
+  const fieldsOf = (agent) => (agent.trigger && agent.trigger.fields) || [];
+  const primaryField = (agent) => fieldsOf(agent).find((f) => f.primary) || fieldsOf(agent).find((f) => f.type === "textarea") || fieldsOf(agent)[0];
+  // A sample's value for a field: in sample.fields, or at the top level
+  // (Speed-to-Lead's samples keep input and receivedAt there).
+  const sampleValue = (s, f) => (s.fields && f.id in s.fields ? s.fields[f.id] : s[f.id]);
+  const emptyValue = (f) => (f.type === "rating" ? 0 : f.type === "time" ? zonedNowLocal(f.timeZone) : f.type === "select" ? (f.options && f.options[0] ? f.options[0].value : "") : "");
+  const norm = (f, v) => (f.type === "rating" ? Number(v) || 0 : String(v == null ? "" : v).trim());
+
   function draftFor(agent) {
     if (!state.drafts[agent.id]) {
       const first = samplesFor(agent)[0];
-      state.drafts[agent.id] = first ? { input: first.input, receivedAt: first.receivedAt } : { input: "", receivedAt: sydneyNowLocal() };
+      const d = {};
+      for (const f of fieldsOf(agent)) d[f.id] = first ? sampleValue(first, f) ?? emptyValue(f) : emptyValue(f);
+      state.drafts[agent.id] = d;
     }
     return state.drafts[agent.id];
   }
-  const matchSample = (agent, d) => samplesFor(agent).find((s) => s.input.trim() === d.input.trim() && s.receivedAt === d.receivedAt) || null;
+  const matchSample = (agent, d) =>
+    samplesFor(agent).find((s) => fieldsOf(agent).every((f) => norm(f, sampleValue(s, f)) === norm(f, d[f.id]))) || null;
+
+  function fieldHtml(f, value) {
+    const id = `ag-f-${f.id}`;
+    const label = `<span class="ag-label"${f.type === "rating" ? ` id="${id}-label"` : ""}>${esc(f.label)}</span>`;
+    if (f.type === "time") {
+      return `<label class="ag-field">${label}<input type="datetime-local" class="ag-input" id="${id}" data-field="${f.id}" value="${esc(value)}" /></label>`;
+    }
+    if (f.type === "textarea") {
+      return `<label class="ag-field">
+        <span class="ag-label-row">${label}${f.maxLength ? `<span class="ag-count" data-count="${f.id}"></span>` : ""}</span>
+        <textarea class="ag-input ag-textarea" id="${id}" data-field="${f.id}"${f.maxLength ? ` maxlength="${f.maxLength}"` : ""} rows="${f.rows || 5}" placeholder="${esc(f.placeholder || "")}">${esc(value)}</textarea>
+      </label>`;
+    }
+    if (f.type === "select") {
+      const opts = (f.options || []).map((o) => `<option value="${esc(o.value)}"${String(o.value) === String(value) ? " selected" : ""}>${esc(o.label)}</option>`).join("");
+      return `<label class="ag-field">${label}<select class="ag-input ag-select" id="${id}" data-field="${f.id}">${opts}</select></label>`;
+    }
+    if (f.type === "rating") {
+      const v = Number(value) || 0;
+      const stars = [1, 2, 3, 4, 5]
+        .map(
+          (n) => `<button type="button" role="radio" class="ag-star${n <= v ? " is-on" : ""}" data-star="${n}" aria-checked="${n === v}" aria-label="${n} star${n === 1 ? "" : "s"}" tabindex="${n === (v || 1) ? 0 : -1}">${agentIcon("star", 22)}</button>`
+        )
+        .join("");
+      return `<div class="ag-field">${label}<div class="ag-stars" role="radiogroup" aria-labelledby="${id}-label" data-field="${f.id}">${stars}</div></div>`;
+    }
+    return `<label class="ag-field">${label}<input type="text" class="ag-input" id="${id}" data-field="${f.id}"${f.maxLength ? ` maxlength="${f.maxLength}"` : ""} placeholder="${esc(f.placeholder || "")}" value="${esc(value)}" /></label>`;
+  }
 
   function triggerPanel(agent, def) {
     const d = draftFor(agent);
     const active = matchSample(agent, d);
-    const t = agent.trigger || {};
     const chips = samplesFor(agent)
       .map(
         (s) => `<button type="button" class="ag-chip${active && active.id === s.id ? " is-active" : ""}" data-sample="${s.id}" aria-pressed="${active && active.id === s.id}">
-          <strong>${esc(s.label)}</strong><span>${esc(s.channel)}</span></button>`
+          <strong>${esc(s.label)}</strong><span>${esc(s.channel || "")}</span></button>`
       )
       .join("");
     const body = `
@@ -769,26 +848,33 @@
         <span class="ag-label">Samples</span>
         <div class="ag-chips">${chips}</div>
       </div>
-      <label class="ag-field">
-        <span class="ag-label">${esc(t.timeLabel || "Received")}</span>
-        <input type="datetime-local" class="ag-input" id="ag-time" value="${esc(d.receivedAt)}" />
-      </label>
-      <label class="ag-field">
-        <span class="ag-label-row"><span class="ag-label">${esc(t.inputLabel || "Input")}</span><span class="ag-count" id="ag-count"></span></span>
-        <textarea class="ag-input ag-textarea" id="ag-input" maxlength="${MAX_INPUT}" rows="7" placeholder="${esc(t.placeholder || "")}">${esc(d.input)}</textarea>
-      </label>
+      ${fieldsOf(agent).map((f) => fieldHtml(f, d[f.id])).join("\n")}
       <p class="ag-hint" id="ag-hint"></p>
       <p class="ag-error" id="ag-error" role="alert" hidden></p>`;
     const footer = `<button type="button" class="ag-run" id="ag-run"${state.busy ? " disabled" : ""}>${agentIcon("play", 16)}<span>${state.busy ? "Running…" : "Run agent"}</span></button>`;
     return panelShell({ icon: def.icon, kind: KIND.trigger, title: def.label, body, footer });
   }
 
+  function setRating(group, value, focus) {
+    group.querySelectorAll(".ag-star").forEach((b) => {
+      const n = Number(b.dataset.star);
+      b.classList.toggle("is-on", n <= value);
+      b.setAttribute("aria-checked", String(n === value));
+      b.tabIndex = n === (value || 1) ? 0 : -1;
+      if (focus && n === value) b.focus();
+    });
+  }
+
   function bindTrigger() {
-    const input = $("#ag-input", els.panel);
-    if (!input) return;
+    const run = $("#ag-run", els.panel);
+    if (!run || !state.agent || isChat(state.agent)) return;
     const agent = state.agent;
     const d = draftFor(agent);
-    const time = $("#ag-time", els.panel);
+    const t = agent.trigger || {};
+    const hints = Object.assign(
+      { sample: "This sample replays a recorded run, no live call. Edit any field to run it live.", custom: "Custom input runs the agent live.", empty: "Pick a sample or write your own." },
+      t.hints || {}
+    );
     const sync = () => {
       const active = matchSample(agent, d);
       els.panel.querySelectorAll(".ag-chip").forEach((c) => {
@@ -796,41 +882,93 @@
         c.classList.toggle("is-active", on);
         c.setAttribute("aria-pressed", String(on));
       });
-      $("#ag-count", els.panel).textContent = `${d.input.length.toLocaleString("en-AU")} / ${MAX_INPUT.toLocaleString("en-AU")}`;
-      $("#ag-hint", els.panel).textContent = active
-        ? "This sample replays a recorded run, no live call. Edit the text or time to run it live."
-        : d.input.trim()
-        ? "Custom input runs the agent live."
-        : "Pick a sample or write your own lead.";
+      els.panel.querySelectorAll("[data-count]").forEach((el) => {
+        const f = fieldsOf(agent).find((x) => x.id === el.dataset.count);
+        el.textContent = `${String(d[f.id] || "").length.toLocaleString("en-AU")} / ${f.maxLength.toLocaleString("en-AU")}`;
+      });
+      const primary = primaryField(agent);
+      $("#ag-hint", els.panel).textContent = active ? hints.sample : primary && norm(primary, d[primary.id]) ? hints.custom : hints.empty;
       $("#ag-error", els.panel).hidden = true;
     };
-    input.addEventListener("input", () => {
-      d.input = input.value.slice(0, MAX_INPUT);
-      sync();
-    });
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        runTrigger();
+    for (const f of fieldsOf(agent)) {
+      if (f.type === "rating") {
+        const group = els.panel.querySelector(`.ag-stars[data-field="${f.id}"]`);
+        group.addEventListener("click", (e) => {
+          const b = e.target.closest(".ag-star");
+          if (!b) return;
+          d[f.id] = Number(b.dataset.star);
+          setRating(group, d[f.id], false);
+          sync();
+        });
+        // Radio-group keys: arrows move and select, Home/End jump.
+        group.addEventListener("keydown", (e) => {
+          const cur = Number(d[f.id]) || 0;
+          let next = null;
+          if (e.key === "ArrowRight" || e.key === "ArrowUp") next = Math.min(5, cur + 1);
+          else if (e.key === "ArrowLeft" || e.key === "ArrowDown") next = Math.max(1, cur - 1);
+          else if (e.key === "Home") next = 1;
+          else if (e.key === "End") next = 5;
+          else if (e.key === " " || e.key === "Enter") next = Number(e.target.closest(".ag-star") ? e.target.closest(".ag-star").dataset.star : cur || 1);
+          if (next == null) return;
+          e.preventDefault();
+          d[f.id] = next;
+          setRating(group, next, true);
+          sync();
+        });
+        continue;
       }
-    });
-    time.addEventListener("input", () => {
-      d.receivedAt = time.value;
-      sync();
-    });
+      const el = els.panel.querySelector(`[data-field="${f.id}"]`);
+      if (!el) continue;
+      el.addEventListener("input", () => {
+        d[f.id] = f.maxLength ? el.value.slice(0, f.maxLength) : el.value;
+        sync();
+      });
+      el.addEventListener("change", () => {
+        d[f.id] = el.value;
+        sync();
+      });
+      if (f.type === "textarea") {
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            runTrigger();
+          }
+        });
+      }
+    }
     els.panel.querySelectorAll(".ag-chip").forEach((chip) =>
       chip.addEventListener("click", () => {
         const s = samplesFor(agent).find((x) => x.id === chip.dataset.sample);
         if (!s) return;
-        d.input = s.input;
-        d.receivedAt = s.receivedAt;
-        input.value = s.input;
-        time.value = s.receivedAt;
+        for (const f of fieldsOf(agent)) {
+          const v = sampleValue(s, f);
+          d[f.id] = v == null ? emptyValue(f) : v;
+          if (f.type === "rating") setRating(els.panel.querySelector(`.ag-stars[data-field="${f.id}"]`), Number(d[f.id]) || 0, false);
+          else {
+            const el = els.panel.querySelector(`[data-field="${f.id}"]`);
+            if (el) el.value = d[f.id];
+          }
+        }
         sync();
       })
     );
-    $("#ag-run", els.panel).addEventListener("click", runTrigger);
+    run.addEventListener("click", runTrigger);
     sync();
+  }
+
+  // Client-side checks mirror the server's (required, rating, length).
+  function validateFields(agent, d) {
+    const t = agent.trigger || {};
+    for (const f of fieldsOf(agent)) {
+      const v = norm(f, d[f.id]);
+      if (f.type === "rating") {
+        if ((f.required && !v) || (v && (v < 1 || v > 5))) return t.emptyError || `Choose a ${f.label.toLowerCase()}.`;
+        continue;
+      }
+      if (f.required && !v) return t.emptyError || `Fill in ${f.label.toLowerCase()}.`;
+      if (f.maxLength && v.length > f.maxLength) return `Keep ${f.label.toLowerCase()} under ${f.maxLength.toLocaleString("en-AU")} characters.`;
+    }
+    return null;
   }
 
   function formError(text) {
@@ -842,19 +980,31 @@
 
   /* ---------------- Runs ---------------- */
   function runFromSample(agent, s, source) {
-    return {
+    const primary = primaryField(agent);
+    const run = {
       agent: agent.id,
       source,
       sampleId: s.id,
       sampleLabel: s.label,
       channel: s.channel,
-      triggerCaption: s.channel,
-      input: s.input,
+      triggerCaption: triggerCaption(agent, s.fields || s, s.channel),
+      input: primary ? sampleValue(s, primary) : s.input,
       receivedAt: s.receivedAt,
       result: s.recorded.result,
       received: s.recorded.received,
       ms: s.recorded.ms,
     };
+    if (s.fields) run.fields = s.fields;
+    return run;
+  }
+  // The trigger node's caption: the agent's own (e.g. "1 star"), else
+  // the sample's channel, else "Custom message".
+  function triggerCaption(agent, values, fallback) {
+    const t = agent.trigger || {};
+    if (typeof t.caption === "function") {
+      try { return t.caption(values) || fallback || ""; } catch (e) { /* fall through */ }
+    }
+    return fallback || t.customCaption || "Custom input";
   }
 
   const STOP = new Set("the and you your for can could there how much what this that with have our are just any way someone would like hi hello thanks thank please from its it's i'm i've get got need want when will".split(" "));
@@ -864,8 +1014,9 @@
     const a = words(text);
     let best = list[0];
     let bestScore = -1;
+    const primary = primaryField(agent);
     for (const s of list) {
-      const b = words(s.input);
+      const b = words(primary ? sampleValue(s, primary) : s.input);
       let common = 0;
       for (const w of a) if (b.has(w)) common++;
       const score = a.size && b.size ? common / Math.sqrt(a.size * b.size) : 0;
@@ -877,7 +1028,7 @@
     return best;
   }
 
-  async function callLive(agent, input, receivedAt) {
+  async function callLive(agent, payload) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), LIVE_TIMEOUT_MS);
     const t0 = performance.now();
@@ -885,7 +1036,7 @@
       const res = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ agent: agent.id, input, receivedAt }),
+        body: JSON.stringify(Object.assign({ agent: agent.id }, payload)),
         signal: ctrl.signal,
       });
       if (!res.ok) throw new Error("resting");
@@ -901,9 +1052,17 @@
     const agent = state.agent;
     if (!agent || state.busy) return;
     const d = draftFor(agent);
-    const input = d.input.trim();
-    if (!input) return formError("Pick a sample or type a lead message first.");
-    if (input.length > MAX_INPUT) return formError(`Keep it under ${MAX_INPUT.toLocaleString("en-AU")} characters.`);
+    const invalid = validateFields(agent, d);
+    if (invalid) return formError(invalid);
+    const t = agent.trigger || {};
+    const primary = primaryField(agent);
+    const input = primary ? norm(primary, d[primary.id]) : "";
+    // Speed-to-Lead's API body stays { input, receivedAt }; agents with
+    // payload "fields" send every field.
+    const values = {};
+    for (const f of fieldsOf(agent)) values[f.id] = f.type === "rating" ? norm(f, d[f.id]) : f.type === "time" ? d[f.id] : norm(f, d[f.id]);
+    const payload = t.payload === "fields" ? { fields: values } : { input, receivedAt: d.receivedAt };
+    const caption = triggerCaption(agent, values, null);
     const token = ++state.runToken;
 
     const sample = matchSample(agent, d);
@@ -922,17 +1081,17 @@
     canvas.reset();
     canvas.markStart(false);
     const trigger = agent.nodes.find((n) => n.type === "trigger");
-    canvas.setNode(trigger.id, "running", "Custom message");
+    canvas.setNode(trigger.id, "running", caption);
     setStatus({ kind: "pending", text: "Running live…" });
 
     let run;
     try {
-      const data = await callLive(agent, input, d.receivedAt);
+      const data = await callLive(agent, payload);
       run = {
         agent: agent.id,
         source: "custom",
         channel: null,
-        triggerCaption: "Custom message",
+        triggerCaption: caption,
         input,
         receivedAt: d.receivedAt,
         result: data.result,
@@ -940,6 +1099,7 @@
         ms: data.ms,
         clientMs: data.clientMs,
       };
+      if (t.payload === "fields") run.fields = values;
     } catch (e) {
       run = runFromSample(agent, closestSample(agent, input), "fallback");
     }
@@ -1018,34 +1178,33 @@
   // Panel: Chat tab (thread + composer) and Step details tab.
   function chatPanel(agent, p) {
     const chat = chatFor(agent);
+    // Header: the business name, New conversation and close. The tab row
+    // holds only the two tabs, so nothing in it truncates at 375px.
+    const actions = `<button type="button" class="ag-icon-btn ag-new-chat" id="ag-new-chat" aria-label="New conversation" title="New conversation"${chat.turns.length || chat.pending ? "" : " disabled"}>${agentIcon("newChat", 20)}</button>`;
     const tabs = `
       <div class="ag-tabs" role="tablist" aria-label="Panel">
         <button type="button" role="tab" class="ag-tab" data-tab="chat" aria-selected="${p.tab === "chat"}">Chat</button>
         <button type="button" role="tab" class="ag-tab" data-tab="details" aria-selected="${p.tab === "details"}">Step details</button>
-        <button type="button" class="ag-btn is-quiet is-small ag-new-chat" id="ag-new-chat"${chat.turns.length || chat.pending ? "" : " disabled"}>New conversation</button>
       </div>`;
     if (p.tab === "chat") {
       return panelShell({
-        icon: agent.icon,
-        kind: agent.business,
-        title: "Chat",
+        title: agent.business,
+        actions,
         tabs,
         body: `<div class="ag-thread" id="ag-thread">${threadHtml(agent, chat)}</div>`,
+        bodyClass: "is-thread",
         footer: composerHtml(agent),
         footClass: "is-composer",
       });
     }
     const def = p.id ? agent.nodes.find((n) => n.id === p.id) : null;
-    const body = turnSwitcher(chat) + (def ? nodeBody(agent, def) : stepList(agent));
-    return panelShell({
-      icon: def ? def.icon : "sparkle",
-      kind: def ? KIND[def.type] || "Step" : "Step details",
-      title: def ? def.label : "All steps",
-      tabs,
-      body,
-      footer: def ? stepNav(agent, def) : "",
-    });
+    const heading = def
+      ? `<div class="ag-detail-head"><span class="ag-detail-icon">${agentIcon(def.icon, 18)}</span><div><span class="ag-panel-kind">${esc(KIND[def.type] || "Step")}</span><h3 class="ag-detail-title">${esc(def.label)}</h3></div></div>`
+      : "";
+    const body = turnSwitcher(chat) + heading + (def ? nodeBody(agent, def) : stepList(agent));
+    return panelShell({ title: agent.business, actions, tabs, body, footer: def ? stepNav(agent, def) : "" });
   }
+
 
   function msgHtml(role, label, text, turnIndex) {
     const bubble =
@@ -1202,6 +1361,8 @@
       ? `${text.length} / ${MAX_CHAT_MSG} characters`
       : "Enter to send, Shift+Enter for a new line.";
     hint.dataset.tone = limit && text.trim() ? "warn" : "";
+    // The keyboard hint means nothing on a touch screen (hidden there in CSS).
+    hint.dataset.kind = !chat.replaying && !chat.busy && !limit && text.length <= MAX_CHAT_MSG - 100 ? "keys" : "";
   }
 
   function refreshChatPanel() {

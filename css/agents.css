@@ -285,11 +285,9 @@ html[data-theme="dark"] .agents-app {
   aspect-ratio: 16 / 7;
   display: grid;
   place-items: center;
+  overflow: hidden;
   border-bottom: 1px solid var(--ag-border);
-  background-color: var(--ag-canvas);
-  background-image: radial-gradient(var(--ag-dot) 1px, transparent 1.3px);
-  background-size: 18px 18px;
-  background-position: 9px 9px;
+  background: var(--ag-canvas);
 }
 .agents-app .ag-card-media.ag-ph {
   background: var(--ag-ph-bg);
@@ -303,22 +301,69 @@ html[data-theme="dark"] .agents-app {
   color: var(--ag-ph-text);
 }
 
-.agents-app .ag-mini { display: flex; align-items: center; }
-.agents-app .ag-mini-node {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 11px;
+/* Card thumbnails: a static sketch of each agent's output. Placeholder
+   lines only, grays plus the accent, no borders or gradients. Sized for
+   the 375px card and scaled up on wider screens. */
+.agents-app .ag-pv-wrap { display: grid; place-items: center; }
+.agents-app .ag-pv { display: flex; flex-direction: column; gap: 7px; }
+.agents-app .ag-pv-line { display: block; height: 4px; border-radius: 2px; background: currentColor; opacity: 0.55; }
+.agents-app .ag-pv-line + .ag-pv-line { margin-top: 5px; }
+.agents-app .ag-pv-bubble { padding: 7px 8px; border-radius: 9px; }
+.agents-app .ag-pv-bubble.is-in,
+.agents-app .ag-pv-bubble.is-me { background: var(--ag-bubble-in); color: var(--ag-text-3); }
+.agents-app .ag-pv-bubble.is-reply { background: var(--ag-accent); color: var(--ag-on-accent); }
+.agents-app .ag-pv-bubble.is-reply .ag-pv-line { opacity: 0.7; }
+
+.agents-app .ag-pv-phone {
+  width: 104px;
+  height: 128px;
+  padding: 16px 8px 10px;
+  border-radius: 18px;
   background: var(--ag-surface);
-  border: 1px solid var(--ag-border-strong);
   box-shadow: var(--ag-shadow-sm);
-  color: var(--ag-text-2);
 }
-.agents-app .ag-mini-node[data-type="trigger"] { color: var(--ag-accent); }
-.agents-app .ag-mini-node[data-type="output"] { background: var(--ag-text); border-color: var(--ag-text); color: var(--ag-surface); }
-.agents-app .ag-mini-edge { width: 18px; height: 1.5px; background: var(--ag-edge); }
-.agents-app .ag-card.is-live:hover .ag-mini-edge { background: var(--ag-accent); }
+.agents-app .ag-pv-phone .is-in { align-self: flex-start; width: 74%; border-bottom-left-radius: 3px; }
+.agents-app .ag-pv-phone .is-reply { align-self: flex-end; width: 84%; border-bottom-right-radius: 3px; }
+
+.agents-app .ag-pv-chat { width: 150px; }
+.agents-app .ag-pv-chat .is-me { align-self: flex-end; width: 60%; border-bottom-right-radius: 3px; }
+.agents-app .ag-pv-chat .is-reply { align-self: flex-start; width: 82%; border-bottom-left-radius: 3px; }
+.agents-app .ag-pv-chat .is-me:last-child { width: 46%; }
+
+.agents-app .ag-pv-review {
+  width: 162px;
+  gap: 0;
+  padding: 11px 12px 12px;
+  border-radius: 12px;
+  background: var(--ag-surface);
+  box-shadow: var(--ag-shadow-sm);
+  color: var(--ag-text-3);
+}
+.agents-app .ag-pv-stars { display: flex; gap: 2px; margin-bottom: 8px; }
+.agents-app .ag-pv-stars span { display: grid; color: var(--ag-border-strong); }
+.agents-app .ag-pv-stars .is-on { color: var(--ag-accent); }
+.agents-app .ag-pv-stars .is-on svg { fill: currentColor; }
+.agents-app .ag-pv-reply { margin: 9px 0 0 12px; padding: 7px 8px; border-radius: 8px; background: var(--ag-accent-soft); color: var(--ag-accent); }
+
+.agents-app .ag-pv-table { width: 172px; gap: 5px; }
+.agents-app .ag-pv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 9px;
+  border-radius: 8px;
+  background: var(--ag-surface);
+  box-shadow: var(--ag-shadow-sm);
+  color: var(--ag-text-3);
+}
+.agents-app .ag-pv-row .ag-pv-line { flex: none; }
+.agents-app .ag-pv-tag { margin-left: auto; width: 34px; height: 10px; border-radius: 5px; }
+.agents-app .ag-pv-tag[data-tone="accent"] { background: var(--ag-accent); }
+.agents-app .ag-pv-tag[data-tone="strong"] { background: var(--ag-text-2); }
+.agents-app .ag-pv-tag[data-tone="muted"] { background: var(--ag-border-strong); }
+@media (min-width: 700px) {
+  .agents-app .ag-pv-wrap { transform: scale(1.22); }
+}
 
 .agents-app .ag-card-meta {
   flex: 1;
@@ -877,7 +922,7 @@ html[data-theme="dark"] .agents-app {
   border-bottom: 1px solid var(--ag-border);
 }
 .agents-app .ag-phone-head strong { display: block; font-size: 14px; font-weight: 600; }
-.agents-app .ag-phone-head span { display: block; font-size: 12px; color: var(--ag-text-2); }
+.agents-app .ag-phone-head div span { display: block; font-size: 12px; color: var(--ag-text-2); }
 .agents-app .ag-phone-body { display: flex; flex-direction: column; gap: 6px; padding: 14px; background: var(--ag-surface-2); }
 .agents-app .ag-phone-label { align-self: flex-start; margin-top: 4px; font-size: 11px; color: var(--ag-text-3); }
 .agents-app .ag-phone-label.is-out { align-self: flex-end; margin-top: 10px; }
@@ -932,6 +977,27 @@ html[data-theme="dark"] .agents-app {
 .agents-app .ag-next { padding: 12px 14px; border-radius: 12px; background: var(--ag-surface-2); }
 .agents-app .ag-next span { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ag-text-3); }
 .agents-app .ag-next p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; }
+
+/* Review card (Review Guardian output) */
+.agents-app .ag-review {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--ag-surface);
+  border: 1px solid var(--ag-border-strong);
+}
+.agents-app .ag-review-head { display: flex; align-items: center; gap: 10px; }
+.agents-app .ag-review-head strong { display: block; font-size: 14px; font-weight: 600; }
+.agents-app .ag-review-stars { display: flex; gap: 1px; margin-top: 2px; color: var(--ag-border-strong); }
+.agents-app .ag-review-stars span { display: grid; }
+.agents-app .ag-review-stars .is-on { color: var(--ag-accent); }
+.agents-app .ag-review-stars .is-on svg { fill: currentColor; }
+.agents-app .ag-review-text { margin: 0; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+.agents-app .ag-review-reply { margin-left: 12px; padding: 12px 14px; border-radius: 12px; background: var(--ag-surface-2); }
+.agents-app .ag-review-reply span { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ag-text-3); }
+.agents-app .ag-review-reply p { margin: 6px 0 0; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
 
 .agents-app .ag-run-meta {
   padding: 9px 12px;
@@ -1010,6 +1076,26 @@ html[data-theme="dark"] .agents-app {
 }
 .agents-app .ag-input:focus { outline: none; border-color: var(--ag-accent); box-shadow: 0 0 0 3px var(--ag-accent-soft); }
 .agents-app .ag-textarea { min-height: 150px; resize: vertical; line-height: 1.5; }
+.agents-app .ag-textarea[rows="3"] { min-height: 84px; }
+.agents-app .ag-select { cursor: pointer; }
+/* Star rating field: a radio group of five buttons (arrow keys move). */
+.agents-app .ag-stars { display: flex; gap: 2px; margin-left: -6px; }
+.agents-app .ag-star {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ag-border-strong);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.agents-app .ag-star:hover { background: var(--ag-hover); color: var(--ag-text-3); }
+.agents-app .ag-star.is-on,
+.agents-app .ag-star.is-on:hover { color: var(--ag-accent); }
+.agents-app .ag-star.is-on svg { fill: currentColor; }
 .agents-app .ag-chips { display: flex; flex-direction: column; gap: 6px; }
 .agents-app .ag-chip {
   display: flex;
@@ -1116,7 +1202,26 @@ html[data-theme="dark"] .agents-app {
   background: var(--ag-accent);
 }
 .agents-app .ag-btn.is-small { height: 30px; padding: 0 10px; font-size: 12.5px; border-radius: 8px; }
-.agents-app .ag-new-chat { margin-left: auto; margin-bottom: 4px; }
+.agents-app .ag-new-chat:disabled { opacity: 0.35; cursor: default; }
+.agents-app .ag-new-chat:disabled:hover { background: transparent; color: var(--ag-text-2); }
+.agents-app .ag-detail-head { display: flex; align-items: center; gap: 10px; }
+.agents-app .ag-detail-icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--ag-surface-2);
+  border: 1px solid var(--ag-border);
+}
+.agents-app .ag-detail-title { margin: 1px 0 0; font-size: 15px; font-weight: 600; }
+/* Room above the first message so it never sits tight under the tabs. */
+.agents-app .ag-panel-body.is-thread { padding-top: 22px; scroll-padding-top: 22px; }
+/* The keyboard hint is meaningless on touch screens. */
+@media (pointer: coarse) {
+  .agents-app .ag-compose-hint[data-kind="keys"] { display: none; }
+}
 .agents-app .ag-btn:disabled { opacity: 0.45; cursor: default; }
 .agents-app .ag-btn.is-quiet:disabled:hover { background: transparent; color: var(--ag-text-2); }
 
@@ -1325,7 +1430,7 @@ html[data-theme="dark"] .agents-app {
 }
 
 @media (max-width: 699px) {
-  .agents-app { --ag-side: 16px; --ag-tile: 50px; --ag-dock-space: calc(84px + env(safe-area-inset-bottom)); }
+  .agents-app { --ag-side: 16px; --ag-tile: 50px; --ag-dock-h: 66px; --ag-dock-space: calc(84px + env(safe-area-inset-bottom)); }
 
   /* Dock becomes a bottom bar, like the iOS dock. */
   .agents-app .ag-dock {
@@ -1339,7 +1444,10 @@ html[data-theme="dark"] .agents-app {
   }
   .agents-app .ag-dock-sep { width: 1px; height: 26px; margin: 0 2px; }
 
-  .agents-app .ag-landing { padding: 24px 16px calc(var(--ag-dock-space) + 48px); }
+  /* Dock height + its 12px offset + safe area + a clear gap, so the last
+     card and the CTA always end above the dock. */
+  .agents-app .ag-landing { padding: 24px 16px calc(var(--ag-dock-h) + 12px + env(safe-area-inset-bottom) + 40px); }
+  html:has(> body.agents-app) { scroll-padding-bottom: calc(var(--ag-dock-h, 66px) + 24px + env(safe-area-inset-bottom)); }
   .agents-app .ag-hero { margin-top: 44px; }
   .agents-app .ag-headline { font-size: clamp(44px, 13vw, 60px); }
   .agents-app .ag-dek { font-size: 16.5px; }
@@ -1391,14 +1499,10 @@ html[data-theme="dark"] .agents-app {
      with a tighter header and no status chip over that strip of canvas. */
   .agents-app .ag-panel.is-sheet.is-chat { height: 62vh; height: 62dvh; max-height: none; }
   .agents-app .ag-panel.is-sheet.is-chat .ag-panel-head { padding: 4px 8px 6px 14px; gap: 10px; }
-  .agents-app .ag-panel.is-sheet.is-chat .ag-panel-icon { display: none; }
   .agents-app .ag-panel.is-sheet.is-chat .ag-panel-title { font-size: 15px; }
   .agents-app:has(.ag-panel.is-sheet.is-chat:not([hidden])) .ag-status { display: none; }
   .agents-app .ag-tabs { padding: 4px 8px 0 10px; }
   .agents-app .ag-reopen { bottom: calc(var(--ag-dock-space) + 10px); left: auto; right: 16px; transform: none; }
-  .agents-app .ag-mini-node { width: 30px; height: 30px; border-radius: 9px; }
-  .agents-app .ag-mini-node svg { width: 14px; height: 14px; }
-  .agents-app .ag-mini-edge { width: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

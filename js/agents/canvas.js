@@ -444,6 +444,18 @@ class AgentCanvas {
         takenNodes.add(e.to);
       }
     }
+    // A reached node with nothing to produce this run (skip(result)) is
+    // shown skipped, not done: an output with no output never gets a check.
+    const conditional = new Set();
+    for (const n of order) {
+      if (!takenNodes.has(n.id) || typeof n.skip !== "function") continue;
+      let skip = false;
+      try { skip = !!n.skip(result, run); } catch (err) { skip = false; }
+      if (!skip) continue;
+      takenNodes.delete(n.id);
+      conditional.add(n.id);
+      for (const e of agent.edges) if (e.to === n.id) takenEdges.delete(e.id);
+    }
     const steps = order
       .filter((n) => takenNodes.has(n.id))
       .map((n) => {
@@ -464,9 +476,17 @@ class AgentCanvas {
       const b = [...takenBranches].reverse().find((n) => n.col < col);
       return b ? stepIndex(b.id) : steps.length - 1;
     };
+    // Conditional skips fade when the step before them finishes.
+    const lastStepBefore = (col) => {
+      let at = 0;
+      steps.forEach((st, i) => {
+        if (agent.nodes.find((x) => x.id === st.id).col < col) at = i;
+      });
+      return at;
+    };
     const skippedNodes = agent.nodes.filter((n) => !takenNodes.has(n.id));
     for (const n of skippedNodes) {
-      const at = fadeAt(n.col);
+      const at = conditional.has(n.id) ? lastStepBefore(n.col) : fadeAt(n.col);
       (fades[at] = fades[at] || { nodes: [], edges: [] }).nodes.push(n.id);
     }
     for (const e of agent.edges.filter((e) => !takenEdges.has(e.id))) {

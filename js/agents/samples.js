@@ -2,12 +2,12 @@
    Sample inputs and their RECORDED outputs for /agents.
    Each `recorded` object is the verbatim /api/agent response from
    running the real agent once on that sample during the build.
-   Chat agents store whole conversations: `turns`, each with the
-   visitor's message and that turn's recorded response. Never
+   Form agents keep every trigger field in `fields`. Chat agents
+   store whole conversations: `turns`, each with the visitor's
+   message and that turn's recorded response. Never
    hand-edit a recording; re-run the agent and paste the new
-   response instead. Speed-to-Lead's three were recorded on
-   gemini-2.5-flash, the Front Desk conversations on
-   gemini-3.6-flash.
+   response instead. All recordings were made on
+   gemini-3.6-flash, the model live visitors get.
 
    Clicking a sample replays its recording with no network call.
    A live call only happens for edited or custom input. When the
@@ -31,29 +31,29 @@ const AGENT_SAMPLES = {
             "name": "Dana",
             "contact": "0491 570 156",
             "suburb": "Marrickville",
-            "job": "Burst pipe under kitchen sink",
+            "job": "burst pipe under kitchen sink flooding floor",
             "timing": "tonight"
           },
           "score": "hot",
-          "scoreReason": "The customer has a burst pipe and wants someone tonight.",
+          "scoreReason": "Active burst pipe causing flooding and needs immediate assistance tonight.",
           "emergency": true,
-          "emergencyReason": "There is an active burst pipe causing water to leak onto the floor.",
+          "emergencyReason": "Active water escaping from a burst pipe flooding the kitchen floor.",
           "missing": [],
-          "textReply": "Hi Dana, thanks for your message. A burst pipe is an emergency. The on-call plumber will call you shortly to arrange a visit. You may want to turn off your water at the mains if you haven't already. The after-hours emergency call-out fee is $290, plus after-hours labour quoted on site. Harbourline Plumbing",
-          "onCallAlert": "Emergency: Burst pipe under kitchen sink in Marrickville. Customer Dana on 0491 570 156. Water is still coming out despite turning off the tap under the sink.",
+          "textReply": "Hi Dana, turn off your main water meter to stop the flow completely. Our on-call plumber will call you shortly. Our after-hours emergency call-out fee is $290 plus labour quoted on site. Harbourline Plumbing",
+          "onCallAlert": "EMERGENCY: Burst pipe under kitchen sink flooding floor in Marrickville. Contact Dana on 0491 570 156. Customer tried isolating tap under sink but water still leaking.",
           "booking": {
             "window": "ASAP",
-            "reason": "This is an emergency with a burst pipe and active water leak."
+            "reason": "Active burst pipe requiring immediate after-hours emergency response."
           },
           "crm": {
             "stage": "Emergency dispatch",
             "tags": [
               "burst pipe",
-              "kitchen sink",
               "emergency",
-              "after hours"
+              "after hours",
+              "marrickville"
             ],
-            "nextAction": "Dispatch on-call plumber immediately."
+            "nextAction": "On-call plumber to phone Dana immediately to dispatch for after-hours repair."
           }
         },
         "received": {
@@ -62,7 +62,7 @@ const AGENT_SAMPLES = {
           "inHours": false,
           "nextOpen": "Monday 26 October 2026, 7am"
         },
-        "ms": 2479
+        "ms": 2998
       }
     },
     {
@@ -79,32 +79,31 @@ const AGENT_SAMPLES = {
             "name": "Priya Nair",
             "contact": "priya.nair@example.com",
             "suburb": "Leichhardt",
-            "job": "Replace electric hot water system with a heat pump",
+            "job": "swap 15-year-old electric hot water system for a heat pump",
             "timing": "sometime next month"
           },
           "score": "warm",
-          "scoreReason": "The customer wants a quote for a heat pump replacement with flexible timing.",
+          "scoreReason": "Customer has requested a quote for a heat pump replacement next month with no immediate urgency.",
           "emergency": false,
-          "emergencyReason": "There is no active emergency like a burst pipe or gas leak.",
+          "emergencyReason": "This is a planned hot water replacement with no active leak or emergency reported.",
           "missing": [
-            "photo of the hot water system",
-            "photo of the installation area"
+            "photo of existing hot water system and installation area"
           ],
-          "textReply": "Hi Priya, thanks for reaching out. We can help with heat pump hot water system replacement. To quote, please send a photo of your current hot water system and the installation area. The call-out fee during business hours is $120. Harbourline Plumbing",
+          "textReply": "Hi Priya, thanks for reaching out. We can certainly help with replacing your hot water system with a heat pump. Could you send through a photo of your existing system and installation area? Our call-out fee is $120 during business hours. Harbourline Plumbing",
           "onCallAlert": null,
           "booking": {
-            "window": "Weekdays from Monday 2 November, 7am to 5pm",
-            "reason": "The customer wants to schedule the replacement sometime next month."
+            "window": "Weekdays from Monday 2 November 2026, 7am to 5pm",
+            "reason": "Matches customer preference for next month during standard business hours."
           },
           "crm": {
             "stage": "Quote requested",
             "tags": [
               "hot water",
               "heat pump",
-              "quote",
-              "leichhardt"
+              "leichhardt",
+              "quote"
             ],
-            "nextAction": "Reply to customer with request for photos to prepare quote"
+            "nextAction": "Review photo of existing setup once provided and send quote options for heat pump replacement."
           }
         },
         "received": {
@@ -113,7 +112,7 @@ const AGENT_SAMPLES = {
           "inHours": true,
           "nextOpen": "now, 11am on Tuesday 27 October 2026 (open until 5pm today)"
         },
-        "ms": 4390
+        "ms": 2872
       }
     },
     {
@@ -130,31 +129,31 @@ const AGENT_SAMPLES = {
             "name": null,
             "contact": null,
             "suburb": null,
-            "job": "dripping tap",
+            "job": "fix a dripping tap",
             "timing": null
           },
           "score": "cold",
-          "scoreReason": "The customer is asking for a price without providing details.",
+          "scoreReason": "Bare price question with no name, suburb, or specific job details provided.",
           "emergency": false,
-          "emergencyReason": "This is not an emergency.",
+          "emergencyReason": "A dripping tap is not an active flood, burst pipe, or gas emergency.",
           "missing": [
             "suburb",
             "photo of the tap"
           ],
-          "textReply": "Thanks for reaching out! To help us quote fixing your dripping tap, could you please tell us your suburb and send a photo of the tap? Our call-out fee during business hours is $120. Harbourline Plumbing",
+          "textReply": "Hi, our call-out fee during business hours is $120. To help us quote, could you let us know your suburb and send a photo of the tap? Harbourline Plumbing",
           "onCallAlert": null,
           "booking": {
             "window": "Wednesday 28 October, 2pm to 5pm",
-            "reason": "The customer is asking for a quote for a dripping tap during business hours."
+            "reason": "Lead arrived during business hours, so the next available window is offered."
           },
           "crm": {
             "stage": "Awaiting details",
             "tags": [
               "dripping tap",
-              "quote",
-              "price enquiry"
+              "price query",
+              "cold lead"
             ],
-            "nextAction": "Get more details from the customer to provide a quote."
+            "nextAction": "Follow up with the customer once they provide their suburb and tap details."
           }
         },
         "received": {
@@ -163,7 +162,7 @@ const AGENT_SAMPLES = {
           "inHours": true,
           "nextOpen": "now, 2pm on Wednesday 28 October 2026 (open until 5pm today)"
         },
-        "ms": 2012
+        "ms": 2607
       }
     }
   ],
@@ -522,6 +521,129 @@ const AGENT_SAMPLES = {
           }
         }
       ]
+    }
+  ],
+  "review-guardian": [
+    {
+      "id": "1-star-bill",
+      "label": "1 star, bill above the quote",
+      "channel": "Google review",
+      "receivedAt": "2026-10-21T18:05",
+      "fields": {
+        "rating": 1,
+        "name": "Grace",
+        "review": "Quoted about $380 on the phone for a brake service, then got billed $690 when I picked the car up. Nobody called me to explain the extra charges. Really not happy.",
+        "jobNote": "Extra brake pads approved by phone at 11:40 per the workshop log."
+      },
+      "recordedOn": "2026-10-22",
+      "recorded": {
+        "agent": "review-guardian",
+        "result": {
+          "sentiment": "negative",
+          "rating": 1,
+          "topics": [
+            "price",
+            "communication"
+          ],
+          "isNegative": true,
+          "ownerAlert": {
+            "summary": "Grace was charged $690 after expecting a $380 brake service, and states she received no phone call explaining the extra charges.",
+            "jobNoteMatch": "The review states nobody called about extra charges, whereas the job note indicates extra brake pads were approved by phone at 11:40.",
+            "suggestedAction": "Call Grace directly to discuss the invoice and clarify the communication regarding the extra work."
+          },
+          "publicReply": "Hi Grace, sorry to hear about your experience. You should always expect a phone call from us before any extra work is done, so I am sorry we fell short here. I would like to look into this for you. Please call me on (03) 7010 4422 so we can discuss what happened.\nDan, Torque & Co",
+          "followUp": {
+            "channel": "sms",
+            "message": "Hi Grace, sorry to hear about the issue with your bill and communication. I would like to make things right. Please give me a call on (03) 7010 4422 when you have a moment. Dan"
+          }
+        },
+        "received": {
+          "at": "2026-10-21T18:05",
+          "label": "Wednesday 21 October 2026, 6:05pm",
+          "inHours": false,
+          "nextOpen": "Thursday 22 October 2026, 7:30am"
+        },
+        "ms": 3237
+      }
+    },
+    {
+      "id": "3-star-late",
+      "label": "3 stars, ready a day late",
+      "channel": "Google review",
+      "receivedAt": "2026-10-20T09:30",
+      "fields": {
+        "rating": 3,
+        "name": "Liam",
+        "review": "Good work on the car and it drives well now, but it was ready a day later than promised and nobody gave me an update. I had to chase it up myself.",
+        "jobNote": ""
+      },
+      "recordedOn": "2026-10-22",
+      "recorded": {
+        "agent": "review-guardian",
+        "result": {
+          "sentiment": "mixed",
+          "rating": 3,
+          "topics": [
+            "timing",
+            "communication",
+            "quality"
+          ],
+          "isNegative": false,
+          "ownerAlert": null,
+          "publicReply": "Hi Liam, thanks for the feedback. Glad to hear the car is driving well, but I am sorry for the delay and the lack of updates on our end. You shouldn't have had to chase us up, so I appreciate you letting us know.\nDan, Torque & Co",
+          "followUp": {
+            "channel": "sms",
+            "message": "Hi Liam, thanks for bringing your car to Torque & Co. Glad to hear it is driving well, but I am sorry about the delay and poor communication regarding the timing. Thanks for your feedback. Dan"
+          }
+        },
+        "received": {
+          "at": "2026-10-20T09:30",
+          "label": "Tuesday 20 October 2026, 9:30am",
+          "inHours": true,
+          "nextOpen": "now, 9:30am on Tuesday 20 October 2026 (open until 5:30pm today)"
+        },
+        "ms": 2310
+      }
+    },
+    {
+      "id": "5-star-marco",
+      "label": "5 stars, thanks Marco",
+      "channel": "Google review",
+      "receivedAt": "2026-10-19T14:10",
+      "fields": {
+        "rating": 5,
+        "name": "Aisha",
+        "review": "Marco explained everything clearly and didn't push any extras I didn't need. The car's running great after the log-book service. Will be back.",
+        "jobNote": ""
+      },
+      "recordedOn": "2026-10-22",
+      "recorded": {
+        "agent": "review-guardian",
+        "result": {
+          "sentiment": "positive",
+          "rating": 5,
+          "topics": [
+            "communication",
+            "quality",
+            "honesty",
+            "staff"
+          ],
+          "isNegative": false,
+          "ownerAlert": null,
+          "publicReply": "Hi Aisha, thank you for taking the time to leave a review. We are glad to hear your car is running great after its log-book service and that Marco looked after you so well. We look forward to seeing you again next time.\nDan, Torque & Co",
+          "followUp": {
+            "channel": "sms",
+            "message": "Hi Aisha, thanks for the great review! Glad to hear the car is running well after its service. Dan"
+          }
+        },
+        "received": {
+          "at": "2026-10-19T14:10",
+          "label": "Monday 19 October 2026, 2:10pm",
+          "inHours": true,
+          "nextOpen": "now, 2:10pm on Monday 19 October 2026 (open until 5:30pm today)"
+        },
+        "ms": 2031
+      }
     }
   ]
 };

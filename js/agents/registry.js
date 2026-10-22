@@ -17,10 +17,19 @@
      returns the `when` value of the outgoing edge it takes.
    - caption(result): short text shown under the node after a run.
    - view(run): array of panel blocks (see BLOCKS in app.js).
+   - skip(result): optional. When true the node is reached but has
+     nothing to produce on this run (an output with no output), so it
+     shows as skipped, never done. skippedView(run) fills its panel.
+   - preview: what the landing card shows, a static sketch of the
+     agent's output ("phone", "chat", "review", "table").
 
    Modes
    - Default (single run): one input, one result, one reveal. The
-     trigger node opens a form built from `trigger`.
+     trigger node opens a form built from `trigger.fields`: each field
+     is { id, type, label, ... } with type "text" | "textarea" |
+     "select" (options) | "rating" (1 to 5 stars) | "time" (wall clock
+     in timeZone). maxLength and required are checked on submit and
+     again on the server. Samples give a value for every field.
    - mode: "chat": every visitor message is one run of the same graph.
      The trigger node opens the Chat tab; `chat` holds the greeting,
      which node reveals the reply in the thread (replyNode), and any
@@ -64,11 +73,31 @@ const AGENTS = [
     business: "Harbourline Plumbing",
     problem: "Replies to new leads in seconds, not hours.",
     icon: "bolt",
-    // Trigger panel copy (the panel itself is built by app.js).
+    preview: "phone",
+    // Trigger form: fields render in order (app.js builds the panel).
+    // Field ids "input" and "receivedAt" go to the API as they always
+    // have; agents with payload: "fields" send { fields: {...} } instead.
     trigger: {
-      inputLabel: "Lead message",
-      placeholder: "Paste a web form, a text, or a missed-call voicemail transcript.",
-      timeLabel: "Received (Sydney time)",
+      fields: [
+        { id: "receivedAt", type: "time", label: "Received (Sydney time)", timeZone: "Australia/Sydney" },
+        {
+          id: "input",
+          type: "textarea",
+          label: "Lead message",
+          placeholder: "Paste a web form, a text, or a missed-call voicemail transcript.",
+          maxLength: 2000,
+          rows: 7,
+          required: true,
+          primary: true,
+        },
+      ],
+      hints: {
+        sample: "This sample replays a recorded run, no live call. Edit the text or time to run it live.",
+        custom: "Custom input runs the agent live.",
+        empty: "Pick a sample or write your own lead.",
+      },
+      emptyError: "Pick a sample or type a lead message first.",
+      customCaption: "Custom message",
     },
     summarize(r) {
       return `${cap(r.score)} lead${r.emergency ? " · Emergency" : ""}`;
@@ -221,6 +250,7 @@ const AGENTS = [
     business: "Brightwater Dental",
     problem: "Answers patient questions around the clock, and knows when to hand off.",
     icon: "chat",
+    preview: "chat",
     chat: {
       greeting: "Hi, you've reached Brightwater Dental. I can help with prices, opening hours, health funds and booking requests. What can I help with today?",
       placeholder: "Message Brightwater Dental",
@@ -371,15 +401,15 @@ const AGENTS = [
         label: "Booking request",
         icon: "calendarCheck",
         about: "Once the name, mobile, patient type, reason and preferred time are in, a request goes to the front desk team.",
-        caption: (r) => (r.bookingReady ? "Request sent" : "Not yet"),
+        caption: () => "Request sent",
+        // No request on this turn: the node shows as skipped, not done.
+        skip: (r) => !r.bookingReady,
+        skippedView: (run) => [
+          { type: "text", body: "No booking request on this turn. It's created once the name, mobile, patient type, reason and preferred time are all in." },
+          { type: "list", title: "Still needed", items: run.result.missing, empty: "The patient hasn't asked to book." },
+        ],
         view: (run) => {
           const r = run.result;
-          if (!r.bookingReady) {
-            return [
-              { type: "text", body: "No booking request yet. It's created once all five details are in." },
-              { type: "list", title: "Still needed", items: r.missing, empty: "The patient hasn't asked to book." },
-            ];
-          }
           const c = r.captured;
           return [
             {
@@ -413,7 +443,164 @@ const AGENTS = [
     ],
   },
 
+  {
+    id: "review-guardian",
+    status: "live",
+    name: "Review Guardian",
+    business: "Torque & Co Auto Service",
+    problem: "Replies to every review and flags the ones the owner must see.",
+    icon: "star",
+    preview: "review",
+    trigger: {
+      payload: "fields",
+      fields: [
+        { id: "rating", type: "rating", label: "Star rating", required: true },
+        { id: "name", type: "text", label: "Reviewer first name", maxLength: 40, required: true, placeholder: "e.g. Sam" },
+        { id: "review", type: "textarea", label: "Review", maxLength: 1200, rows: 6, required: true, primary: true, placeholder: "Paste or write a customer review." },
+        {
+          id: "jobNote",
+          type: "textarea",
+          label: "Internal job note (optional)",
+          maxLength: 600,
+          rows: 3,
+          placeholder: "What the workshop records say. Used for the owner alert only, never shown publicly.",
+        },
+      ],
+      hints: {
+        sample: "This sample replays a recorded run, no live call. Edit any field to run it live.",
+        custom: "Custom input runs the agent live.",
+        empty: "Pick a sample or write your own review.",
+      },
+      emptyError: "Pick a sample, or add a star rating, a first name and the review.",
+      caption: (v) => (v && Number(v.rating) ? `${v.rating} star${Number(v.rating) === 1 ? "" : "s"}` : ""),
+    },
+    summarize(r) {
+      return [`${r.rating} star${r.rating === 1 ? "" : "s"}`, cap(r.sentiment), r.isNegative ? "Owner alerted" : ""].filter(Boolean).join(" · ");
+    },
+
+    nodes: [
+      {
+        id: "review",
+        type: "trigger",
+        col: 0,
+        row: 0,
+        label: "New review",
+        icon: "star",
+        about: "A new review lands on the shop's Google profile. Pick a sample or write your own, then run the agent.",
+      },
+      {
+        id: "read",
+        type: "ai",
+        col: 1,
+        row: 0,
+        label: "Read review",
+        icon: "sparkle",
+        about: "Works out how the customer feels and what the review is about.",
+        caption: (r) => cap(r.sentiment),
+        view: (run) => {
+          const r = run.result;
+          return [
+            { type: "badge", label: cap(r.sentiment), tone: r.sentiment === "negative" ? "accent" : r.sentiment === "mixed" ? "strong" : "muted" },
+            { type: "kv", rows: [["Stars", `${r.rating} of 5`], ["Topics", r.topics.map(cap).join(", ")]], empty: "None" },
+          ];
+        },
+      },
+      {
+        id: "stars",
+        type: "branch",
+        col: 2,
+        row: 0,
+        label: "1 to 2 stars?",
+        icon: "split",
+        about: "Low ratings go to the owner before anything is posted.",
+        decide: (r) => (r.isNegative ? "yes" : "no"),
+        caption: (r) => (r.isNegative ? "Yes" : "No"),
+        view: (run) => [
+          { type: "badge", label: run.result.isNegative ? "Owner needs to see this" : "No alert needed", tone: run.result.isNegative ? "accent" : "muted" },
+          {
+            type: "text",
+            body: run.result.isNegative
+              ? "A 1 or 2 star review, so Dan gets an alert with what went wrong and a suggested next step."
+              : "3 stars or more, so the reply goes straight to drafting.",
+          },
+        ],
+      },
+      {
+        id: "alert",
+        type: "action",
+        col: 3,
+        row: -1,
+        label: "Alert owner",
+        icon: "bell",
+        about: "On 1 and 2 star reviews only: tells Dan what went wrong, checks it against the job note, and suggests one action.",
+        caption: () => "Dan alerted",
+        view: (run) => {
+          const a = run.result.ownerAlert || {};
+          return [
+            { type: "quote", title: "What went wrong", body: a.summary },
+            { type: "quote", title: "Against the job note", body: a.jobNoteMatch },
+            { type: "quote", title: "Suggested action", body: a.suggestedAction },
+            { type: "note", body: "A mock alert. Nothing is sent." },
+          ];
+        },
+      },
+      {
+        id: "reply",
+        type: "ai",
+        col: 4,
+        row: 0,
+        label: "Draft public reply",
+        icon: "message",
+        about: "The reply posted under the review: calm, specific, under 80 words, signed by Dan.",
+        caption: (r) => `${r.publicReply.trim().split(/\s+/).length} words`,
+        view: (run) => [{ type: "sms", body: run.result.publicReply, limit: 80, unit: "words" }],
+      },
+      {
+        id: "followup",
+        type: "ai",
+        col: 5,
+        row: 0,
+        label: "Private follow-up",
+        icon: "chat",
+        about: "A short private message to the customer. Never posted.",
+        caption: () => "Text to customer",
+        view: (run) => [
+          { type: "quote", title: "Text message to the customer", body: run.result.followUp.message },
+          { type: "note", body: "Private. Never posted, and nothing is sent in this demo." },
+        ],
+      },
+      {
+        id: "card",
+        type: "output",
+        col: 6,
+        row: 0,
+        label: "Review card",
+        icon: "card",
+        about: "The deliverable: the review with the owner's response under it, plus the private follow-up.",
+        caption: () => "Ready to post",
+        view: (run) => {
+          const r = run.result;
+          const f = run.fields || {};
+          return [
+            { type: "review", title: "Google review", name: f.name, rating: r.rating, text: f.review, reply: r.publicReply },
+            { type: "quote", title: "Private follow-up", body: r.followUp.message },
+            { type: "note", body: "A visual mock. Nothing is posted or sent." },
+          ];
+        },
+      },
+    ],
+
+    edges: [
+      { id: "r1", from: "review", to: "read" },
+      { id: "r2", from: "read", to: "stars" },
+      { id: "r3", from: "stars", to: "alert", when: "yes", label: "Yes" },
+      { id: "r4", from: "alert", to: "reply" },
+      { id: "r5", from: "stars", to: "reply", when: "no", label: "No" },
+      { id: "r6", from: "reply", to: "followup" },
+      { id: "r7", from: "followup", to: "card" },
+    ],
+  },
+
   // In training: landing card only. Not routable, not in the dock.
-  { id: "review-guardian", status: "training", name: "Review Guardian", business: "Torque & Co Auto Service", problem: "Replies to every review and flags the ones the owner must see.", icon: "star" },
-  { id: "dead-lead-revival", status: "training", name: "Dead Lead Revival", business: "Stonebridge Bathrooms", problem: "Wins back old quotes sitting in your CRM.", icon: "revive" },
+  { id: "dead-lead-revival", status: "training", name: "Dead Lead Revival", business: "Stonebridge Bathrooms", problem: "Wins back old quotes sitting in your CRM.", icon: "revive", preview: "table" },
 ];
