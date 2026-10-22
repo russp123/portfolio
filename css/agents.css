@@ -34,7 +34,7 @@
   --ag-shadow-sm: 0 1px 2px rgba(17, 18, 22, 0.06), 0 1px 1px rgba(17, 18, 22, 0.03);
   --ag-shadow-md: 0 6px 18px rgba(17, 18, 22, 0.08), 0 1px 3px rgba(17, 18, 22, 0.05);
   --ag-shadow-lg: 0 20px 50px rgba(17, 18, 22, 0.14), 0 2px 8px rgba(17, 18, 22, 0.06);
-  /* The site's loading placeholder is the same flat gray in both themes. */
+  /* The site's loading placeholder look (light mode; dark overrides below). */
   --ag-ph-bg: #e4e5e9;
   --ag-ph-text: #54565f;
 
@@ -83,6 +83,10 @@ html[data-theme="dark"] .agents-app {
   --ag-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --ag-shadow-md: 0 8px 22px rgba(0, 0, 0, 0.45);
   --ag-shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.4);
+  /* "In training" placeholder: the site's flat gray reads as a bright
+     block on a dark page, so dark mode gets its own quiet version. */
+  --ag-ph-bg: #1c1d21;
+  --ag-ph-text: #868993;
   color-scheme: dark;
 }
 
@@ -1080,6 +1084,240 @@ html[data-theme="dark"] .agents-app {
 .agents-app .ag-log-sum { font-size: 13.5px; color: var(--ag-text-2); }
 .agents-app .ag-log-replay { display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--ag-accent); }
 
+/* ---------------- Chat mode (agents with mode: "chat") ---------------- */
+.agents-app .ag-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px 0 14px;
+  border-bottom: 1px solid var(--ag-border);
+}
+.agents-app .ag-tab {
+  position: relative;
+  padding: 8px 10px 11px;
+  border: 0;
+  background: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ag-text-3);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.agents-app .ag-tab:hover { color: var(--ag-text); }
+.agents-app .ag-tab[aria-selected="true"] { color: var(--ag-text); }
+.agents-app .ag-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ag-accent);
+}
+.agents-app .ag-btn.is-small { height: 30px; padding: 0 10px; font-size: 12.5px; border-radius: 8px; }
+.agents-app .ag-new-chat { margin-left: auto; margin-bottom: 4px; }
+.agents-app .ag-btn:disabled { opacity: 0.45; cursor: default; }
+.agents-app .ag-btn.is-quiet:disabled:hover { background: transparent; color: var(--ag-text-2); }
+
+.agents-app .ag-thread { display: flex; flex-direction: column; gap: 12px; }
+.agents-app .ag-msg { display: flex; flex-direction: column; gap: 4px; }
+.agents-app .ag-msg[data-role="user"] { align-items: flex-end; }
+.agents-app .ag-msg[data-role="assistant"] { align-items: flex-start; }
+.agents-app .ag-msg-role { font-size: 11px; font-weight: 600; color: var(--ag-text-3); padding: 0 4px; }
+.agents-app .ag-msg .ag-bubble { max-width: 88%; }
+.agents-app button.ag-bubble {
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.agents-app button.ag-bubble:hover { filter: brightness(1.12); }
+.agents-app .ag-chat-sys {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 92%;
+  padding: 5px 11px;
+  border-radius: 100px;
+  background: var(--ag-accent-soft);
+  color: var(--ag-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.agents-app .ag-chat-sys svg { flex: none; }
+.agents-app .ag-chat-sys[data-tone="urgent"] { background: color-mix(in srgb, var(--ag-danger) 12%, transparent); color: var(--ag-danger); }
+.agents-app .ag-chat-notice {
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--ag-surface-2);
+  font-size: 12.5px;
+  color: var(--ag-text-2);
+  text-align: center;
+}
+.agents-app .ag-typing { display: inline-flex; align-items: center; gap: 4px; padding: 13px 14px; }
+.agents-app .ag-typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ag-text-3);
+  animation: ag-typing 1.1s ease-in-out infinite;
+}
+.agents-app .ag-typing i:nth-child(2) { animation-delay: 0.15s; }
+.agents-app .ag-typing i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes ag-typing {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+.agents-app .ag-panel-foot.is-composer { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 12px 12px; }
+.agents-app .ag-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.agents-app .ag-chip-row::-webkit-scrollbar { display: none; }
+.agents-app .ag-chip-row .ag-label { flex: none; margin-right: 2px; }
+.agents-app .ag-pill-chip {
+  flex: none;
+  padding: 6px 11px;
+  border-radius: 100px;
+  border: 1px solid var(--ag-border-strong);
+  background: var(--ag-surface);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ag-text-2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.agents-app .ag-pill-chip:hover:not(:disabled) { color: var(--ag-text); border-color: var(--ag-text-3); }
+.agents-app .ag-pill-chip.is-active { border-color: var(--ag-accent); background: var(--ag-accent-soft); color: var(--ag-text); }
+.agents-app .ag-pill-chip:disabled { opacity: 0.5; cursor: default; }
+.agents-app .ag-compose { display: flex; align-items: flex-end; gap: 8px; }
+.agents-app .ag-compose-input {
+  flex: 1;
+  min-height: 44px;
+  max-height: 132px;
+  padding: 11px 12px;
+  resize: none;
+  line-height: 1.45;
+  overflow-y: auto;
+}
+.agents-app .ag-compose-input:disabled { opacity: 0.55; }
+.agents-app .ag-send {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 12px;
+  background: var(--ag-accent);
+  color: var(--ag-on-accent);
+  cursor: pointer;
+  transition: filter 0.15s ease, opacity 0.15s ease;
+}
+.agents-app .ag-send:hover:not(:disabled) { filter: brightness(1.07); }
+.agents-app .ag-send:disabled { opacity: 0.4; cursor: default; }
+.agents-app .ag-compose-hint { margin: 0; font-size: 11.5px; color: var(--ag-text-3); min-height: 1.4em; }
+.agents-app .ag-compose-hint[data-tone="warn"] { color: var(--ag-danger); }
+
+.agents-app .ag-turns { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.agents-app .ag-turns .ag-label { margin-right: 4px; }
+.agents-app .ag-turn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--ag-border);
+  background: var(--ag-surface);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ag-text-2);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.agents-app .ag-turn[aria-pressed="true"] { border-color: var(--ag-accent); background: var(--ag-accent-soft); color: var(--ag-text); }
+.agents-app .ag-turn:disabled { opacity: 0.5; cursor: default; }
+
+.agents-app .ag-steplist { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.agents-app .ag-steplink {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--ag-border);
+  background: var(--ag-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.2s ease;
+}
+.agents-app .ag-steplink:hover { border-color: var(--ag-border-strong); background: var(--ag-surface-2); }
+.agents-app .ag-steplink > svg { flex: none; color: var(--ag-text-3); }
+.agents-app .ag-steplink-icon {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--ag-surface-2);
+  border: 1px solid var(--ag-border);
+}
+.agents-app .ag-steplink-label { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; }
+.agents-app .ag-steplink-cap { font-size: 12px; color: var(--ag-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
+.agents-app .ag-steplink[data-state="skipped"] { opacity: 0.5; }
+
+.agents-app .ag-reopen {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  z-index: 5;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--ag-text);
+  color: var(--ag-bg);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--ag-shadow-md);
+  cursor: pointer;
+}
+.agents-app .ag-reopen:hover { opacity: 0.88; }
+
+/* Conversation entries in the execution logs */
+.agents-app .ag-log.is-chat { cursor: default; }
+.agents-app .ag-log.is-chat:hover { background: var(--ag-surface); }
+.agents-app .ag-log-turns { margin-top: 2px; font-size: 12.5px; }
+.agents-app .ag-log-turns summary { cursor: pointer; color: var(--ag-text-2); font-weight: 500; }
+.agents-app .ag-log-turns summary:hover { color: var(--ag-text); }
+.agents-app .ag-log-turns ol { margin: 8px 0 2px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.agents-app .ag-log-turns li span { display: block; color: var(--ag-text); }
+.agents-app .ag-log-turns li em { display: block; font-style: normal; color: var(--ag-text-3); font-size: 12px; }
+.agents-app button.ag-log-replay {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.agents-app button.ag-log-replay:hover { text-decoration: underline; }
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 900px) {
   .agents-app .ag-cards,
@@ -1148,6 +1386,19 @@ html[data-theme="dark"] .agents-app {
   }
   .agents-app .ag-panel.is-sheet .ag-panel-head { padding-top: 8px; }
   .agents-app .ag-toast { bottom: calc(var(--ag-dock-space) + 12px); }
+
+  /* Chat: a fixed-height sheet so the running step stays visible above it,
+     with a tighter header and no status chip over that strip of canvas. */
+  .agents-app .ag-panel.is-sheet.is-chat { height: 62vh; height: 62dvh; max-height: none; }
+  .agents-app .ag-panel.is-sheet.is-chat .ag-panel-head { padding: 4px 8px 6px 14px; gap: 10px; }
+  .agents-app .ag-panel.is-sheet.is-chat .ag-panel-icon { display: none; }
+  .agents-app .ag-panel.is-sheet.is-chat .ag-panel-title { font-size: 15px; }
+  .agents-app:has(.ag-panel.is-sheet.is-chat:not([hidden])) .ag-status { display: none; }
+  .agents-app .ag-tabs { padding: 4px 8px 0 10px; }
+  .agents-app .ag-reopen { bottom: calc(var(--ag-dock-space) + 10px); left: auto; right: 16px; transform: none; }
+  .agents-app .ag-mini-node { width: 30px; height: 30px; border-radius: 9px; }
+  .agents-app .ag-mini-node svg { width: 14px; height: 14px; }
+  .agents-app .ag-mini-edge { width: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

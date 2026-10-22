@@ -3,6 +3,13 @@
    top bar, side panel (node details, trigger form, execution
    logs), run flow and the recorded-run fallback.
 
+   Two agent modes share everything here:
+   - single run: the trigger form starts one run; the output panel
+     opens when it finishes.
+   - chat (agent.mode === "chat"): the panel has Chat and Step
+     details tabs. Each visitor message is one run of the graph,
+     revealed node by node, then the next message starts fresh.
+
    Everything agent-specific comes from js/agents/registry.js and
    js/agents/samples.js; the graph is drawn by js/agents/canvas.js.
    Adding an agent never touches this file.
@@ -25,6 +32,13 @@
   const STEP_MS = 500;
   const MAX_INPUT = 2000;
   const LIVE_TIMEOUT_MS = 30000;
+  // Chat mode. Limits mirror api/agent.js so the visitor is told before
+  // the server would refuse.
+  const CHAT_STEP_MS = 400;
+  const MAX_CHAT_TURNS = 12;
+  const MAX_CHAT_MSG = 500;
+  const MAX_CHAT_TOTAL = 4000;
+  const isChat = (agent) => !!agent && agent.mode === "chat";
   const FALLBACK_NOTE = "Live demo is resting. Here's a recorded run.";
   const BASE_TITLE = "AI Business Agents | Russel Pineda";
 
@@ -44,6 +58,7 @@
     arrow: '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
     left: '<path d="m14 6-6 6 6 6"/>',
     right: '<path d="m10 6 6 6-6 6"/>',
+    send: '<path d="M12 19V5"/><path d="m6 11 6-6 6 6"/>',
   };
   Object.assign(AGENT_ICONS, UI);
 
@@ -69,7 +84,9 @@
   function loadLogs() {
     try {
       const list = JSON.parse(store.get(LOG_KEY) || "[]");
-      return Array.isArray(list) ? list.filter((l) => l && l.result && byId(l.agent)).slice(0, LOG_MAX) : [];
+      const validTurn = (t) => t && typeof t.user === "string" && t.result && typeof t.result.reply === "string";
+      const valid = (l) => l && byId(l.agent) && (l.kind === "chat" ? Array.isArray(l.turns) && l.turns.length > 0 && l.turns.every(validTurn) : !!l.result);
+      return Array.isArray(list) ? list.filter(valid).slice(0, LOG_MAX) : [];
     } catch (e) {
       return [];
     }
@@ -86,13 +103,18 @@
     playing: false,
     busy: false, // waiting on a live call
     runToken: 0,
-    started: false, // a run has played this visit (hides "Start here")
+    started: new Set(), // agents that have run this visit (hides their "Start here")
     panel: null, // { kind: "node", id } | { kind: "logs" }
     panelOpener: null,
     drafts: {}, // per agent, in memory only: { input, receivedAt }
     logs: loadLogs(),
     landingScroll: 0,
     status: null,
+    // Chat mode, in memory only: one conversation per chat agent.
+    chats: {},
+    chatDrafts: {},
+    chatToken: 0, // bumps on New conversation / replay, cancelling the old one
+    detailId: null, // last node shown in Step details
   };
 
   /* ---------------- Elements ---------------- */
@@ -107,6 +129,7 @@
     logsCount: $("#ag-logs-count"),
     viewport: $("#ag-canvas"),
     status: $("#ag-status"),
+    reopen: $("#ag-reopen"),
     dock: $("#ag-dock"),
     tooltip: $("#ag-tooltip"),
     panel: $("#ag-panel"),
@@ -278,6 +301,7 @@
     if (next === state.route) return;
     const prev = state.route;
     state.route = next;
+    if (isChat(byId(prev))) stopChat(byId(prev));
     closePanel({ restoreFocus: false });
     hideTip();
     if (agent) showAgent(agent, prev === "");
@@ -308,9 +332,13 @@
       state.run = null;
       setStatus(null);
       canvas.load(agent);
-      canvas.markStart(!state.started);
+      canvas.markStart(!state.started.has(agent.id));
+      if (isChat(agent)) showChatTurn(agent, chatFor(agent).viewTurn);
     }
-    requestAnimationFrame(() => canvas.fit());
+    // Chat agents open with the Chat tab, which stays put.
+    if (isChat(agent)) openPanel({ kind: "chat", tab: "chat", id: null });
+    updateReopen();
+    requestAnimationFrame(() => fitCanvas());
   }
 
   els.back.addEventListener("click", () => {
@@ -322,12 +350,15 @@
 
   /* ---------------- Canvas ---------------- */
   const canvas = new AgentCanvas(els.viewport, {
-    onNodeClick: (id) => openPanel({ kind: "node", id }),
+    onNodeClick: (id) => (isChat(state.agent) ? openChatNode(id) : openPanel({ kind: "node", id })),
     reducedMotion: () => mqReduce.matches,
     insets: () => {
       if (mqMobile.matches) {
         const dockTop = els.dock.getBoundingClientRect().top;
         const vpTop = els.viewport.getBoundingClientRect().top;
+        // A chat agent's sheet stays open over the canvas: frame above it.
+        const sheetTop = isChat(state.agent) && state.panel && !els.panel.hidden ? els.panel.getBoundingClientRect().top : Infinity;
+        if (sheetTop < dockTop) return { top: 24, left: 16, right: 16, bottom: els.viewport.clientHeight - Math.max(160, sheetTop - vpTop) + 12 };
         const visible = Math.max(200, dockTop - vpTop);
         return { top: 28, left: 16, right: 16, bottom: els.viewport.clientHeight - visible + 64 };
       }
@@ -338,12 +369,28 @@
 
   $("#ag-zoom-in").addEventListener("click", () => canvas.zoomBy(1.2));
   $("#ag-zoom-out").addEventListener("click", () => canvas.zoomBy(1 / 1.2));
-  $("#ag-zoom-fit").addEventListener("click", () => canvas.fit({ animate: true }));
+  $("#ag-zoom-fit").addEventListener("click", () => fitCanvas(true));
+  els.reopen.addEventListener("click", () => openPanel({ kind: "chat", tab: "chat", id: null }));
 
-  // A plain click on empty canvas closes the panel.
+  // A chat agent's panel stays open on desktop, so its flow keeps a
+  // readable scale and lines up from the first node; runs follow the
+  // active node. Single-run agents fit the whole flow, as before.
+  function fitCanvas(animate = false) {
+    const panelOpen = state.panel && !els.panel.hidden;
+    if (isChat(state.agent) && panelOpen && !mqMobile.matches) return canvas.fit({ animate, floorScale: 0.8 });
+    return canvas.fit({ animate });
+  }
+
+  function updateReopen() {
+    const panelOpen = state.panel && !els.panel.hidden;
+    els.reopen.hidden = !(isChat(state.agent) && !els.workspace.hidden && !panelOpen);
+  }
+
+  // A plain click on empty canvas closes the panel (not a chat agent's
+  // panel, which holds the conversation).
   els.viewport.addEventListener("click", (e) => {
     if (canvas.dragged || e.target.closest(".ag-node, .ag-canvas-ui")) return;
-    if (state.panel) closePanel();
+    if (state.panel && !isChat(state.agent)) closePanel();
   });
 
   let resizeTimer;
@@ -352,8 +399,8 @@
     resizeTimer = setTimeout(() => {
       if (!state.agent || els.workspace.hidden) return;
       const changed = canvas.setVertical(mqMobile.matches);
-      if (changed || !canvas.userMoved) canvas.fit();
       if (state.panel) positionPanelMode();
+      if (changed || !canvas.userMoved) fitCanvas();
     }, 120);
   });
 
@@ -371,6 +418,11 @@
   }
   function statusFor(run, replay) {
     const pre = replay ? "Replay · " : "";
+    if (run.chat) {
+      if (run.source === "fallback") return { kind: "resting", text: replay ? "Replay · Recorded conversation (live demo was resting)" : FALLBACK_NOTE };
+      if (run.source === "custom") return { kind: "live", text: `${pre}Live · turn ${run.turn} · ${fmtSecs(run.clientMs || run.ms)}` };
+      return { kind: "sample", text: `${pre}Recorded sample · turn ${run.turn}` };
+    }
     if (run.source === "fallback") return { kind: "resting", text: replay ? "Replay · Recorded run (live demo was resting)" : FALLBACK_NOTE };
     if (run.source === "custom") return { kind: "live", text: `${pre}Live run · ${fmtSecs(run.clientMs || run.ms)}` };
     return { kind: "sample", text: `${pre}Recorded sample run` };
@@ -382,22 +434,42 @@
     els.panel.classList.toggle("is-sheet", mqMobile.matches);
   }
 
+  const samePanel = (a, b) => !!a && !!b && a.kind === b.kind && (a.id || null) === (b.id || null) && (a.tab || null) === (b.tab || null);
+
   function openPanel(p) {
-    if (state.panel && state.panel.kind === p.kind && state.panel.id === p.id && !els.panel.hidden) return;
+    const wasOpen = !!state.panel && !els.panel.hidden;
+    if (wasOpen && samePanel(state.panel, p)) return;
+    const prevKind = wasOpen ? state.panel.kind : null;
     if (!state.panel) state.panelOpener = document.activeElement;
     state.panel = p;
+    if (p.kind === "chat" && p.tab === "details") state.detailId = p.id || null;
     positionPanelMode();
+    els.panel.classList.toggle("is-chat", p.kind === "chat");
     renderPanel();
     els.panel.hidden = false;
     requestAnimationFrame(() => els.panel.classList.add("is-open"));
-    canvas.select(p.kind === "node" ? p.id : null);
+    const selected = p.kind === "node" || (p.kind === "chat" && p.tab === "details") ? p.id || null : null;
+    canvas.select(selected);
     els.logsBtn.setAttribute("aria-expanded", p.kind === "logs" ? "true" : "false");
-    const focusTarget = $(".ag-panel-title", els.panel);
-    if (focusTarget) focusTarget.focus({ preventScroll: true });
-    // Desktop: if the visitor hasn't moved the canvas and the whole flow
-    // still reads well beside the panel, refit it there. Otherwise just
-    // bring the selected node into view.
+    updateReopen();
+    // Focus the heading when the panel opens or changes kind; switching
+    // chat tabs keeps focus on the tabs.
+    if (p.kind !== "chat" || prevKind !== "chat") {
+      const focusTarget = $(".ag-panel-title", els.panel);
+      if (focusTarget) focusTarget.focus({ preventScroll: true });
+    } else if (els.panel.contains(document.activeElement) || document.activeElement === document.body) {
+      const tab = $('.ag-tab[aria-selected="true"]', els.panel);
+      if (tab) tab.focus({ preventScroll: true });
+    }
     requestAnimationFrame(() => {
+      if (isChat(state.agent)) {
+        if (!wasOpen && !mqMobile.matches && !canvas.userMoved) fitCanvas(true);
+        else if (selected) canvas.ensureVisible(selected, revealInsets());
+        return;
+      }
+      // Desktop: if the visitor hasn't moved the canvas and the whole flow
+      // still reads well beside the panel, refit it there. Otherwise just
+      // bring the selected node into view.
       const refit = !mqMobile.matches && !canvas.userMoved && canvas.fit({ animate: true, minScale: 0.8 });
       if (!refit && p.kind === "node") canvas.ensureVisible(p.id, revealInsets());
     });
@@ -419,7 +491,8 @@
     els.logsBtn.setAttribute("aria-expanded", "false");
     els.panel.classList.remove("is-open");
     els.panel.hidden = true;
-    if (!mqMobile.matches && !canvas.userMoved && !els.workspace.hidden) requestAnimationFrame(() => canvas.fit({ animate: true }));
+    updateReopen();
+    if (!mqMobile.matches && !canvas.userMoved && !els.workspace.hidden) requestAnimationFrame(() => fitCanvas(true));
     const opener = state.panelOpener;
     state.panelOpener = null;
     if (restoreFocus && hadFocus && opener && document.contains(opener)) {
@@ -427,7 +500,7 @@
     }
   }
 
-  function panelShell({ icon, kind, title, body, footer }) {
+  function panelShell({ icon, kind, title, body, footer, tabs = "", footClass = "" }) {
     return `
       <div class="ag-panel-grip" aria-hidden="true"></div>
       <header class="ag-panel-head">
@@ -438,17 +511,20 @@
         </div>
         <button type="button" class="ag-icon-btn ag-panel-close" aria-label="Close panel">${agentIcon("close", 20)}</button>
       </header>
+      ${tabs}
       <div class="ag-panel-body">${body}</div>
-      ${footer ? `<footer class="ag-panel-foot">${footer}</footer>` : ""}`;
+      ${footer ? `<footer class="ag-panel-foot${footClass ? ` ${footClass}` : ""}">${footer}</footer>` : ""}`;
   }
 
   function renderPanel() {
     const p = state.panel;
     if (!p) return;
     const scroll = $(".ag-panel-body", els.panel);
-    const keepScroll = scroll && els.panel.dataset.for === `${p.kind}:${p.id || ""}` ? scroll.scrollTop : 0;
-    els.panel.dataset.for = `${p.kind}:${p.id || ""}`;
+    const key = p.kind === "chat" ? `chat:${p.tab}:${p.id || ""}` : `${p.kind}:${p.id || ""}`;
+    const keepScroll = scroll && els.panel.dataset.for === key ? scroll.scrollTop : 0;
+    els.panel.dataset.for = key;
     if (p.kind === "logs") els.panel.innerHTML = logsPanel();
+    else if (p.kind === "chat") els.panel.innerHTML = chatPanel(state.agent, p);
     else {
       const def = state.agent && state.agent.nodes.find((n) => n.id === p.id);
       if (!def) return closePanel();
@@ -457,14 +533,30 @@
     const body = $(".ag-panel-body", els.panel);
     if (body) body.scrollTop = keepScroll;
     if (p.kind === "node") bindTrigger();
+    if (p.kind === "chat" && p.tab === "chat") {
+      bindComposer();
+      scrollThread(false);
+    }
   }
 
   els.panel.addEventListener("click", (e) => {
-    if (e.target.closest(".ag-panel-close")) return closePanel();
+    if (e.target.closest(".ag-panel-close")) return dismissPanel();
     const step = e.target.closest("[data-goto]");
     if (step) return openPanelStep(step.dataset.goto);
     const log = e.target.closest("[data-log]");
     if (log) return replayLog(log.dataset.log);
+    const tab = e.target.closest("[data-tab]");
+    if (tab) return openPanel({ kind: "chat", tab: tab.dataset.tab, id: tab.dataset.tab === "details" ? state.detailId : null });
+    if (e.target.closest("#ag-new-chat")) return newConversation();
+    const sample = e.target.closest("[data-chat-sample]");
+    if (sample) return playChatSample(sample.dataset.chatSample);
+    const turn = e.target.closest("[data-view-turn]");
+    if (turn) return viewTurn(Number(turn.dataset.viewTurn));
+    const bubble = e.target.closest("[data-turn]");
+    if (bubble) {
+      viewTurn(Number(bubble.dataset.turn));
+      return openPanel({ kind: "chat", tab: "details", id: state.detailId });
+    }
     if (e.target.closest("#ag-clear-logs")) {
       state.logs = [];
       store.remove(LOG_KEY);
@@ -474,9 +566,30 @@
   });
   function openPanelStep(id) {
     const opener = state.panelOpener;
+    if (isChat(state.agent)) {
+      openChatNode(id);
+      state.panelOpener = opener;
+      return;
+    }
     state.panel = null; // force a re-render even if the same kind
     openPanel({ kind: "node", id });
     state.panelOpener = opener;
+  }
+
+  // Chat agents: the trigger is the Chat tab; any other node is Step details.
+  function openChatNode(id) {
+    const def = state.agent.nodes.find((n) => n.id === id);
+    if (!def || def.type === "trigger") return openPanel({ kind: "chat", tab: "chat", id: null });
+    openPanel({ kind: "chat", tab: "details", id });
+  }
+
+  // x, Esc and the logs toggle: a chat agent goes back to its chat from
+  // the logs; everything else closes.
+  function dismissPanel() {
+    if (state.panel && state.panel.kind === "logs" && isChat(state.agent) && !els.workspace.hidden) {
+      return openPanel({ kind: "chat", tab: "chat", id: null });
+    }
+    closePanel();
   }
 
   document.addEventListener("keydown", (e) => {
@@ -484,12 +597,12 @@
     hideTip();
     if (state.panel) {
       e.preventDefault();
-      closePanel();
+      dismissPanel();
     }
   });
 
   els.logsBtn.addEventListener("click", () => {
-    if (state.panel && state.panel.kind === "logs") closePanel();
+    if (state.panel && state.panel.kind === "logs") dismissPanel();
     else openPanel({ kind: "logs" });
   });
 
@@ -508,12 +621,20 @@
   }
 
   function nodePanel(agent, def) {
+    return panelShell({ icon: def.icon, kind: KIND[def.type] || "Step", title: def.label, body: nodeBody(agent, def), footer: stepNav(agent, def) });
+  }
+
+  // What a step did on the run shown on the canvas (shared by the
+  // single-run panel and a chat agent's Step details tab).
+  function nodeBody(agent, def) {
     const node = canvas.nodes.get(def.id);
     const nodeState = node ? node.el.dataset.state : "idle";
     const trigger = agent.nodes.find((n) => n.type === "trigger");
     let body = `<p class="ag-about">${esc(def.about)}</p>`;
     if (!state.run && !state.busy) {
-      body += `<div class="ag-empty"><p>Run the agent to see what this step produces.</p><button type="button" class="ag-btn" data-goto="${trigger.id}">Open ${esc(trigger.label)}</button></div>`;
+      body += isChat(agent)
+        ? `<div class="ag-empty"><p>Send a message or play a sample to see what this step does.</p><button type="button" class="ag-btn" data-goto="${trigger.id}">Open chat</button></div>`
+        : `<div class="ag-empty"><p>Run the agent to see what this step produces.</p><button type="button" class="ag-btn" data-goto="${trigger.id}">Open ${esc(trigger.label)}</button></div>`;
     } else if (nodeState === "error") {
       body += `<div class="ag-empty"><p>This step couldn't finish on this run.</p></div>`;
     } else if (nodeState === "skipped") {
@@ -528,7 +649,7 @@
       try { blocks = def.view(state.run) || []; } catch (e) { blocks = [{ type: "note", body: "This step has nothing to show for this run." }]; }
       body += blocks.map(renderBlock).join("");
     }
-    return panelShell({ icon: def.icon, kind: KIND[def.type] || "Step", title: def.label, body, footer: stepNav(agent, def) });
+    return body;
   }
 
   /* ---------------- Blocks ---------------- */
@@ -588,6 +709,18 @@
           .join("")}</dl>
         ${isEmpty(b.tags) ? "" : `<div class="ag-tags">${b.tags.map((t) => `<span>${esc(t)}</span>`).join("")}</div>`}
         <div class="ag-next"><span>Next action</span><p>${esc(b.nextAction)}</p></div>
+      </div>`,
+    request: (b) => `${title(b.title)}
+      <div class="ag-crm">
+        <div class="ag-crm-head">
+          <span class="ag-avatar is-lg">${esc(initials(b.name))}</span>
+          <div class="ag-crm-id"><strong>${esc(b.name)}</strong></div>
+          <span class="ag-stage">${esc(b.status)}</span>
+        </div>
+        <dl class="ag-kv is-compact">${b.rows
+          .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd${isEmpty(v) ? ' class="is-empty"' : ""}>${esc(isEmpty(v) ? "Not given" : v)}</dd></div>`)
+          .join("")}</dl>
+        ${b.summary ? `<div class="ag-next"><span>For the front desk</span><p>${esc(b.summary)}</p></div>` : ""}
       </div>`,
   };
   const renderBlock = (b) => `<section class="ag-block" data-block="${esc(b.type)}">${(BLOCKS[b.type] || (() => ""))(b)}</section>`;
@@ -784,7 +917,7 @@
     // Live call: one request returns the whole result, then the nodes reveal.
     state.busy = true;
     state.run = null;
-    state.started = true;
+    state.started.add(agent.id);
     closePanel({ restoreFocus: false });
     canvas.reset();
     canvas.markStart(false);
@@ -821,7 +954,7 @@
     if (!agent) return;
     if (state.route !== agent.id) go(agent.id);
     state.run = run;
-    state.started = true;
+    state.started.add(agent.id);
     canvas.markStart(false);
     closePanel({ restoreFocus: false });
     const plan = AgentCanvas.plan(agent, run);
@@ -840,6 +973,522 @@
     if (output) openPanel({ kind: "node", id: output.id });
   }
 
+  /* ---------------- Chat mode ---------------- */
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const newId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+  function newChat(agent, opts = {}) {
+    return {
+      id: newId(),
+      agent: agent.id,
+      startedAt: new Date().toISOString(),
+      turns: [], // { user, result, received, ms, clientMs, source, shownNotes, shownReply }
+      source: opts.source || "custom",
+      sampleId: opts.sampleId || null,
+      sampleLabel: opts.sampleLabel || null,
+      notice: opts.notice || null, // quiet line at the top of the thread
+      limit: null, // set when the demo limits are reached
+      pending: null, // the visitor's message while the live call runs
+      typing: false,
+      busy: false,
+      replaying: false,
+      viewTurn: -1,
+      logId: null,
+    };
+  }
+  const chatFor = (agent) => state.chats[agent.id] || (state.chats[agent.id] = newChat(agent));
+  const triggerOf = (agent) => agent.nodes.find((n) => n.type === "trigger");
+
+  function chatRun(agent, chat, i) {
+    const t = chat.turns[i];
+    return {
+      agent: agent.id,
+      chat: true,
+      source: t.source || chat.source,
+      turn: i + 1,
+      input: t.user,
+      result: t.result,
+      received: t.received,
+      ms: t.ms,
+      clientMs: t.clientMs,
+      triggerCaption: `Turn ${i + 1}`,
+    };
+  }
+
+  // Panel: Chat tab (thread + composer) and Step details tab.
+  function chatPanel(agent, p) {
+    const chat = chatFor(agent);
+    const tabs = `
+      <div class="ag-tabs" role="tablist" aria-label="Panel">
+        <button type="button" role="tab" class="ag-tab" data-tab="chat" aria-selected="${p.tab === "chat"}">Chat</button>
+        <button type="button" role="tab" class="ag-tab" data-tab="details" aria-selected="${p.tab === "details"}">Step details</button>
+        <button type="button" class="ag-btn is-quiet is-small ag-new-chat" id="ag-new-chat"${chat.turns.length || chat.pending ? "" : " disabled"}>New conversation</button>
+      </div>`;
+    if (p.tab === "chat") {
+      return panelShell({
+        icon: agent.icon,
+        kind: agent.business,
+        title: "Chat",
+        tabs,
+        body: `<div class="ag-thread" id="ag-thread">${threadHtml(agent, chat)}</div>`,
+        footer: composerHtml(agent),
+        footClass: "is-composer",
+      });
+    }
+    const def = p.id ? agent.nodes.find((n) => n.id === p.id) : null;
+    const body = turnSwitcher(chat) + (def ? nodeBody(agent, def) : stepList(agent));
+    return panelShell({
+      icon: def ? def.icon : "sparkle",
+      kind: def ? KIND[def.type] || "Step" : "Step details",
+      title: def ? def.label : "All steps",
+      tabs,
+      body,
+      footer: def ? stepNav(agent, def) : "",
+    });
+  }
+
+  function msgHtml(role, label, text, turnIndex) {
+    const bubble =
+      turnIndex != null
+        ? `<button type="button" class="ag-bubble is-out" data-turn="${turnIndex}" title="See this turn's steps">${esc(text)}</button>`
+        : `<div class="ag-bubble ${role === "user" ? "is-out" : "is-in"}">${esc(text)}</div>`;
+    return `<div class="ag-msg" data-role="${role}"><span class="ag-msg-role">${esc(label)}</span>${bubble}</div>`;
+  }
+
+  function threadHtml(agent, chat) {
+    const roles = agent.chat.roles;
+    const out = [];
+    if (chat.notice) out.push(`<p class="ag-chat-notice">${esc(chat.notice)}</p>`);
+    out.push(msgHtml("assistant", roles.assistant, agent.chat.greeting));
+    chat.turns.forEach((t, i) => {
+      out.push(msgHtml("user", roles.user, t.user, i));
+      if (t.shownNotes !== false) {
+        for (const n of agent.chat.notes(t.result) || []) {
+          out.push(`<div class="ag-chat-sys" data-tone="${esc(n.tone)}">${agentIcon("stethoscope", 14)}<span>${esc(n.text)}</span></div>`);
+        }
+      }
+      if (t.shownReply !== false) out.push(msgHtml("assistant", roles.assistant, t.result.reply));
+    });
+    if (chat.pending) out.push(msgHtml("user", roles.user, chat.pending));
+    if (chat.typing) {
+      out.push(`<div class="ag-msg" data-role="assistant"><span class="ag-msg-role">${esc(roles.assistant)}</span><div class="ag-bubble is-in ag-typing" role="status" aria-label="${esc(roles.assistant)} is typing"><i></i><i></i><i></i></div></div>`);
+    }
+    if (chat.limit) out.push(`<p class="ag-chat-notice">${esc(chat.limit)}</p>`);
+    return out.join("");
+  }
+
+  function composerHtml(agent) {
+    const chips = samplesFor(agent)
+      .map((s) => `<button type="button" class="ag-pill-chip" data-chat-sample="${esc(s.id)}" title="${esc(s.turns[0].user)}">${esc(s.label)}</button>`)
+      .join("");
+    return `
+      <div class="ag-chip-row" role="group" aria-label="Sample conversations"><span class="ag-label">Samples</span>${chips}</div>
+      <div class="ag-compose">
+        <textarea class="ag-input ag-compose-input" id="ag-chat-input" rows="1" maxlength="${MAX_CHAT_MSG}" placeholder="${esc(agent.chat.placeholder)}" aria-label="Message"></textarea>
+        <button type="button" class="ag-send" id="ag-send" aria-label="Send message">${agentIcon("send", 18)}</button>
+      </div>
+      <p class="ag-compose-hint" id="ag-chat-hint"></p>`;
+  }
+
+  function turnSwitcher(chat) {
+    if (!chat.turns.length) return "";
+    const buttons = chat.turns
+      .map((t, i) => `<button type="button" class="ag-turn" data-view-turn="${i}" aria-pressed="${i === chat.viewTurn}"${chat.busy ? " disabled" : ""}>${i + 1}</button>`)
+      .join("");
+    return `<div class="ag-turns" role="group" aria-label="Turn"><span class="ag-label">Turn</span>${buttons}</div>`;
+  }
+
+  function stepList(agent) {
+    const items = nodeOrder(agent)
+      .filter((n) => n.type !== "trigger")
+      .map((n) => {
+        const node = canvas.nodes.get(n.id);
+        const st = node ? node.el.dataset.state : "idle";
+        const caption = node ? node.el.querySelector(".ag-node-caption").textContent : "";
+        return `<li><button type="button" class="ag-steplink" data-goto="${n.id}" data-state="${st}">
+          <span class="ag-steplink-icon">${agentIcon(n.icon, 16)}</span>
+          <span class="ag-steplink-label">${esc(n.label)}</span>
+          <span class="ag-steplink-cap">${esc(st === "skipped" ? "Skipped" : caption)}</span>
+          ${agentIcon("right", 14)}
+        </button></li>`;
+      })
+      .join("");
+    const intro = state.run ? "Pick a step to see what it did on this turn." : "Send a message or play a sample, then pick a step to see what it did.";
+    return `<p class="ag-about">${intro}</p><ul class="ag-steplist">${items}</ul>`;
+  }
+
+  const detailsOpen = () => state.panel && state.panel.kind === "chat" && state.panel.tab === "details" && !els.panel.hidden;
+  const chatTabOpen = () => state.panel && state.panel.kind === "chat" && state.panel.tab === "chat" && !els.panel.hidden;
+
+  function scrollThread(smooth) {
+    const body = $(".ag-panel-body", els.panel);
+    if (!body) return;
+    body.scrollTo({ top: body.scrollHeight, behavior: smooth && !mqReduce.matches ? "smooth" : "auto" });
+  }
+
+  // Partial updates while a conversation runs, so the composer keeps
+  // its text and focus.
+  function renderThread() {
+    if (!chatTabOpen()) return;
+    const el = $("#ag-thread", els.panel);
+    if (!el) return;
+    el.innerHTML = threadHtml(state.agent, chatFor(state.agent));
+    const fresh = $("#ag-new-chat", els.panel);
+    const chat = chatFor(state.agent);
+    if (fresh) fresh.disabled = !(chat.turns.length || chat.pending);
+    scrollThread(true);
+  }
+  function refreshDetails() {
+    if (detailsOpen()) renderPanel();
+  }
+
+  const chatTotal = (chat) => chat.turns.reduce((n, t) => n + t.user.length + t.result.reply.length, 0);
+  function limitMessage(chat, text) {
+    if (chat.turns.length >= MAX_CHAT_TURNS) return `This demo chat stops at ${MAX_CHAT_TURNS} messages. Start a new conversation to keep going.`;
+    if (chatTotal(chat) + text.trim().length > MAX_CHAT_TOTAL) return "This demo chat has reached its length limit. Start a new conversation to keep going.";
+    return null;
+  }
+
+  function autoGrow(el) {
+    el.style.height = "auto";
+    const borders = el.offsetHeight - el.clientHeight;
+    el.style.height = `${Math.min(el.scrollHeight + borders, 132)}px`;
+  }
+
+  function bindComposer() {
+    const agent = state.agent;
+    const input = $("#ag-chat-input", els.panel);
+    if (!input) return;
+    input.value = state.chatDrafts[agent.id] || "";
+    autoGrow(input);
+    input.addEventListener("input", () => {
+      state.chatDrafts[agent.id] = input.value.slice(0, MAX_CHAT_MSG);
+      autoGrow(input);
+      updateComposer();
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+        e.preventDefault();
+        submitChat();
+      }
+    });
+    $("#ag-send", els.panel).addEventListener("click", submitChat);
+    updateComposer();
+  }
+
+  function updateComposer() {
+    if (!chatTabOpen()) return;
+    const agent = state.agent;
+    const chat = chatFor(agent);
+    const input = $("#ag-chat-input", els.panel);
+    if (!input) return;
+    const text = state.chatDrafts[agent.id] || "";
+    const limit = limitMessage(chat, text);
+    const full = chat.turns.length >= MAX_CHAT_TURNS;
+    input.disabled = full;
+    $("#ag-send", els.panel).disabled = chat.busy || !text.trim() || !!limit;
+    els.panel.querySelectorAll("[data-chat-sample]").forEach((b) => {
+      b.disabled = chat.busy;
+      b.classList.toggle("is-active", chat.source === "sample" && chat.sampleId === b.dataset.chatSample);
+    });
+    const hint = $("#ag-chat-hint", els.panel);
+    hint.textContent = chat.replaying
+      ? "Playing a recorded conversation, no live calls."
+      : chat.busy
+      ? "The front desk is replying…"
+      : limit
+      ? limit
+      : text.length > MAX_CHAT_MSG - 100
+      ? `${text.length} / ${MAX_CHAT_MSG} characters`
+      : "Enter to send, Shift+Enter for a new line.";
+    hint.dataset.tone = limit && text.trim() ? "warn" : "";
+  }
+
+  function refreshChatPanel() {
+    if (chatTabOpen()) {
+      renderThread();
+      updateComposer();
+    }
+  }
+
+  async function callLiveChat(agent, messages) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), LIVE_TIMEOUT_MS);
+    const t0 = performance.now();
+    try {
+      const res = await fetch("/api/agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agent: agent.id, messages }),
+        signal: ctrl.signal,
+      });
+      if (res.status === 400) {
+        const d = await res.json().catch(() => ({}));
+        if (d.error === "limit" || d.error === "too-long") {
+          const err = new Error("limit");
+          err.limit = true;
+          throw err;
+        }
+      }
+      if (!res.ok) throw new Error("resting");
+      const data = await res.json();
+      if (!data || !data.result || !data.received) throw new Error("resting");
+      return Object.assign(data, { clientMs: Math.round(performance.now() - t0) });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  // Plays one turn on the canvas; the thread shows the hand-off note and
+  // the reply as their nodes finish. Then the canvas holds until the
+  // next message resets it.
+  async function playTurn(agent, chat, i, { replay = false } = {}) {
+    const t = chat.turns[i];
+    chat.viewTurn = i;
+    chat.typing = t.shownReply === false;
+    const run = chatRun(agent, chat, i);
+    state.run = run;
+    state.started.add(agent.id);
+    canvas.markStart(false);
+    setStatus(statusFor(run, replay));
+    renderThread();
+    refreshDetails();
+    const noteNodes = new Set((agent.chat.notes(t.result) || []).map((n) => n.node));
+    state.playing = true;
+    const done = await canvas.play(AgentCanvas.plan(agent, run), {
+      stepMs: CHAT_STEP_MS,
+      instant: mqReduce.matches,
+      follow: true,
+      onStep: (id) => {
+        if (state.chats[agent.id] !== chat) return;
+        let changed = false;
+        if (noteNodes.has(id) && t.shownNotes === false) {
+          t.shownNotes = true;
+          changed = true;
+        }
+        if (id === agent.chat.replyNode) {
+          t.shownNotes = true;
+          t.shownReply = true;
+          chat.typing = false;
+          changed = true;
+        }
+        if (changed) renderThread();
+        // Step details follows along: the open step, or the step list.
+        if (detailsOpen() && (state.panel.id === id || !state.panel.id)) renderPanel();
+      },
+    });
+    state.playing = false;
+    t.shownNotes = true;
+    t.shownReply = true;
+    chat.typing = false;
+    if (state.chats[agent.id] === chat) {
+      renderThread();
+      refreshDetails();
+    }
+    return done;
+  }
+
+  async function submitChat() {
+    const agent = state.agent;
+    if (!isChat(agent)) return;
+    const chat = chatFor(agent);
+    const text = (state.chatDrafts[agent.id] || "").trim();
+    if (!text || chat.busy) return;
+    if (limitMessage(chat, text)) return updateComposer();
+    const input = $("#ag-chat-input", els.panel);
+    const hadFocus = input && document.activeElement === input;
+    state.chatDrafts[agent.id] = "";
+    if (input) {
+      input.value = "";
+      autoGrow(input);
+    }
+    const token = state.chatToken;
+    // Typing after a sample keeps the conversation going live.
+    chat.source = "custom";
+    chat.limit = null;
+    chat.busy = true;
+    chat.pending = text;
+    chat.typing = true;
+    state.busy = true;
+    state.run = null;
+    state.started.add(agent.id);
+    canvas.markStart(false);
+    canvas.reset();
+    canvas.setNode(triggerOf(agent).id, "running", `Turn ${chat.turns.length + 1}`);
+    setStatus({ kind: "pending", text: `Running live · turn ${chat.turns.length + 1}…` });
+    refreshChatPanel();
+    refreshDetails();
+
+    const messages = [];
+    chat.turns.forEach((t) => messages.push({ role: "user", text: t.user }, { role: "assistant", text: t.result.reply }));
+    messages.push({ role: "user", text });
+
+    let data = null;
+    let failure = null;
+    try {
+      data = await callLiveChat(agent, messages);
+    } catch (e) {
+      failure = e;
+    }
+    state.busy = false;
+    if (token !== state.chatToken || state.chats[agent.id] !== chat) return; // a new conversation started meanwhile
+
+    if (!data) {
+      chat.pending = null;
+      chat.typing = false;
+      chat.busy = false;
+      if (failure && failure.limit) {
+        chat.limit = "This demo chat has reached its limit. Start a new conversation to keep going.";
+        canvas.reset();
+        setStatus(null);
+        refreshChatPanel();
+        return;
+      }
+      // Live demo resting: play the recorded conversation that starts most like this one.
+      const sample = closestConversation(agent, chat.turns.length ? chat.turns[0].user : text);
+      if (!sample) {
+        chat.limit = FALLBACK_NOTE;
+        canvas.reset();
+        setStatus({ kind: "resting", text: FALLBACK_NOTE });
+        refreshChatPanel();
+        return;
+      }
+      return playConversation(agent, sampleTurns(sample, "fallback"), {
+        source: "fallback",
+        sampleId: sample.id,
+        sampleLabel: sample.label,
+        notice: FALLBACK_NOTE,
+        log: true,
+      });
+    }
+
+    chat.pending = null;
+    chat.turns.push({ user: text, result: data.result, received: data.received, ms: data.ms, clientMs: data.clientMs, source: "custom", shownNotes: false, shownReply: false });
+    saveChatLog(agent, chat);
+    await playTurn(agent, chat, chat.turns.length - 1);
+    if (state.chats[agent.id] !== chat) return;
+    chat.busy = false;
+    updateComposer();
+    const again = $("#ag-chat-input", els.panel);
+    if (hadFocus && again) again.focus({ preventScroll: true });
+  }
+
+  const sampleTurns = (sample, source) =>
+    sample.turns.map((t) => ({ user: t.user, result: t.recorded.result, received: t.recorded.received, ms: t.recorded.ms, source }));
+
+  // Chat fallback: compare the visitor's opening message with each
+  // recording's label and patient messages, on rough word stems, so
+  // "child dental benefits" still finds "Child's cleaning cover".
+  const stem = (w) => (w.length > 4 ? w.replace(/'s$/, "").replace(/(ing|ed|es|s)$/, "") : w.replace(/'s$/, ""));
+  const stems = (t) => new Set([...words(t)].map(stem));
+  function closestConversation(agent, text) {
+    const list = samplesFor(agent);
+    const a = stems(text);
+    let best = list[0];
+    let bestScore = -1;
+    for (const s of list) {
+      const b = stems(`${s.label} ${s.turns.map((t) => t.user).join(" ")}`);
+      let common = 0;
+      for (const w of a) if (b.has(w)) common++;
+      const score = a.size && b.size ? common / Math.sqrt(a.size * b.size) : 0;
+      if (score > bestScore) {
+        best = s;
+        bestScore = score;
+      }
+    }
+    return best;
+  }
+
+  function playChatSample(id) {
+    const agent = state.agent;
+    const sample = samplesFor(agent).find((x) => x.id === id);
+    if (!sample || chatFor(agent).busy) return;
+    playConversation(agent, sampleTurns(sample, "sample"), { source: "sample", sampleId: sample.id, sampleLabel: sample.label, log: true });
+  }
+
+  // Replays a whole conversation turn by turn (samples, the resting
+  // fallback and log replays). No network calls.
+  async function playConversation(agent, turns, opts = {}) {
+    if (state.route !== agent.id) go(agent.id);
+    const token = ++state.chatToken;
+    canvas.reset();
+    const chat = newChat(agent, opts);
+    chat.busy = true;
+    chat.replaying = true;
+    state.chats[agent.id] = chat;
+    state.run = null;
+    if (opts.log) {
+      chat.logId = newId();
+      logConversation(agent, chat, turns);
+    }
+    if (chatTabOpen()) renderPanel();
+    else openPanel({ kind: "chat", tab: "chat", id: null });
+    const instant = mqReduce.matches;
+    for (let i = 0; i < turns.length; i++) {
+      if (token !== state.chatToken) return;
+      chat.turns.push(Object.assign({}, turns[i], { shownNotes: false, shownReply: false }));
+      chat.typing = true;
+      renderThread();
+      await wait(instant ? 0 : 500);
+      if (token !== state.chatToken) return;
+      const done = await playTurn(agent, chat, i, { replay: !!opts.replay });
+      if (!done || token !== state.chatToken) return;
+      if (i < turns.length - 1) await wait(instant ? 0 : 900);
+    }
+    chat.busy = false;
+    chat.replaying = false;
+    updateComposer();
+    refreshDetails();
+  }
+
+  // Step details: show any earlier turn on the canvas, instantly.
+  function viewTurn(i) {
+    const agent = state.agent;
+    const chat = chatFor(agent);
+    if (chat.busy || !chat.turns[i]) return;
+    showChatTurn(agent, i);
+    refreshDetails();
+  }
+  function showChatTurn(agent, i) {
+    const chat = chatFor(agent);
+    if (chat.busy || !chat.turns.length) return;
+    const idx = i >= 0 && i < chat.turns.length ? i : chat.turns.length - 1;
+    chat.viewTurn = idx;
+    state.run = chatRun(agent, chat, idx);
+    setStatus(statusFor(state.run, false));
+    canvas.play(AgentCanvas.plan(agent, state.run), { instant: true });
+  }
+
+  function newConversation() {
+    const agent = state.agent;
+    if (!isChat(agent)) return;
+    state.chatToken++;
+    state.chats[agent.id] = newChat(agent);
+    state.run = null;
+    state.busy = false;
+    canvas.reset();
+    canvas.markStart(false);
+    setStatus(null);
+    if (state.panel && state.panel.kind === "chat") renderPanel();
+  }
+
+  // Leaving a chat agent mid-turn: stop it cleanly. A live reply that
+  // arrives later is ignored, and the thread keeps what was shown.
+  function stopChat(agent) {
+    const chat = state.chats[agent.id];
+    if (!chat || !chat.busy) return;
+    state.chatToken++;
+    state.busy = false;
+    chat.busy = false;
+    chat.replaying = false;
+    chat.typing = false;
+    chat.pending = null;
+    chat.turns.forEach((t) => {
+      t.shownNotes = true;
+      t.shownReply = true;
+    });
+  }
+
   /* ---------------- Execution logs ---------------- */
   function addLog(run) {
     const entry = Object.assign({ id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, at: new Date().toISOString() }, run);
@@ -849,6 +1498,42 @@
     updateLogsCount();
     if (state.panel && state.panel.kind === "logs") renderPanel();
   }
+  // Chat agents: one entry per conversation, updated as turns land.
+  const logTurn = ({ user, result, received, ms, clientMs, source }) => ({ user, result, received, ms, clientMs, source });
+  function upsertLog(entry) {
+    state.logs = [entry, ...state.logs.filter((l) => l.id !== entry.id)].slice(0, LOG_MAX);
+    saveLogs();
+    updateLogsCount();
+    if (state.panel && state.panel.kind === "logs") renderPanel();
+  }
+  function logConversation(agent, chat, turns) {
+    upsertLog({
+      id: chat.logId,
+      at: chat.startedAt,
+      agent: agent.id,
+      kind: "chat",
+      source: chat.source,
+      sampleId: chat.sampleId,
+      sampleLabel: chat.sampleLabel,
+      turns: turns.map(logTurn),
+    });
+  }
+  function saveChatLog(agent, chat) {
+    if (!chat.logId) chat.logId = newId();
+    const prior = state.logs.find((l) => l.id === chat.logId);
+    upsertLog({
+      id: chat.logId,
+      at: chat.startedAt,
+      agent: agent.id,
+      kind: "chat",
+      source: "custom",
+      sampleId: chat.sampleId,
+      sampleLabel: chat.sampleLabel,
+      continued: !!(prior && prior.source !== "custom") || !!(prior && prior.continued),
+      turns: chat.turns.filter((t) => t.result).map(logTurn),
+    });
+  }
+
   function updateLogsCount() {
     const n = state.logs.length;
     els.logsCount.textContent = n ? String(n) : "";
@@ -860,13 +1545,39 @@
     const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
     return d.toDateString() === new Date().toDateString() ? `Today, ${time}` : `${d.toLocaleDateString([], { day: "numeric", month: "short" })}, ${time}`;
   }
-  const sourceLabel = (l) =>
-    l.source === "custom" ? `Custom · ${fmtSecs(l.clientMs || l.ms)}` : l.source === "fallback" ? "Custom · recorded fallback" : `Sample · ${l.sampleLabel || ""}`;
+  const sourceLabel = (l) => {
+    if (l.kind === "chat") {
+      if (l.source === "custom") return l.continued ? `Custom · continued from ${l.sampleLabel || "a recording"}` : "Custom";
+      return l.source === "fallback" ? "Custom · recorded fallback" : `Sample · ${l.sampleLabel || ""}`;
+    }
+    return l.source === "custom" ? `Custom · ${fmtSecs(l.clientMs || l.ms)}` : l.source === "fallback" ? "Custom · recorded fallback" : `Sample · ${l.sampleLabel || ""}`;
+  };
+  const clip = (t, n) => (t.length > n ? `${t.slice(0, n - 1).trim()}…` : t);
+
+  function chatLogRow(l, agent) {
+    let summary = "";
+    try { summary = agent.summarizeConversation(l.turns); } catch (e) { summary = ""; }
+    const turns = l.turns
+      .map((t) => {
+        let s2 = "";
+        try { s2 = agent.summarize(t.result); } catch (e) { s2 = ""; }
+        return `<li><span>${esc(clip(t.user, 90))}</span><em>${esc(s2)}</em></li>`;
+      })
+      .join("");
+    return `<li><div class="ag-log is-chat">
+      <span class="ag-log-top"><span class="ag-log-time">${esc(fmtLogTime(l.at))}</span><span class="ag-log-src" data-source="${esc(l.source)}">${esc(sourceLabel(l))}</span></span>
+      <span class="ag-log-agent">${esc(agent.name)}</span>
+      <span class="ag-log-sum">${esc(summary)}</span>
+      <details class="ag-log-turns"><summary>Show ${l.turns.length} turn${l.turns.length === 1 ? "" : "s"}</summary><ol>${turns}</ol></details>
+      <button type="button" class="ag-log-replay" data-log="${esc(l.id)}">${agentIcon("play", 14)} Replay conversation</button>
+    </div></li>`;
+  }
 
   function logsPanel() {
     const rows = state.logs
       .map((l) => {
         const agent = byId(l.agent);
+        if (l.kind === "chat") return chatLogRow(l, agent);
         let summary = "";
         try { summary = agent.summarize(l.result); } catch (e) { summary = ""; }
         return `<li><button type="button" class="ag-log" data-log="${esc(l.id)}">
@@ -885,7 +1596,13 @@
   }
   function replayLog(id) {
     const l = state.logs.find((x) => x.id === id);
-    if (l) playRun(l, { replay: true });
+    if (!l) return;
+    const agent = byId(l.agent);
+    if (l.kind === "chat") {
+      if (state.route !== agent.id) go(agent.id);
+      return playConversation(agent, l.turns, { source: l.source, sampleId: l.sampleId, sampleLabel: l.sampleLabel, replay: true });
+    }
+    playRun(l, { replay: true });
   }
 
   /* ---------------- Boot ---------------- */

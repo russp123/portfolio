@@ -206,8 +206,10 @@ class AgentCanvas {
   // Desktop: whole graph centered in the free area. Vertical: fit the
   // width (labels stay readable) and start at the top; drag to scroll.
   // With minScale, nothing moves (and it returns false) when the graph
-  // would have to shrink below that scale to fit.
-  fit({ animate = false, minScale = 0 } = {}) {
+  // would have to shrink below that scale to fit. With floorScale, the
+  // graph never shrinks below it; if it then overflows, it lines up from
+  // the start (the trigger) and the rest is a drag away.
+  fit({ animate = false, minScale = 0, floorScale = 0 } = {}) {
     if (!this.agent) return false;
     const b = this.bounds();
     const ins = this.opts.insets();
@@ -221,7 +223,8 @@ class AgentCanvas {
     } else {
       s = Math.min(1.1, Math.max(0.3, Math.min(aw / b.w, ah / b.h)));
       if (s < minScale) return false;
-      this.tx = ins.left + (aw - b.w * s) / 2 - b.x * s;
+      s = Math.max(s, floorScale);
+      this.tx = b.w * s > aw ? ins.left - b.x * s : ins.left + (aw - b.w * s) / 2 - b.x * s;
       this.ty = ins.top + (ah - b.h * s) / 2 - b.y * s;
     }
     this.scale = s;
@@ -474,7 +477,9 @@ class AgentCanvas {
     return { steps, fades };
   }
 
-  async play(plan, { stepMs = 500, instant = false, onStep = () => {} } = {}) {
+  // follow: keep each running node in view (the vertical layout always
+  // does). Used when a panel stays open over part of the canvas.
+  async play(plan, { stepMs = 500, instant = false, follow = false, onStep = () => {} } = {}) {
     this.reset();
     const token = ++this.playToken;
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -500,7 +505,7 @@ class AgentCanvas {
       const s = plan.steps[i];
       s.edgesIn.forEach((id) => this.setEdge(id, "active"));
       this.setNode(s.id, "running");
-      if (this.vertical) this.ensureVisible(s.id);
+      if (this.vertical || follow) this.ensureVisible(s.id);
       await wait(i === 0 ? Math.round(stepMs * 0.5) : stepMs);
       if (token !== this.playToken) return false;
       s.edgesIn.forEach((id) => this.setEdge(id, "taken"));

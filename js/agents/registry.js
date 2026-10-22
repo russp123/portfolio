@@ -17,6 +17,16 @@
      returns the `when` value of the outgoing edge it takes.
    - caption(result): short text shown under the node after a run.
    - view(run): array of panel blocks (see BLOCKS in app.js).
+
+   Modes
+   - Default (single run): one input, one result, one reveal. The
+     trigger node opens a form built from `trigger`.
+   - mode: "chat": every visitor message is one run of the same graph.
+     The trigger node opens the Chat tab; `chat` holds the greeting,
+     which node reveals the reply in the thread (replyNode), and any
+     system notes (notes(result), each revealed when its node finishes).
+     summarizeConversation(turns) labels a whole conversation in the
+     execution logs.
    No em dashes in any visible copy here.
    ============================================================ */
 
@@ -33,6 +43,11 @@ const AGENT_ICONS = {
   message: '<path d="M4 6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3.5V16H5a1 1 0 0 1-1-1z"/>',
   calendar: '<rect x="4" y="5.5" width="16" height="14" rx="1.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
   card: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.5c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4M14.5 10h3.5M14.5 13.5h3.5"/>',
+  sparkle: '<path d="M12 3.5 13.8 8.7 19 10.5 13.8 12.3 12 17.5 10.2 12.3 5 10.5 10.2 8.7z"/><path d="M18 16.5v3M16.5 18h3"/>',
+  stethoscope: '<path d="M6 4v5a4 4 0 0 0 8 0V4"/><path d="M10 13v1.5a4.5 4.5 0 0 0 9 0V13"/><circle cx="19" cy="11" r="2"/>',
+  book: '<path d="M5 5.5A1.5 1.5 0 0 1 6.5 4H19v14H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19"/><path d="M9 8.5h6"/>',
+  clipboard: '<rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5V3.5h6v1M9 10h6M9 14h4"/>',
+  calendarCheck: '<rect x="4" y="5.5" width="16" height="14" rx="1.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/><path d="m9.5 14.6 2 2 3.6-3.6"/>',
 };
 
 function agentIcon(name, size = 24) {
@@ -197,8 +212,208 @@ const AGENTS = [
     ],
   },
 
+
+  {
+    id: "front-desk",
+    status: "live",
+    mode: "chat",
+    name: "AI Front Desk",
+    business: "Brightwater Dental",
+    problem: "Answers patient questions around the clock, and knows when to hand off.",
+    icon: "chat",
+    chat: {
+      greeting: "Hi, you've reached Brightwater Dental. I can help with prices, opening hours, health funds and booking requests. What can I help with today?",
+      placeholder: "Message Brightwater Dental",
+      roles: { user: "Patient", assistant: "Front desk" },
+      replyNode: "reply",
+      notes: (r) =>
+        r.clinical ? [{ node: "handoff", tone: r.urgent ? "urgent" : "handoff", text: r.urgent ? "Handed to dentist · urgent advice given" : "Handed to dentist" }] : [],
+    },
+    summarize(r) {
+      return [cap(r.intent), r.urgent ? "Urgent" : r.clinical ? "Handed to dentist" : "", r.bookingReady ? "Booking request" : ""].filter(Boolean).join(" · ");
+    },
+    summarizeConversation(turns) {
+      const rs = turns.map((t) => t.result);
+      const flags = [
+        rs.some((r) => r.urgent) ? "Urgent" : rs.some((r) => r.clinical) ? "Handed to dentist" : "",
+        rs.some((r) => r.bookingReady) ? "Booking request" : "",
+      ].filter(Boolean);
+      return [`${turns.length} turn${turns.length === 1 ? "" : "s"}`, ...flags].join(" · ");
+    },
+
+    nodes: [
+      {
+        id: "message",
+        type: "trigger",
+        col: 0,
+        row: 0,
+        label: "Patient message",
+        icon: "chat",
+        about: "Each message the patient sends starts one run through the flow.",
+        view: (run) => [{ type: "quote", title: `Turn ${run.turn}`, body: run.input }],
+      },
+      {
+        id: "understand",
+        type: "ai",
+        col: 1,
+        row: 0,
+        label: "Understand",
+        icon: "sparkle",
+        about: "Works out what the patient wants and what it's about.",
+        caption: (r) => cap(r.intent),
+        view: (run) => [
+          { type: "badge", label: cap(run.result.intent), tone: "strong" },
+          { type: "kv", rows: [["Intent", cap(run.result.intent)], ["Topic", run.result.topic]] },
+        ],
+      },
+      {
+        id: "clinical",
+        type: "branch",
+        col: 2,
+        row: 0,
+        label: "Clinical or urgent?",
+        icon: "split",
+        about: "Anything clinical goes to the dentist. A red flag gets emergency advice first.",
+        decide: (r) => (r.clinical || r.urgent ? "yes" : "no"),
+        caption: (r) => (r.urgent ? "Urgent" : r.clinical ? "Clinical" : "No"),
+        view: (run) => {
+          const r = run.result;
+          return [
+            { type: "badge", label: r.urgent ? "Urgent: red flag" : r.clinical ? "Clinical" : "Front desk can answer", tone: r.urgent ? "accent" : r.clinical ? "strong" : "muted" },
+            {
+              type: "text",
+              body: r.urgent
+                ? "A red flag came up, so the reply sends them to 000 or the nearest emergency department first."
+                : r.clinical
+                ? "This needs the dentist, so the front desk doesn't advise. It hands off and offers an appointment."
+                : "Nothing clinical here. The front desk answers from the fact sheet.",
+            },
+          ];
+        },
+      },
+      {
+        id: "handoff",
+        type: "action",
+        col: 3,
+        row: -1,
+        label: "Hand off to dentist",
+        icon: "stethoscope",
+        about: "On the clinical path only: writes a note for the dentist instead of answering.",
+        caption: (r) => (r.urgent ? "000 advice given" : "Note sent"),
+        view: (run) => {
+          const r = run.result;
+          const blocks = [{ type: "quote", title: "Note to the dentist", body: r.handoffNote }];
+          if (r.urgent) blocks.push({ type: "quote", title: "Red-flag advice given", body: "Call 000 or go to the nearest emergency department now." });
+          blocks.push({ type: "note", body: "A mock hand-off. Nothing is sent." });
+          return blocks;
+        },
+      },
+      {
+        id: "lookup",
+        type: "ai",
+        col: 4,
+        row: 0,
+        label: "Look up clinic info",
+        icon: "book",
+        about: "The fact-sheet items this reply relies on. Nothing outside the fact sheet is allowed.",
+        caption: (r) => (r.factsUsed.length ? `${r.factsUsed.length} fact${r.factsUsed.length === 1 ? "" : "s"}` : "None needed"),
+        view: (run) => [{ type: "list", title: "Fact sheet items used", items: run.result.factsUsed, empty: "No clinic facts needed for this reply." }],
+      },
+      {
+        id: "reply",
+        type: "ai",
+        col: 5,
+        row: 0,
+        label: "Reply",
+        icon: "message",
+        about: "The message sent back to the patient: 2 to 4 short sentences.",
+        caption: (r) => `${r.reply.length} chars`,
+        view: (run) => [{ type: "sms", body: run.result.reply, limit: 500 }],
+      },
+      {
+        id: "capture",
+        type: "ai",
+        col: 6,
+        row: 0,
+        label: "Capture details",
+        icon: "clipboard",
+        about: "Tracks booking details as the patient gives them, asking for one at a time.",
+        caption: (r) => `${Object.values(r.captured).filter(Boolean).length} of 5`,
+        view: (run) => {
+          const c = run.result.captured;
+          return [
+            {
+              type: "kv",
+              title: "Collected so far",
+              rows: [
+                ["Name", c.name],
+                ["Mobile", c.mobile],
+                ["Patient", c.patientType ? `${cap(c.patientType)} patient` : null],
+                ["Reason", c.reason],
+                ["Preferred time", c.preferredTime],
+              ],
+              empty: "Not yet",
+            },
+            {
+              type: "list",
+              title: "Still needed",
+              items: run.result.missing,
+              empty: run.result.bookingReady ? "Nothing, ready to send." : "Only asked for once the patient wants to book.",
+            },
+          ];
+        },
+      },
+      {
+        id: "booking",
+        type: "output",
+        col: 7,
+        row: 0,
+        label: "Booking request",
+        icon: "calendarCheck",
+        about: "Once the name, mobile, patient type, reason and preferred time are in, a request goes to the front desk team.",
+        caption: (r) => (r.bookingReady ? "Request sent" : "Not yet"),
+        view: (run) => {
+          const r = run.result;
+          if (!r.bookingReady) {
+            return [
+              { type: "text", body: "No booking request yet. It's created once all five details are in." },
+              { type: "list", title: "Still needed", items: r.missing, empty: "The patient hasn't asked to book." },
+            ];
+          }
+          const c = r.captured;
+          return [
+            {
+              type: "request",
+              title: "Booking request",
+              status: "Request sent to front desk",
+              name: c.name,
+              rows: [
+                ["Mobile", c.mobile],
+                ["Patient", `${cap(c.patientType)} patient`],
+                ["Reason", c.reason],
+                ["Preferred", c.preferredTime],
+              ],
+              summary: r.booking.summary,
+            },
+            { type: "note", body: "A visual mock. Nothing is sent and no time is confirmed." },
+          ];
+        },
+      },
+    ],
+
+    edges: [
+      { id: "m1", from: "message", to: "understand" },
+      { id: "m2", from: "understand", to: "clinical" },
+      { id: "m3", from: "clinical", to: "handoff", when: "yes", label: "Yes" },
+      { id: "m4", from: "handoff", to: "lookup" },
+      { id: "m5", from: "clinical", to: "lookup", when: "no", label: "No" },
+      { id: "m6", from: "lookup", to: "reply" },
+      { id: "m7", from: "reply", to: "capture" },
+      { id: "m8", from: "capture", to: "booking" },
+    ],
+  },
+
   // In training: landing card only. Not routable, not in the dock.
-  { id: "front-desk", status: "training", name: "AI Front Desk", business: "Brightwater Dental", problem: "Answers patient questions around the clock, and knows when to hand off.", icon: "chat" },
   { id: "review-guardian", status: "training", name: "Review Guardian", business: "Torque & Co Auto Service", problem: "Replies to every review and flags the ones the owner must see.", icon: "star" },
   { id: "dead-lead-revival", status: "training", name: "Dead Lead Revival", business: "Stonebridge Bathrooms", problem: "Wins back old quotes sitting in your CRM.", icon: "revive" },
 ];
