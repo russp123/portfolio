@@ -124,7 +124,10 @@ class AgentCanvas {
       const { col, row } = n.def;
       // Vertical is the horizontal layout turned 90deg clockwise: columns
       // run top to bottom and a row above the main line moves to its right.
-      n.x = this.vertical ? -row * AG_V_ROW_W : col * AG_COL_W;
+      // An agent with parallel lanes can tighten the vertical spacing
+      // (agent.layout.vRow) so the lanes still fit a phone screen.
+      const vRow = (this.agent && this.agent.layout && this.agent.layout.vRow) || AG_V_ROW_W;
+      n.x = this.vertical ? -row * vRow : col * AG_COL_W;
       n.y = this.vertical ? col * AG_V_COL_H : row * AG_ROW_H;
       n.el.style.left = `${n.x - AG_NODE_W / 2}px`;
       n.el.style.top = `${n.y - AG_TILE / 2}px`;
@@ -454,7 +457,20 @@ class AgentCanvas {
       if (!skip) continue;
       takenNodes.delete(n.id);
       conditional.add(n.id);
-      for (const e of agent.edges) if (e.to === n.id) takenEdges.delete(e.id);
+      for (const e of agent.edges) if (e.to === n.id || e.from === n.id) takenEdges.delete(e.id);
+    }
+    // A node only reached through skipped nodes is skipped too (an
+    // output fed by several lanes stays on while any lane is live).
+    for (let changed = true; changed; ) {
+      changed = false;
+      for (const n of order) {
+        if (n.type === "trigger" || !takenNodes.has(n.id)) continue;
+        if (agent.edges.some((e) => e.to === n.id && takenEdges.has(e.id))) continue;
+        takenNodes.delete(n.id);
+        conditional.add(n.id);
+        for (const e of agent.edges) if (e.from === n.id) takenEdges.delete(e.id);
+        changed = true;
+      }
     }
     const steps = order
       .filter((n) => takenNodes.has(n.id))

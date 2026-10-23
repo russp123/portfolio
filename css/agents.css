@@ -978,6 +978,58 @@ html[data-theme="dark"] .agents-app {
 .agents-app .ag-next span { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ag-text-3); }
 .agents-app .ag-next p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; }
 
+/* Table field (Dead Lead Revival input): one card per row, 2 columns. */
+.agents-app .ag-rowlist { display: flex; flex-direction: column; gap: 10px; }
+.agents-app .ag-rowcard {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--ag-surface);
+  box-shadow: inset 0 0 0 1px var(--ag-border);
+}
+.agents-app .ag-rowcard-title { float: left; width: 100%; padding: 0 36px 0 0; margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--ag-text-2); }
+.agents-app .ag-rowremove { position: absolute; top: 5px; right: 5px; width: 30px; height: 30px; border-radius: 8px; }
+.agents-app .ag-rowremove:disabled { opacity: 0.3; cursor: default; }
+.agents-app .ag-rowremove:disabled:hover { background: transparent; color: var(--ag-text-2); }
+.agents-app .ag-rowgrid { clear: both; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.agents-app .ag-cell { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.agents-app .ag-cell.is-wide { grid-column: 1 / -1; }
+.agents-app .ag-cell > span { font-size: 11.5px; font-weight: 500; color: var(--ag-text-3); }
+.agents-app .ag-cell .ag-input { min-width: 0; padding: 8px 10px; border-radius: 9px; font-size: 14px; }
+.agents-app .ag-addrow { align-self: flex-start; margin-top: 2px; }
+
+/* Campaign table (Dead Lead Revival output): tap a row to open it. */
+.agents-app .ag-trows { display: flex; flex-direction: column; overflow: hidden; border-radius: 12px; border: 1px solid var(--ag-border); }
+.agents-app .ag-trows-head {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 38px 8px 14px;
+  background: var(--ag-surface-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ag-text-3);
+}
+.agents-app .ag-trow { border-top: 1px solid var(--ag-border); }
+.agents-app .ag-trow summary { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 14px; list-style: none; cursor: pointer; }
+.agents-app .ag-trow summary::-webkit-details-marker { display: none; }
+.agents-app .ag-trow summary:hover { background: var(--ag-hover); }
+.agents-app .ag-trow-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.agents-app .ag-trow-main strong { font-size: 13.5px; font-weight: 600; }
+.agents-app .ag-trow-main span { font-size: 12px; color: var(--ag-text-2); }
+.agents-app .ag-trow-chev { display: grid; color: var(--ag-text-3); transition: transform 0.15s ease; }
+.agents-app .ag-trow[open] .ag-trow-chev { transform: rotate(90deg); }
+.agents-app .ag-trow-body { display: flex; flex-direction: column; gap: 10px; padding: 2px 14px 14px; }
+.agents-app .ag-trow-body .ag-bubble { max-width: 100%; align-self: stretch; }
+.agents-app .ag-tag { flex: none; padding: 3px 9px; border-radius: 100px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.agents-app .ag-tag[data-tone="accent"] { background: var(--ag-accent); color: var(--ag-on-accent); }
+.agents-app .ag-tag[data-tone="strong"] { background: var(--ag-text-2); color: var(--ag-surface); }
+.agents-app .ag-tag[data-tone="muted"] { background: var(--ag-surface-2); color: var(--ag-text-2); box-shadow: inset 0 0 0 1px var(--ag-border-strong); }
+
 /* Review card (Review Guardian output) */
 .agents-app .ag-review {
   display: flex;
@@ -1494,6 +1546,9 @@ html[data-theme="dark"] .agents-app {
   }
   .agents-app .ag-panel.is-sheet .ag-panel-head { padding-top: 8px; }
   .agents-app .ag-toast { bottom: calc(var(--ag-dock-space) + 12px); }
+  /* Campaign table: stacked rows, no column header. */
+  .agents-app .ag-trows-head { display: none; }
+  .agents-app .ag-trows .ag-trow:first-of-type { border-top: 0; }
 
   /* Chat: a fixed-height sheet so the running step stays visible above it,
      with a tighter header and no status chip over that strip of canvas. */

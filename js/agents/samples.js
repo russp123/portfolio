@@ -645,5 +645,265 @@ const AGENT_SAMPLES = {
         "ms": 2031
       }
     }
+  ],
+  "dead-lead-revival": [
+    {
+      "id": "mixed-six",
+      "label": "Mixed list, 6 quotes",
+      "channel": "CRM export",
+      "receivedAt": "2026-10-23T09:00",
+      "fields": {
+        "leads": [
+          {
+            "id": "s1a",
+            "name": "Sarah Nguyen",
+            "job": "main bathroom",
+            "quoteDate": "2026-10-02",
+            "amount": "$18,400",
+            "note": "Keen to go ahead, waiting on her Christmas bonus."
+          },
+          {
+            "id": "s1b",
+            "name": "Tom Becker",
+            "job": "ensuite",
+            "quoteDate": "2026-09-18",
+            "amount": "$14,950",
+            "note": "Went quiet after the site visit."
+          },
+          {
+            "id": "s1c",
+            "name": "Priya Raman",
+            "job": "main bathroom",
+            "quoteDate": "2026-06-23",
+            "amount": "$22,700",
+            "note": "Said maybe next year."
+          },
+          {
+            "id": "s1d",
+            "name": "Dale Morrison",
+            "job": "main bathroom",
+            "quoteDate": "2026-08-25",
+            "amount": "$19,800",
+            "note": "Liked the design but thought it was over budget."
+          },
+          {
+            "id": "s1e",
+            "name": "Jess Cooper",
+            "job": "ensuite",
+            "quoteDate": "2026-09-05",
+            "amount": "$16,300",
+            "note": "Went with another company."
+          },
+          {
+            "id": "s1f",
+            "name": "Mark Ellis",
+            "job": "main bathroom",
+            "quoteDate": "2026-08-12",
+            "amount": "$21,000",
+            "note": "Asked us to stop messaging him."
+          }
+        ]
+      },
+      "recordedOn": "2026-10-23",
+      "recorded": {
+        "agent": "dead-lead-revival",
+        "result": {
+          "leads": [
+            {
+              "rowId": "s1a",
+              "group": "re-engage",
+              "reason": "Waiting on a Christmas bonus and quote is still valid.",
+              "daysSinceQuote": 21,
+              "quoteExpired": false,
+              "optedOut": false,
+              "message": "Hi Sarah, it's Mia from Stonebridge Bathrooms. Just checking in on your main bathroom project. As we get closer to the end of the year, we are currently booking new jobs 6 to 8 weeks out. Let me know if you would like to discuss timing. Reply STOP to opt out.",
+              "nextAction": "Follow up with a phone call if no reply within 4 days."
+            },
+            {
+              "rowId": "s1b",
+              "group": "re-engage",
+              "reason": "Went quiet after site visit, quote is still valid.",
+              "daysSinceQuote": 35,
+              "quoteExpired": false,
+              "optedOut": false,
+              "message": "Hi Tom, it's Mia from Stonebridge Bathrooms. I wanted to follow up on your ensuite quote after our site visit. We are currently booking new jobs 6 to 8 weeks out and would love to help bring your project to life. Let me know if you have any questions. Reply STOP to opt out.",
+              "nextAction": "Call on day 3 if no SMS response."
+            },
+            {
+              "rowId": "s1c",
+              "group": "nurture",
+              "reason": "Indicated maybe next year and quote has expired.",
+              "daysSinceQuote": 122,
+              "quoteExpired": true,
+              "optedOut": false,
+              "message": "Hi Priya, it's Mia from Stonebridge Bathrooms. Reaching out regarding your main bathroom renovation for next year. As your quote has expired, pricing may need a quick refresh when you are ready. We are currently booking jobs 6 to 8 weeks out. Reply STOP to opt out.",
+              "nextAction": "Set CRM reminder to contact early next year."
+            },
+            {
+              "rowId": "s1d",
+              "group": "nurture",
+              "reason": "Liked design but mentioned it was over budget, quote still valid.",
+              "daysSinceQuote": 59,
+              "quoteExpired": false,
+              "optedOut": false,
+              "message": "Hi Dale, it's Mia from Stonebridge Bathrooms. Following up on your main bathroom design. If you still want to move forward, we would be happy to talk through the scope options to see what works for you. We are currently booking jobs 6 to 8 weeks out. Reply STOP to opt out.",
+              "nextAction": "Check in via phone next week to discuss scope."
+            },
+            {
+              "rowId": "s1e",
+              "group": "dont-contact",
+              "reason": "Went with another company.",
+              "daysSinceQuote": 48,
+              "quoteExpired": false,
+              "optedOut": true,
+              "message": null,
+              "nextAction": "Archive lead record in CRM."
+            },
+            {
+              "rowId": "s1f",
+              "group": "dont-contact",
+              "reason": "Opted out and asked to stop receiving messages.",
+              "daysSinceQuote": 72,
+              "quoteExpired": true,
+              "optedOut": true,
+              "message": null,
+              "nextAction": "Flag as do not contact in CRM."
+            }
+          ],
+          "summary": {
+            "reEngage": 2,
+            "nurture": 2,
+            "dontContact": 2
+          }
+        },
+        "received": {
+          "at": "2026-10-23T09:00",
+          "label": "Friday 23 October 2026, 9am",
+          "inHours": true,
+          "nextOpen": "now, 9am on Friday 23 October 2026 (open until 5pm today)"
+        },
+        "ms": 4381
+      }
+    },
+    {
+      "id": "warm-five",
+      "label": "Mostly warm, 5 quotes",
+      "channel": "CRM export",
+      "receivedAt": "2026-10-23T09:00",
+      "fields": {
+        "leads": [
+          {
+            "id": "s2a",
+            "name": "Hannah Lee",
+            "job": "ensuite",
+            "quoteDate": "2026-10-09",
+            "amount": "$12,900",
+            "note": "Wants to start after the school holidays."
+          },
+          {
+            "id": "s2b",
+            "name": "Ben Okafor",
+            "job": "main bathroom",
+            "quoteDate": "2026-09-28",
+            "amount": "$24,500",
+            "note": "Asked if we could finish before Christmas."
+          },
+          {
+            "id": "s2c",
+            "name": "Chloe Martin",
+            "job": "ensuite",
+            "quoteDate": "2026-09-14",
+            "amount": "$15,600",
+            "note": "Comparing two quotes, liked our tile options."
+          },
+          {
+            "id": "s2d",
+            "name": "Sam Rossi",
+            "job": "main bathroom",
+            "quoteDate": "2026-10-01",
+            "amount": "$19,200",
+            "note": "Partner wants to see the 3D render again."
+          },
+          {
+            "id": "s2e",
+            "name": "Aaron Walsh",
+            "job": "main bathroom",
+            "quoteDate": "2026-07-10",
+            "amount": "$17,800",
+            "note": "On hold until their house extension is finished."
+          }
+        ]
+      },
+      "recordedOn": "2026-10-23",
+      "recorded": {
+        "agent": "dead-lead-revival",
+        "result": {
+          "leads": [
+            {
+              "rowId": "s2a",
+              "group": "re-engage",
+              "reason": "Timing depends on school holidays ending soon, worth checking in.",
+              "daysSinceQuote": 14,
+              "quoteExpired": false,
+              "optedOut": false,
+              "message": "Hi Hannah, it's Mia from Stonebridge Bathrooms. Hope you are well! Just checking in to see if you would like to discuss the timing for your ensuite renovation after the school holidays. We are currently booking jobs 6 to 8 weeks out. Reply STOP to opt out.",
+              "nextAction": "Call on day 3 if no reply."
+            },
+            {
+              "rowId": "s2b",
+              "group": "re-engage",
+              "reason": "Asked about a pre-Christmas deadline, needs lead time confirmation.",
+              "daysSinceQuote": 25,
+              "quoteExpired": false,
+              "optedOut": false,
+              "message": "Hi Ben, it's Mia from Stonebridge Bathrooms. Reaching out regarding your main bathroom quote. We are currently booking new jobs 6 to 8 weeks out, so let us know if you would like to discuss timeline options for your project. Reply STOP to opt out.",
+              "nextAction": "Follow up with a call in 2 days if no response."
+            },
+            {
+              "rowId": "s2c",
+              "group": "nurture",
+              "reason": "Still deciding between options and comparing quotes.",
+              "daysSinceQuote": 39,
+              "quoteExpired": false,
+              "optedOut": false,
+              "message": "Hi Chloe, it's Mia from Stonebridge Bathrooms. Just checking in on your ensuite renovation plans. Please let me know if you have any questions about the quote or need more details on our tile options. Reply STOP to opt out.",
+              "nextAction": "Check in via text or email in 2 weeks."
+            },
+            {
+              "rowId": "s2d",
+              "group": "re-engage",
+              "reason": "Wants to review the 3D render again to make a decision.",
+              "daysSinceQuote": 22,
+              "quoteExpired": false,
+              "optedOut": false,
+              "message": "Hi Sam, it's Mia from Stonebridge Bathrooms. Just checking in to see if you and your partner would like me to resend or review the 3D render for your main bathroom renovation. Happy to assist whenever you are ready. Reply STOP to opt out.",
+              "nextAction": "Send copy of 3D render if requested, otherwise follow up on day 3."
+            },
+            {
+              "rowId": "s2e",
+              "group": "nurture",
+              "reason": "Project on hold due to extension, plus quote is expired over 60 days.",
+              "daysSinceQuote": 105,
+              "quoteExpired": true,
+              "optedOut": false,
+              "message": "Hi Aaron, it's Mia from Stonebridge Bathrooms. Reaching out to see how your house extension is going. When you are ready to look at your main bathroom again, let us know as the pricing may need a quick refresh. Reply STOP to opt out.",
+              "nextAction": "Schedule follow-up in CRM for 1 month."
+            }
+          ],
+          "summary": {
+            "reEngage": 3,
+            "nurture": 2,
+            "dontContact": 0
+          }
+        },
+        "received": {
+          "at": "2026-10-23T09:00",
+          "label": "Friday 23 October 2026, 9am",
+          "inHours": true,
+          "nextOpen": "now, 9am on Friday 23 October 2026 (open until 5pm today)"
+        },
+        "ms": 3837
+      }
+    }
   ]
 };

@@ -711,6 +711,30 @@
       return `<div class="ag-sms"><div class="ag-bubble is-out">${esc(b.body)}</div></div>
         <div class="ag-meter" ${len > limit ? 'data-over="true"' : ""}><span class="ag-meter-bar"><i style="width:${pct}%"></i></span><span>${len} / ${limit} ${byWords ? "words" : "characters"}</span></div>`;
     },
+    // Campaign table: one tappable row per lead (details/summary, so it
+    // opens with a tap, Enter or Space), group tags in the sketch tones.
+    table: (b) => {
+      const rows = (b.rows || [])
+        .map(
+          (r) => `<details class="ag-trow" data-group="${esc(r.group)}">
+          <summary>
+            <span class="ag-trow-main"><strong>${esc(r.name)}</strong><span>${esc(r.job)} · ${esc(r.daysSinceQuote)} days${r.quoteExpired ? " · expired" : ""}</span></span>
+            <span class="ag-tag" data-tone="${esc(r.tone)}">${esc(r.groupLabel)}</span>
+            <span class="ag-trow-chev" aria-hidden="true">${agentIcon("right", 14)}</span>
+          </summary>
+          <div class="ag-trow-body">
+            ${r.message ? `<div class="ag-bubble is-out">${esc(r.message)}</div>` : `<p class="ag-note">No message for this lead.</p>`}
+            <dl class="ag-kv is-compact">
+              <div><dt>Why</dt><dd>${esc(r.reason)}</dd></div>
+              <div><dt>Next</dt><dd>${esc(r.nextAction)}</dd></div>
+              <div><dt>Last note</dt><dd>${esc(r.note)}</dd></div>
+            </dl>
+          </div>
+        </details>`
+        )
+        .join("");
+      return `${title(b.title)}<div class="ag-trows"><div class="ag-trows-head" aria-hidden="true"><span>Lead</span><span>Group</span></div>${rows || '<p class="ag-text is-muted">No leads.</p>'}</div>`;
+    },
     // A Google-style review with the owner's response underneath (mock).
     review: (b) => {
       const stars = [1, 2, 3, 4, 5].map((n) => `<span class="${n <= b.rating ? "is-on" : ""}">${agentIcon("star", 15)}</span>`).join("");
@@ -790,14 +814,41 @@
   // A sample's value for a field: in sample.fields, or at the top level
   // (Speed-to-Lead's samples keep input and receivedAt there).
   const sampleValue = (s, f) => (s.fields && f.id in s.fields ? s.fields[f.id] : s[f.id]);
-  const emptyValue = (f) => (f.type === "rating" ? 0 : f.type === "time" ? zonedNowLocal(f.timeZone) : f.type === "select" ? (f.options && f.options[0] ? f.options[0].value : "") : "");
-  const norm = (f, v) => (f.type === "rating" ? Number(v) || 0 : String(v == null ? "" : v).trim());
+  let rowSeq = 0;
+  const newRowId = () => `r${Date.now().toString(36).slice(-5)}${(rowSeq++).toString(36)}`;
+  const blankRow = (f) => Object.assign({ id: newRowId() }, ...f.columns.map((c) => ({ [c.id]: "" })));
+  const emptyValue = (f) =>
+    f.type === "rating"
+      ? 0
+      : f.type === "time"
+      ? zonedNowLocal(f.timeZone)
+      : f.type === "select"
+      ? f.options && f.options[0]
+        ? f.options[0].value
+        : ""
+      : f.type === "table"
+      ? Array.from({ length: f.minRows || 1 }, () => blankRow(f))
+      : "";
+  // Tables are compared and sent cell by cell; row ids only key the rows.
+  const tableRows = (f, v) => (Array.isArray(v) ? v : []).map((r) => Object.assign({ id: r && r.id }, ...f.columns.map((c) => ({ [c.id]: String((r && r[c.id]) || "").trim() }))));
+  const norm = (f, v) =>
+    f.type === "rating"
+      ? Number(v) || 0
+      : f.type === "table"
+      ? JSON.stringify(tableRows(f, v).map((r) => f.columns.map((c) => r[c.id])))
+      : String(v == null ? "" : v).trim();
+  // The value sent to the API (and kept in a run).
+  const cleanValue = (f, v) => (f.type === "rating" ? Number(v) || 0 : f.type === "time" ? v : f.type === "table" ? tableRows(f, v) : norm(f, v));
+  // Plain words for matching a custom input to the closest sample.
+  const fieldText = (f, v) => (f && f.type === "table" ? tableRows(f, v).map((r) => f.columns.map((c) => r[c.id]).join(" ")).join(" ") : String(v == null ? "" : v).trim());
+  // Copies, so editing a table never edits the sample it came from.
+  const copyValue = (v) => (Array.isArray(v) ? v.map((r) => Object.assign({}, r)) : v);
 
   function draftFor(agent) {
     if (!state.drafts[agent.id]) {
       const first = samplesFor(agent)[0];
       const d = {};
-      for (const f of fieldsOf(agent)) d[f.id] = first ? sampleValue(first, f) ?? emptyValue(f) : emptyValue(f);
+      for (const f of fieldsOf(agent)) d[f.id] = first ? copyValue(sampleValue(first, f)) ?? emptyValue(f) : emptyValue(f);
       state.drafts[agent.id] = d;
     }
     return state.drafts[agent.id];
@@ -820,6 +871,28 @@
     if (f.type === "select") {
       const opts = (f.options || []).map((o) => `<option value="${esc(o.value)}"${String(o.value) === String(value) ? " selected" : ""}>${esc(o.label)}</option>`).join("");
       return `<label class="ag-field">${label}<select class="ag-input ag-select" id="${id}" data-field="${f.id}">${opts}</select></label>`;
+    }
+    if (f.type === "table") {
+      const rows = Array.isArray(value) ? value : [];
+      const cards = rows
+        .map((r, i) => {
+          const cells = f.columns
+            .map(
+              (c) => `<label class="ag-cell${c.wide ? " is-wide" : ""}"><span>${esc(c.label)}</span><input class="ag-input" type="${c.type === "date" ? "date" : "text"}" data-cell="${c.id}"${c.maxLength ? ` maxlength="${c.maxLength}"` : ""} placeholder="${esc(c.placeholder || "")}" value="${esc(r[c.id] || "")}" /></label>`
+            )
+            .join("");
+          return `<fieldset class="ag-rowcard" data-row="${esc(r.id)}">
+            <legend class="ag-rowcard-title">${esc(f.rowLabel || "Row")} ${i + 1}</legend>
+            <button type="button" class="ag-icon-btn ag-rowremove" data-remove-row="${esc(r.id)}" aria-label="Remove ${esc((f.rowLabel || "row").toLowerCase())} ${i + 1}"${rows.length <= (f.minRows || 1) ? " disabled" : ""}>${agentIcon("close", 16)}</button>
+            <div class="ag-rowgrid">${cells}</div>
+          </fieldset>`;
+        })
+        .join("");
+      return `<div class="ag-field ag-tablefield" data-table="${f.id}">
+        <span class="ag-label-row">${label}<span class="ag-count">${rows.length} of ${f.maxRows} rows</span></span>
+        <div class="ag-rowlist">${cards}</div>
+        <button type="button" class="ag-btn is-quiet ag-addrow" data-add-row="${f.id}"${rows.length >= f.maxRows ? " disabled" : ""}>${agentIcon("plus", 16)}<span>Add ${esc((f.rowLabel || "row").toLowerCase())}</span></button>
+      </div>`;
     }
     if (f.type === "rating") {
       const v = Number(value) || 0;
@@ -891,6 +964,38 @@
       $("#ag-error", els.panel).hidden = true;
     };
     for (const f of fieldsOf(agent)) {
+      if (f.type === "table") {
+        const box = els.panel.querySelector(`[data-table="${f.id}"]`);
+        if (!box) continue;
+        box.addEventListener("input", (e) => {
+          const cell = e.target.closest("[data-cell]");
+          const card = e.target.closest("[data-row]");
+          if (!cell || !card) return;
+          const row = d[f.id].find((r) => r.id === card.dataset.row);
+          const col = f.columns.find((c) => c.id === cell.dataset.cell);
+          if (row && col) row[col.id] = col.maxLength ? cell.value.slice(0, col.maxLength) : cell.value;
+          sync();
+        });
+        // Adding or removing a row re-renders the form, then focuses the
+        // new row (or the add button).
+        box.addEventListener("click", (e) => {
+          const add = e.target.closest("[data-add-row]");
+          const remove = e.target.closest("[data-remove-row]");
+          if (add && d[f.id].length < f.maxRows) {
+            const row = blankRow(f);
+            d[f.id].push(row);
+            renderPanel();
+            const first = els.panel.querySelector(`[data-row="${row.id}"] input`);
+            if (first) first.focus();
+          } else if (remove && d[f.id].length > (f.minRows || 1)) {
+            d[f.id] = d[f.id].filter((r) => r.id !== remove.dataset.removeRow);
+            renderPanel();
+            const btn = els.panel.querySelector(`[data-add-row="${f.id}"]`);
+            if (btn) btn.focus();
+          }
+        });
+        continue;
+      }
       if (f.type === "rating") {
         const group = els.panel.querySelector(`.ag-stars[data-field="${f.id}"]`);
         group.addEventListener("click", (e) => {
@@ -940,14 +1045,22 @@
       chip.addEventListener("click", () => {
         const s = samplesFor(agent).find((x) => x.id === chip.dataset.sample);
         if (!s) return;
+        let rebuild = false;
         for (const f of fieldsOf(agent)) {
           const v = sampleValue(s, f);
-          d[f.id] = v == null ? emptyValue(f) : v;
-          if (f.type === "rating") setRating(els.panel.querySelector(`.ag-stars[data-field="${f.id}"]`), Number(d[f.id]) || 0, false);
+          d[f.id] = v == null ? emptyValue(f) : copyValue(v);
+          if (f.type === "table") rebuild = true;
+          else if (f.type === "rating") setRating(els.panel.querySelector(`.ag-stars[data-field="${f.id}"]`), Number(d[f.id]) || 0, false);
           else {
             const el = els.panel.querySelector(`[data-field="${f.id}"]`);
             if (el) el.value = d[f.id];
           }
+        }
+        if (rebuild) {
+          renderPanel();
+          const again = els.panel.querySelector(`.ag-chip[data-sample="${s.id}"]`);
+          if (again) again.focus();
+          return;
         }
         sync();
       })
@@ -960,6 +1073,23 @@
   function validateFields(agent, d) {
     const t = agent.trigger || {};
     for (const f of fieldsOf(agent)) {
+      if (f.type === "table") {
+        const rows = tableRows(f, d[f.id]);
+        const noun = (f.rowLabel || "row").toLowerCase();
+        if (rows.length < (f.minRows || 1) || rows.length > f.maxRows) return `Use ${f.minRows} to ${f.maxRows} ${noun}s.`;
+        let total = 0;
+        for (const [i, r] of rows.entries()) {
+          for (const c of f.columns) {
+            const v = r[c.id];
+            total += v.length;
+            if (c.required && !v) return t.emptyError || `Fill in ${c.label.toLowerCase()} for ${noun} ${i + 1}.`;
+            if (c.maxLength && v.length > c.maxLength) return `Keep ${c.label.toLowerCase()} under ${c.maxLength} characters (${noun} ${i + 1}).`;
+            if (c.type === "date" && v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) return `Check the ${c.label.toLowerCase()} for ${noun} ${i + 1}.`;
+          }
+        }
+        if (f.maxTotal && total > f.maxTotal) return `That list is too long for the demo. Trim the notes a little.`;
+        continue;
+      }
       const v = norm(f, d[f.id]);
       if (f.type === "rating") {
         if ((f.required && !v) || (v && (v < 1 || v > 5))) return t.emptyError || `Choose a ${f.label.toLowerCase()}.`;
@@ -988,7 +1118,7 @@
       sampleLabel: s.label,
       channel: s.channel,
       triggerCaption: triggerCaption(agent, s.fields || s, s.channel),
-      input: primary ? sampleValue(s, primary) : s.input,
+      input: primary ? (primary.type === "table" ? fieldText(primary, sampleValue(s, primary)) : sampleValue(s, primary)) : s.input,
       receivedAt: s.receivedAt,
       result: s.recorded.result,
       received: s.recorded.received,
@@ -1016,7 +1146,7 @@
     let bestScore = -1;
     const primary = primaryField(agent);
     for (const s of list) {
-      const b = words(primary ? sampleValue(s, primary) : s.input);
+      const b = words(primary ? fieldText(primary, sampleValue(s, primary)) : s.input);
       let common = 0;
       for (const w of a) if (b.has(w)) common++;
       const score = a.size && b.size ? common / Math.sqrt(a.size * b.size) : 0;
@@ -1056,12 +1186,13 @@
     if (invalid) return formError(invalid);
     const t = agent.trigger || {};
     const primary = primaryField(agent);
-    const input = primary ? norm(primary, d[primary.id]) : "";
+    const input = primary ? fieldText(primary, d[primary.id]) : "";
     // Speed-to-Lead's API body stays { input, receivedAt }; agents with
     // payload "fields" send every field.
     const values = {};
-    for (const f of fieldsOf(agent)) values[f.id] = f.type === "rating" ? norm(f, d[f.id]) : f.type === "time" ? d[f.id] : norm(f, d[f.id]);
-    const payload = t.payload === "fields" ? { fields: values } : { input, receivedAt: d.receivedAt };
+    for (const f of fieldsOf(agent)) values[f.id] = cleanValue(f, d[f.id]);
+    // A "receivedAt" field also travels as the run time (days since a quote, opening hours).
+    const payload = t.payload === "fields" ? Object.assign({ fields: values }, values.receivedAt ? { receivedAt: values.receivedAt } : {}) : { input, receivedAt: d.receivedAt };
     const caption = triggerCaption(agent, values, null);
     const token = ++state.runToken;
 
