@@ -3,8 +3,12 @@
    Everything is scoped under .agents-app (the <body> class of
    agents.html) so nothing leaks into the portfolio.
 
-   One accent: the site's gold (--badge-accent in style.css),
-   used for active states, the Run button and highlights only.
+   One accent: blue (--ag-accent), for active states, the Run
+   button, edges and highlights only. The homepage agents section
+   uses the same blue; the rest of the site keeps its gold.
+   AA: light #2860F0 is 5.2:1 with white text and at least 4.7:1 on
+   every light surface; dark #6B97FF is at least 5.9:1 on every dark
+   surface and 6.4:1 under its dark on-accent text.
    System sans everywhere; Instrument Serif for the landing
    headline only.
    ============================================================ */
@@ -21,9 +25,9 @@
   --ag-text: #141518;
   --ag-text-2: #5c5f67;
   --ag-text-3: #8b8e96;
-  --ag-accent: #9c6e10;
-  --ag-accent-soft: rgba(156, 110, 16, 0.1);
-  --ag-accent-ring: rgba(156, 110, 16, 0.38);
+  --ag-accent: #2860f0;
+  --ag-accent-soft: rgba(40, 96, 240, 0.1);
+  --ag-accent-ring: rgba(40, 96, 240, 0.38);
   --ag-on-accent: #ffffff;
   --ag-edge: #c0c3ca;
   --ag-bubble-in: #e8e9ed;
@@ -70,10 +74,10 @@ html[data-theme="dark"] .agents-app {
   --ag-text: #f1f1f3;
   --ag-text-2: #a2a4ab;
   --ag-text-3: #707279;
-  --ag-accent: #d8a93a;
-  --ag-accent-soft: rgba(216, 169, 58, 0.13);
-  --ag-accent-ring: rgba(216, 169, 58, 0.42);
-  --ag-on-accent: #1a1406;
+  --ag-accent: #6b97ff;
+  --ag-accent-soft: rgba(107, 151, 255, 0.14);
+  --ag-accent-ring: rgba(107, 151, 255, 0.45);
+  --ag-on-accent: #0b1530;
   --ag-edge: #3c3d43;
   --ag-bubble-in: #26262a;
   --ag-bubble-out: #ececef;

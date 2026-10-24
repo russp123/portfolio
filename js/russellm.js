@@ -119,7 +119,7 @@ function closeRussellmDrawer() {
 
 function renderRussellmGreeting() {
   const name = typeof PORTFOLIO !== "undefined" && PORTFOLIO.name ? PORTFOLIO.name.split(" ")[0] : "Russel";
-  appendRussellmBubble("ai", `Hi, I'm RUSSELLM — an AI chatting as ${name}. Ask me about my work, skills, or experience.`);
+  appendRussellmBubble("ai", `Hi, I'm RUSSELLM, an AI chatting as ${name}. Ask me about my work, skills, or experience.`);
   renderRussellmChips();
 }
 

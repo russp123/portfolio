@@ -5,7 +5,8 @@
    read from this file — you don't need to touch the HTML/CSS/JS
    for content changes.
 
-   Rerun scripts/gen-sitemap.js after adding or renaming a project.
+   Rerun scripts/gen-sitemap.js after adding or renaming a project, and
+   scripts/gen-agents-highlight.js after re-recording /agents samples.
    ============================================================ */
 
 const PORTFOLIO = {
@@ -82,6 +83,25 @@ const PORTFOLIO = {
       skills: ["Design"],
     },
   ],
+
+  // ---- Home page: AI agents section [2] (between What I do and Projects) ----
+  // Three cards that open /agents#<agent>. `title` and `body` repeat each
+  // agent's name and problem line from js/agents/registry.js (keep them
+  // in sync; scripts/gen-agents-highlight.js fails if they drift).
+  // `widget` is the small panel's header. Its values come from real
+  // recordings via js/agents-highlight.json: rerun that script after
+  // re-recording /agents samples. The featured card sits in the middle
+  // on desktop and first on phones.
+  agentsHighlight: {
+    headline: "Small AI agents for the busywork every business has.",
+    sub: "Replying to leads, answering questions, chasing old quotes. Try them yourself and watch every step.",
+    cta: { label: "See all agents", url: "/agents" },
+    cards: [
+      { agent: "front-desk", title: "AI Front Desk", body: "Answers patient questions around the clock, and knows when to hand off.", widget: "Brightwater Dental · Chat" },
+      { agent: "speed-to-lead", featured: true, title: "Speed-to-Lead Responder", body: "Replies to new leads in seconds, not hours.", widget: "New lead · Burst pipe" },
+      { agent: "dead-lead-revival", title: "Dead Lead Revival", body: "Wins back old quotes sitting in your CRM.", widget: "Days since quote" },
+    ],
+  },
 
   // ---- Home page: Niche filter bar (above the project grid) ----
   // Each entry becomes a segment in the centered filter pill. `id` must

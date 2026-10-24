@@ -137,10 +137,17 @@
         <div class="wid-list" id="wid-list"></div>
       </section>
 
+      <!-- AI agents [2]: three cards from PORTFOLIO.agentsHighlight, each
+           opening /agents. Text renders right away; each card's small
+           widget fills in from js/agents-highlight.json (real /agents
+           recordings), fetched only when the section nears the viewport.
+           Rendered by the script below. -->
+      <section class="agents-hl" id="agents-hl" aria-labelledby="ah-title"></section>
+
       <!-- Projects — same section-label pattern as "What I do" above,
            so the tile wall reads as its own titled section instead of
            just floating grid + filter pill. -->
-      <div class="section-label projects-label big-label">Projects <span class="section-num">[2]</span></div>
+      <div class="section-label projects-label big-label">Projects <span class="section-num">[3]</span></div>
 
       <!-- Niche filter — a centered segmented pill; segments render from
            PORTFOLIO.niches, the thumb slides behind the active one. -->
@@ -171,7 +178,7 @@
            time: card stack + prev/next + a mono counter. Auto-advances
            (paused on hover); rendered by the script below. -->
       <section class="testimonials" id="testimonials-section">
-        <div class="section-label big-label">What people say <span class="section-num">[3]</span></div>
+        <div class="section-label big-label">What people say <span class="section-num">[4]</span></div>
         <div class="testimonial-slider" id="testimonial-slider">
           <div class="testimonial-stage" id="testimonial-stage"></div>
           <div class="testimonial-controls">
@@ -505,6 +512,97 @@
             }
           });
         });
+      }
+
+      // ---- AI agents [2] ----------------------------------------------
+      // Copy comes from PORTFOLIO.agentsHighlight. Each widget's values
+      // come from js/agents-highlight.json, which scripts/gen-agents-highlight.js
+      // builds from the real /agents recordings, so nothing here is made
+      // up. The JSON (about 1.5KB) loads only when the section is near.
+      const agentsHl = document.getElementById("agents-hl");
+      const AH = PORTFOLIO.agentsHighlight;
+      if (agentsHl && AH) {
+        const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+        const svg = (body, cls) => `<svg viewBox="0 0 24 24"${cls ? ` class="${cls}"` : ""} aria-hidden="true">${body}</svg>`;
+        const ARROW = '<path d="M7.5 16.5 16.5 7.5M9 7.5h7.5V15"/>';
+        const DOTS = '<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>';
+        agentsHl.innerHTML = `
+          <div class="section-label ah-eyebrow"><span class="section-num">[2]</span></div>
+          <h2 class="ah-title" id="ah-title">${esc(AH.headline)}</h2>
+          <div class="ah-subrow">
+            <p class="ah-sub">${esc(AH.sub)}</p>
+            <a class="hero-email ah-cta" href="${esc(AH.cta.url)}">${esc(AH.cta.label)}<sup>↗</sup></a>
+          </div>
+          <div class="ah-cards">
+            ${AH.cards
+              .map(
+                (c) => `<a class="ah-card${c.featured ? " is-featured" : ""}" href="/agents#${esc(c.agent)}" aria-label="${esc(c.title)}: ${esc(c.body)} Try it.">
+                  <div class="ah-card-in">
+                    <div class="ah-top">
+                      <span class="ah-icon" aria-hidden="true">${svg(ARROW)}</span>
+                      <div>
+                        <h3 class="ah-card-title">${esc(c.title)}</h3>
+                        <p class="ah-card-body">${esc(c.body)}</p>
+                      </div>
+                    </div>
+                    <div class="ah-widget" aria-hidden="true">
+                      <div class="ah-w-head">
+                        <span class="ah-w-title">${esc(c.widget)}</span>
+                        <span class="ah-w-btns"><i>${svg(DOTS, "is-dots")}</i><i>${svg(ARROW)}</i></span>
+                      </div>
+                      <div class="ah-w-body" data-widget="${esc(c.agent)}"></div>
+                    </div>
+                  </div>
+                </a>`
+              )
+              .join("")}
+          </div>`;
+
+        const WIDGETS = {
+          "front-desk": (d) =>
+            `<div class="ah-chat">${d.messages.map((m) => `<p class="ah-bubble ${m.from === "patient" ? "is-in" : "is-out"}">${esc(m.text)}</p>`).join("")}</div>`,
+          "speed-to-lead": (d) => `<div class="ah-lead">
+              <div class="ah-steps">
+                <span class="ah-steps-bars">${d.steps.map((s) => `<i${s.emergency ? ' class="is-hot"' : ""}></i>`).join("")}</span>
+                <span class="ah-mini">${d.steps.length} steps</span>
+              </div>
+              <div class="ah-score">
+                <span class="ah-score-val">${esc(d.score.charAt(0).toUpperCase() + d.score.slice(1))}</span>
+                ${d.emergency ? '<span class="ah-tag">Emergency path</span>' : ""}
+              </div>
+            </div>`,
+          "dead-lead-revival": (d) => {
+            const max = Math.max(...d.leads.map((l) => l.days));
+            return `<div class="ah-revive">
+              <span class="ah-legend ah-mini">Re-engage</span>
+              <div class="ah-plot">${d.leads
+                .map((l) => `<span class="ah-bar${l.group === "re-engage" ? " is-on" : ""}" style="--h:${((l.days / max) * 100).toFixed(1)}%"><b>${l.days}</b></span>`)
+                .join("")}</div>
+            </div>`;
+          },
+        };
+        const fillWidgets = (data) => {
+          agentsHl.querySelectorAll(".ah-w-body[data-widget]").forEach((el) => {
+            const make = WIDGETS[el.dataset.widget];
+            if (make && data[el.dataset.widget]) el.innerHTML = make(data[el.dataset.widget]);
+          });
+        };
+        const loadWidgets = () =>
+          fetch("/js/agents-highlight.json")
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => data && fillWidgets(data))
+            .catch(() => {});
+        if ("IntersectionObserver" in window) {
+          const io = new IntersectionObserver(
+            (entries) => {
+              if (!entries.some((e) => e.isIntersecting)) return;
+              io.disconnect();
+              loadWidgets();
+            },
+            { rootMargin: "400px 0px" }
+          );
+          io.observe(agentsHl);
+        } else loadWidgets();
       }
 
       document.getElementById("projects-grid").innerHTML = PORTFOLIO.projects

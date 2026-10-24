@@ -1,0 +1,75 @@
+{
+  "_generated": "By scripts/gen-agents-highlight.js from js/agents/registry.js and samples.js. Don't edit by hand.",
+  "front-desk": {
+    "sample": "New patient booking",
+    "business": "Brightwater Dental",
+    "messages": [
+      {
+        "from": "patient",
+        "text": "Hi! I'm new to the area and haven't been to a dentist in a while."
+      },
+      {
+        "from": "agent",
+        "text": "Hello and welcome to the area! Our new patient check-up, clean and X-rays is $229."
+      }
+    ]
+  },
+  "speed-to-lead": {
+    "sample": "Burst pipe, Saturday night",
+    "score": "hot",
+    "emergency": true,
+    "steps": [
+      {
+        "label": "New lead"
+      },
+      {
+        "label": "Qualify lead"
+      },
+      {
+        "label": "Emergency?"
+      },
+      {
+        "label": "Alert on-call plumber",
+        "emergency": true
+      },
+      {
+        "label": "Draft text reply"
+      },
+      {
+        "label": "Suggest booking"
+      },
+      {
+        "label": "CRM card"
+      }
+    ]
+  },
+  "dead-lead-revival": {
+    "sample": "Mixed list, 6 quotes",
+    "leads": [
+      {
+        "days": 21,
+        "group": "re-engage"
+      },
+      {
+        "days": 35,
+        "group": "re-engage"
+      },
+      {
+        "days": 122,
+        "group": "nurture"
+      },
+      {
+        "days": 59,
+        "group": "nurture"
+      },
+      {
+        "days": 48,
+        "group": "dont-contact"
+      },
+      {
+        "days": 72,
+        "group": "dont-contact"
+      }
+    ]
+  }
+}
