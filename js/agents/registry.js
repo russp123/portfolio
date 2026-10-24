@@ -22,6 +22,8 @@
      shows as skipped, never done. skippedView(run) fills its panel.
    - preview: what the landing card shows, a static sketch of the
      agent's output ("phone", "chat", "review", "table").
+   - liveStatus(values): the short lines shown on the canvas while a
+     live call runs, in order (chat agents get the message text).
 
    Modes
    - Default (single run): one input, one result, one reveal. The
@@ -32,7 +34,8 @@
      row with a stable id). maxLength and required are checked on
      submit and again on the server. Samples give a value for every
      field. A field with id "receivedAt" is also sent as the run time.
-   - layout.vRow: optional tighter lane spacing for the phone layout.
+   - layout.vRow: optional tighter lane spacing for the phone layout;
+     layout.vMirror: rows above the main line go left on a phone.
    - mode: "chat": every visitor message is one run of the same graph.
      The trigger node opens the Chat tab; `chat` holds the greeting,
      which node reveals the reply in the thread (replyNode), and any
@@ -147,6 +150,7 @@ const AGENTS = [
     summarize(r) {
       return `${cap(r.score)} lead${r.emergency ? " · Emergency" : ""}`;
     },
+    liveStatus: () => ["Reading the lead…", "Checking the hours and call-out fees…", "Thinking about the reply…"],
 
     nodes: [
       {
@@ -307,6 +311,7 @@ const AGENTS = [
     summarize(r) {
       return [cap(r.intent), r.urgent ? "Urgent" : r.clinical ? "Handed to dentist" : "", r.bookingReady ? "Booking request" : ""].filter(Boolean).join(" · ");
     },
+    liveStatus: () => ["Reading the message…", "Checking the clinic's fact sheet…", "Thinking about the reply…"],
     summarizeConversation(turns) {
       const rs = turns.map((t) => t.result);
       const flags = [
@@ -522,6 +527,7 @@ const AGENTS = [
     summarize(r) {
       return [`${r.rating} star${r.rating === 1 ? "" : "s"}`, cap(r.sentiment), r.isNegative ? "Owner alerted" : ""].filter(Boolean).join(" · ");
     },
+    liveStatus: (v) => ["Reading the review…", v && v.jobNote ? "Checking it against the job note…" : "Checking what the review is about…", "Drafting Dan's reply…"],
 
     nodes: [
       {
@@ -654,7 +660,8 @@ const AGENTS = [
     problem: "Wins back old quotes sitting in your CRM.",
     icon: "revive",
     preview: "table",
-    layout: { vRow: 132 },
+    // Phone: lanes read Re-engage, Nurture, Don't contact left to right.
+    layout: { vRow: 132, vMirror: true },
     trigger: {
       payload: "fields",
       fields: [
@@ -689,6 +696,10 @@ const AGENTS = [
     summarize(r) {
       const s = r.summary;
       return `${s.reEngage} re-engage · ${s.nurture} nurture · ${s.dontContact} don't contact`;
+    },
+    liveStatus: (v) => {
+      const n = v && Array.isArray(v.leads) ? v.leads.length : 0;
+      return [`Checking ${n} quotes…`, `Sorting ${n} leads…`, "Writing the messages…"];
     },
 
     nodes: [

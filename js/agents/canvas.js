@@ -126,8 +126,11 @@ class AgentCanvas {
       // run top to bottom and a row above the main line moves to its right.
       // An agent with parallel lanes can tighten the vertical spacing
       // (agent.layout.vRow) so the lanes still fit a phone screen.
-      const vRow = (this.agent && this.agent.layout && this.agent.layout.vRow) || AG_V_ROW_W;
-      n.x = this.vertical ? -row * vRow : col * AG_COL_W;
+      // layout.vMirror flips that, so rows above the main line read
+      // first (left) on a phone, the same order as desktop top to bottom.
+      const layout = (this.agent && this.agent.layout) || {};
+      const vRow = layout.vRow || AG_V_ROW_W;
+      n.x = this.vertical ? (layout.vMirror ? row : -row) * vRow : col * AG_COL_W;
       n.y = this.vertical ? col * AG_V_COL_H : row * AG_ROW_H;
       n.el.style.left = `${n.x - AG_NODE_W / 2}px`;
       n.el.style.top = `${n.y - AG_TILE / 2}px`;

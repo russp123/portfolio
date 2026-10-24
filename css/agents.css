@@ -752,8 +752,8 @@ html[data-theme="dark"] .agents-app {
 .agents-app .ag-status span:last-child { overflow: hidden; text-overflow: ellipsis; }
 .agents-app .ag-status-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--ag-text-3); }
 .agents-app .ag-status[data-kind="live"] .ag-status-dot { background: var(--ag-accent); }
-.agents-app .ag-status[data-kind="pending"] .ag-status-dot { background: var(--ag-accent); animation: ag-blink 1s ease-in-out infinite; }
-@keyframes ag-blink { 50% { opacity: 0.25; } }
+/* A live call's status is plain text: no dot, no animation. */
+.agents-app .ag-status[data-kind="pending"] .ag-status-dot { display: none; }
 
 /* ---------------- Side panel (body-level) ---------------- */
 .agents-app .ag-panel {
@@ -1558,6 +1558,16 @@ html[data-theme="dark"] .agents-app {
   .agents-app:has(.ag-panel.is-sheet.is-chat:not([hidden])) .ag-status { display: none; }
   .agents-app .ag-tabs { padding: 4px 8px 0 10px; }
   .agents-app .ag-reopen { bottom: calc(var(--ag-dock-space) + 10px); left: auto; right: 16px; transform: none; }
+}
+
+/* iOS Safari zooms into any field under 16px when it's focused. On touch
+   screens every field is 16px; mouse and trackpad keep the smaller sizes. */
+@media (pointer: coarse) {
+  .agents-app .ag-input,
+  .agents-app .ag-cell .ag-input,
+  .agents-app input,
+  .agents-app textarea,
+  .agents-app select { font-size: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

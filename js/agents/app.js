@@ -427,6 +427,7 @@
 
   /* ---------------- Status chip ---------------- */
   function setStatus(s) {
+    if (!s || s.kind !== "pending") stopLiveStatus();
     state.status = s;
     const el = els.status;
     if (!s) {
@@ -437,6 +438,31 @@
     el.dataset.kind = s.kind;
     el.innerHTML = `<span class="ag-status-dot" aria-hidden="true"></span><span>${esc(s.text)}</span>`;
   }
+  // While a live call runs: the agent's own short lines, one after the
+  // other, ending on the last. Reduced motion shows the first line only.
+  // Screen readers hear the first line, not every change.
+  const LIVE_LINE_MS = 1600;
+  let liveTimer = null;
+  function startLiveStatus(agent, values) {
+    let lines = [];
+    try { lines = (agent.liveStatus ? agent.liveStatus(values) : []).filter(Boolean); } catch (e) { lines = []; }
+    if (!lines.length) lines = ["Running live…"];
+    setStatus({ kind: "pending", text: lines[0] });
+    if (mqReduce.matches || lines.length < 2) return;
+    let i = 0;
+    els.status.setAttribute("aria-live", "off");
+    liveTimer = setInterval(() => {
+      i++;
+      setStatus({ kind: "pending", text: lines[i] });
+      if (i >= lines.length - 1) stopLiveStatus();
+    }, LIVE_LINE_MS);
+  }
+  function stopLiveStatus() {
+    clearInterval(liveTimer);
+    liveTimer = null;
+    els.status.setAttribute("aria-live", "polite");
+  }
+
   // The canvas pill only appears while a live call runs and when the
   // resting fallback plays: those tell the visitor something real.
   // Samples, finished live runs and replays show no label.
@@ -1213,7 +1239,7 @@
     canvas.markStart(false);
     const trigger = agent.nodes.find((n) => n.type === "trigger");
     canvas.setNode(trigger.id, "running", caption);
-    setStatus({ kind: "pending", text: "Running live…" });
+    startLiveStatus(agent, values);
 
     let run;
     try {
@@ -1607,7 +1633,7 @@
     canvas.markStart(false);
     canvas.reset();
     canvas.setNode(triggerOf(agent).id, "running", `Turn ${chat.turns.length + 1}`);
-    setStatus({ kind: "pending", text: `Running live · turn ${chat.turns.length + 1}…` });
+    startLiveStatus(agent, text);
     refreshChatPanel();
     refreshDetails();
 
