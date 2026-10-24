@@ -192,6 +192,7 @@ const PORTFOLIO = {
       tag: "AI Agents Demo",
       size: "wide",
       page: "/agents",
+      cover: "url('assets/agents-cover-b.jpg')",
     },
     
    
