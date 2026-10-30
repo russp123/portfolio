@@ -2538,3 +2538,106 @@ html[data-theme="light"] .agents-hl {
   .ah-cards { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
   .ah-card.is-featured { order: -1; }
 }
+
+/* ============================================================
+   /certificate-system only. Everything here is prefixed .cs- and
+   used by no other page.
+   ============================================================ */
+.cs-stats { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.cs-stats .stat-value { font-size: clamp(22px, 2vw, 28px); white-space: nowrap; }
+.cs-subtitle { font-size: 14px; font-weight: 600; margin: 0 0 10px; color: var(--text-primary); }
+.cs-after-shot { margin-top: 24px; }
+
+/* Screenshots: the space is held by the ratio, so nothing shifts on load. */
+.cs-shot {
+  position: relative;
+  aspect-ratio: var(--cs-ratio);
+  margin: 20px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.cs-shot-narrow { max-width: 560px; }
+.cs-shot img { display: block; width: 100%; height: auto; opacity: 0; transition: opacity 240ms ease; }
+.cs-shot img.is-loaded, .cs-shot noscript img { opacity: 1; }
+.cs-shot-ph { position: absolute; inset: 0; min-height: 0; }
+.cs-caption { font-size: 12px; line-height: 1.6; color: var(--text-tertiary); margin: 10px 0 0; }
+
+.cs-bignum {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: clamp(30px, 5vw, 60px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--badge-accent);
+  margin: 8px 0 20px;
+}
+
+/* Diagram: blueprint panels, side by side, stacked on phones. */
+.cs-diagram { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cs-diagram-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.cs-diagram-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cs-dg-text {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  fill: var(--text-secondary);
+}
+.cs-dg-strong { fill: var(--text-primary); }
+.cs-dg-num {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  fill: var(--text-tertiary);
+}
+.cs-dg-line { fill: none; stroke: var(--text-tertiary); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.cs-dg-dash { stroke-dasharray: 4 4; }
+.cs-dg-box { fill: var(--bg); stroke: var(--text-tertiary); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.cs-dg-figure { fill: var(--text-secondary); }
+.cs-dg-head { fill: var(--text-tertiary); }
+.cs-dg-gold { fill: none; stroke: var(--badge-accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.cs-dg-gold-line { fill: none; stroke: var(--badge-accent); stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+.cs-dg-head-gold { fill: var(--badge-accent); }
+.cs-dg-gold-text { fill: var(--badge-accent); }
+
+/* Timeline: one line of dates on desktop, a list on phones. */
+.cs-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-top: 1px solid var(--border);
+}
+.cs-timeline li { padding: 14px 16px 0 0; display: flex; flex-direction: column; gap: 4px; }
+.cs-timeline-date {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--badge-accent);
+}
+.cs-timeline-text { font-size: 14px; line-height: 1.5; color: var(--text-primary); }
+
+.cs-list { margin: 0; padding-left: 18px; }
+.cs-list li { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 8px; }
+.cs-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+/* These chips are labels here, not the clickable ones on the homepage. */
+.cs-chips .skill-chip { cursor: default; }
+.cs-chips .skill-chip:hover { color: var(--text-secondary); border-color: var(--border); }
+
+@media (max-width: 700px) {
+  .cs-diagram { grid-template-columns: 1fr; }
+  /* The SVG scales down on a phone, so its type starts larger to stay readable. */
+  .cs-dg-text, .cs-dg-num { font-size: 14px; letter-spacing: 0.03em; }
+  .cs-timeline { grid-template-columns: 1fr; border-top: 0; }
+  .cs-timeline li { flex-direction: row; gap: 16px; padding: 10px 0; border-top: 1px solid var(--border); }
+  .cs-timeline-date { flex: none; width: 56px; padding-top: 3px; }
+}

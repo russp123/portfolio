@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="A records and certificate system built for a US offshore safety training provider, replacing two subscriptions with one system on their own server. 179 certificate designs rebuilt, and 99.78% of the new renderer's ink within one pixel of the old system's output on the reference design." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Russel A. Pineda" />
+<meta property="og:title" content="Training &amp; Certificate System | Russel Pineda" />
+<meta property="og:description" content="A records and certificate system built for a US offshore safety training provider, replacing two subscriptions with one system on their own server. 179 certificate designs rebuilt, and 99.78% of the new renderer's ink within one pixel of the old system's output on the reference design." />
+<meta property="og:url" content="https://russelpineda.com/certificate-system" />
+<meta property="og:image" content="https://russelpineda.com/assets/preview.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Training &amp; Certificate System | Russel Pineda" />
+<meta name="twitter:description" content="A records and certificate system built for a US offshore safety training provider, replacing two subscriptions with one system on their own server. 179 certificate designs rebuilt, and 99.78% of the new renderer's ink within one pixel of the old system's output on the reference design." />
+<meta name="twitter:image" content="https://russelpineda.com/assets/preview.jpg" />
+<title>Training &amp; Certificate System | Russel Pineda</title>
+<link rel="canonical" href="https://russelpineda.com/certificate-system" />
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+</script>
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.25/dist/lenis.css" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="assets/portfolio-logo.jpg" />
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark"><span id="theme-icon">☾</span></button>
+
+  <button class="russellm-toggle" id="russellm-toggle" title="Chat with RUSSELLM">RUSSELLM</button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-title">RUSSELLM</span>
+      <button class="russellm-close" id="russellm-close" title="Close">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send">Send</button>
+    </form>
+  </aside>
+
+  <div class="wrap">
+
+    <header class="site-header">
+      <div class="col-start">
+        <a href="/"><p class="header-name" id="header-name">Russel A. Pineda</p></a>
+      </div>
+      <div class="col-mid"><span class="header-meta-item" id="header-title">Full-Stack Developer</span></div>
+      <div class="col-end"><span class="header-meta-item" id="header-location"></span></div>
+    </header>
+
+    <main style="padding:0;">
+
+      <!-- Hero is filled in by js/theme.js (initDetailHero). No cover yet, so it
+           shows the standard placeholder until Russel's image is set in js/data.js. -->
+      <div class="detail-hero" id="detail-hero" data-project-id="certificate-system"></div>
+
+      <div class="detail-layout">
+
+        <div class="detail-side">
+          <h1 class="detail-title">Training &amp; Certificate System</h1>
+          <p class="detail-subtitle">Replacing two subscriptions with a system they own</p>
+        </div>
+
+        <div class="detail-main">
+
+          <!-- DRAFT COPY: the source document was not available when this was built.
+               Every paragraph marked DRAFT is to be replaced from it. -->
+
+          <div class="detail-section">
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>A US offshore safety training provider ran its certificate work on two subscriptions: one for training records and one for producing certificates. I replaced both with a single system on their own server, and their staff moved their daily work onto it before the next renewal.</p>
+            </div>
+            <div class="detail-stats cs-stats">
+              <div><div class="stat-value">99.78%</div><div class="stat-label">match on the reference design</div></div>
+              <div><div class="stat-value">179</div><div class="stat-label">designs rebuilt</div></div>
+              <div><div class="stat-value">150 of 155</div><div class="stat-label">courses on their list can produce a certificate</div></div>
+              <div><div class="stat-value">Nearly 600</div><div class="stat-label">automated tests</div></div>
+              <div><div class="stat-value">10 weeks</div><div class="stat-label">from project start to the renewal date</div></div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">The problem</h2>
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>Every class was entered twice. The same course, dates and names went into the records system, then again into the certificate program, by hand. Both lived inside someone else's account, so the data, the designs and the renewal date were all out of their hands.</p>
+              <p>The certificates themselves could not change. Their clients already hold them, so whatever replaced the old program had to produce the same documents.</p>
+            </div>
+            <div class="cs-diagram">
+              <div class="cs-diagram-panel">
+              <svg class="cs-diagram-svg" viewBox="0 0 400 350" role="img" aria-labelledby="cs-before-title cs-before-desc">
+                <title id="cs-before-title">Before</title>
+                <desc id="cs-before-desc">Two separate boxes, a records system and a certificate program, inside a dashed outline labelled inside someone else's account. A staff member outside the outline has dashed arrows into both, labelled same class details, typed twice.</desc>
+                <defs><marker id="cs-arrow-before" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="cs-dg-head" d="M0 0 8 4 0 8z"/></marker></defs>
+                <text class="cs-dg-num" x="16" y="24">01</text><text class="cs-dg-text cs-dg-strong" x="40" y="24">BEFORE</text>
+                <rect class="cs-dg-line cs-dg-dash" x="16" y="42" width="368" height="152" rx="6"/>
+                <text class="cs-dg-text" x="30" y="66">INSIDE SOMEONE ELSE'S ACCOUNT</text>
+                <rect class="cs-dg-box" x="32" y="84" width="150" height="92" rx="4"/>
+                <text class="cs-dg-text cs-dg-strong" x="107" y="126" text-anchor="middle">RECORDS</text>
+                <text class="cs-dg-text cs-dg-strong" x="107" y="144" text-anchor="middle">SYSTEM</text>
+                <rect class="cs-dg-box" x="218" y="84" width="150" height="92" rx="4"/>
+                <text class="cs-dg-text cs-dg-strong" x="293" y="126" text-anchor="middle">CERTIFICATE</text>
+                <text class="cs-dg-text cs-dg-strong" x="293" y="144" text-anchor="middle">PROGRAM</text>
+                <path class="cs-dg-line cs-dg-dash" d="M182 256C130 246 107 220 107 180" marker-end="url(#cs-arrow-before)"/>
+                <path class="cs-dg-line cs-dg-dash" d="M218 256C270 246 293 220 293 180" marker-end="url(#cs-arrow-before)"/>
+                <circle class="cs-dg-figure" cx="200" cy="244" r="9"/>
+                <path class="cs-dg-figure" d="M182 282c0-13 8-22 18-22s18 9 18 22z"/>
+                <text class="cs-dg-text" x="200" y="310" text-anchor="middle">SAME CLASS DETAILS,</text>
+                <text class="cs-dg-text" x="200" y="328" text-anchor="middle">TYPED TWICE</text>
+              </svg>
+              </div>
+              <div class="cs-diagram-panel">
+              <svg class="cs-diagram-svg" viewBox="0 0 400 350" role="img" aria-labelledby="cs-after-title cs-after-desc">
+                <title id="cs-after-title">After</title>
+                <desc id="cs-after-desc">One solid box labelled their server, their domain, containing four modules: records, certificates, delivery record and design editor. A staff member has one arrow into the box, labelled entered once.</desc>
+                <defs><marker id="cs-arrow-after" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="cs-dg-head-gold" d="M0 0 8 4 0 8z"/></marker></defs>
+                <text class="cs-dg-num cs-dg-gold-text" x="16" y="24">02</text><text class="cs-dg-text cs-dg-strong" x="40" y="24">AFTER</text>
+                <rect class="cs-dg-gold" x="16" y="42" width="368" height="172" rx="6"/>
+                <text class="cs-dg-text cs-dg-gold-text" x="30" y="66">THEIR SERVER, THEIR DOMAIN</text>
+                <rect class="cs-dg-box" x="32" y="84" width="164" height="50" rx="4"/><text class="cs-dg-text cs-dg-strong" x="114" y="113" text-anchor="middle">RECORDS</text>
+                <rect class="cs-dg-box" x="204" y="84" width="164" height="50" rx="4"/><text class="cs-dg-text cs-dg-strong" x="286" y="113" text-anchor="middle">CERTIFICATES</text>
+                <rect class="cs-dg-box" x="32" y="146" width="164" height="50" rx="4"/><text class="cs-dg-text cs-dg-strong" x="114" y="175" text-anchor="middle">DELIVERY RECORD</text>
+                <rect class="cs-dg-box" x="204" y="146" width="164" height="50" rx="4"/><text class="cs-dg-text cs-dg-strong" x="286" y="175" text-anchor="middle">DESIGN EDITOR</text>
+                <path class="cs-dg-gold-line" d="M200 256V220" marker-end="url(#cs-arrow-after)"/>
+                <text class="cs-dg-text cs-dg-gold-text" x="214" y="244">ENTERED ONCE</text>
+                <circle class="cs-dg-figure" cx="200" cy="272" r="9"/>
+                <path class="cs-dg-figure" d="M182 310c0-13 8-22 18-22s18 9 18 22z"/>
+              </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">What I built</h2>
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>One system, with four parts that share the same records. The Overview is where the day starts: what is in date, what is due, and what is ready to issue.</p>
+            </div>
+            <figure class="cs-shot" style="--cs-ratio:1600/1000">
+              <img data-src="assets/certificate-system/overview.jpg" width="1600" height="1000" alt="The Overview screen, with counts of certificates still in date, needing renewal and running out soon, and a list of what needs attention." />
+              <noscript><img src="assets/certificate-system/overview.jpg" width="1600" height="1000" alt="The Overview screen, with counts of certificates still in date, needing renewal and running out soon, and a list of what needs attention." /></noscript>
+            </figure>
+          </div>
+
+          <div class="detail-section">
+            <h3 class="cs-subtitle">Records</h3>
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>A person is entered once and keeps one permanent student number, assigned automatically. Their whole training history sits on their record, and a certificate that has lapsed shows in red.</p>
+            </div>
+            <figure class="cs-shot" style="--cs-ratio:1600/1000">
+              <img data-src="assets/certificate-system/person-training-history.jpg" width="1600" height="1000" alt="One person's training history: five courses with completion date, expiry, stage and certificate number. Two lapsed certificates show in red." />
+              <noscript><img src="assets/certificate-system/person-training-history.jpg" width="1600" height="1000" alt="One person's training history: five courses with completion date, expiry, stage and certificate number. Two lapsed certificates show in red." /></noscript>
+            </figure>
+            <!-- DRAFT -->
+            <div class="detail-text cs-after-shot">
+              <p>If somebody types details that match a person already on file, the form says who, with their number, before anything is saved. It warns and does not block, because two people really can share a name and a birthday.</p>
+            </div>
+            <figure class="cs-shot" style="--cs-ratio:1600/1000">
+              <img data-src="assets/certificate-system/duplicate-check.jpg" width="1600" height="1000" alt="The new person form with a warning: somebody on file looks like this person, with their name, student number and the matching passport number." />
+              <noscript><img src="assets/certificate-system/duplicate-check.jpg" width="1600" height="1000" alt="The new person form with a warning: somebody on file looks like this person, with their name, student number and the matching passport number." /></noscript>
+            </figure>
+          </div>
+
+          <div class="detail-section">
+            <h3 class="cs-subtitle">Certificates</h3>
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>A whole class is issued in one action. Where a course has more than one design in use, a person chooses and the system never guesses, and everything can be combined into one file for checking before it goes out.</p>
+            </div>
+            <figure class="cs-shot" style="--cs-ratio:1600/1000">
+              <img data-src="assets/certificate-system/issue-a-class.jpg" width="1600" height="1000" alt="The issue dialog listing six trainees on one course, with a choice between two designs and a switch to combine them into one file for checking." />
+              <noscript><img src="assets/certificate-system/issue-a-class.jpg" width="1600" height="1000" alt="The issue dialog listing six trainees on one course, with a choice between two designs and a switch to combine them into one file for checking." /></noscript>
+            </figure>
+            <figure class="cs-shot cs-shot-narrow" style="--cs-ratio:1200/1553">
+              <img data-src="assets/certificate-system/certificate-sample.jpg" width="1200" height="1553" alt="A certificate from the new renderer for a fictional trainee, on a Wire Rope Inspection course. The provider's watermark is replaced with a neutral placeholder." />
+              <noscript><img src="assets/certificate-system/certificate-sample.jpg" width="1200" height="1553" alt="A certificate from the new renderer for a fictional trainee, on a Wire Rope Inspection course. The provider's watermark is replaced with a neutral placeholder." /></noscript>
+            </figure>
+            <p class="cs-caption">A certificate from the real renderer, with a fictional trainee. The watermark and signatures are placeholders here, so the real document looks richer.</p>
+          </div>
+
+          <div class="detail-section">
+            <h3 class="cs-subtitle">Delivery record</h3>
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>Each certificate records when it was emailed, when the original was sent and when the client confirmed it arrived. Nothing on this screen sends anything. It is the record of what went out.</p>
+            </div>
+            <figure class="cs-shot" style="--cs-ratio:1600/1000">
+              <img data-src="assets/certificate-system/delivery-record.jpg" width="1600" height="1000" alt="A certificate's delivery record, with separate dates for emailed, original sent and received, and a courier note." />
+              <noscript><img src="assets/certificate-system/delivery-record.jpg" width="1600" height="1000" alt="A certificate's delivery record, with separate dates for emailed, original sent and received, and a courier note." /></noscript>
+            </figure>
+            <!-- DRAFT -->
+            <div class="detail-text cs-after-shot">
+              <p>A certificate that went out with a mistake goes through Correct. It keeps its number, keeps a copy of the document that already went out, and records what was wrong.</p>
+            </div>
+            <figure class="cs-shot" style="--cs-ratio:1600/1000">
+              <img data-src="assets/certificate-system/correction-keeps-number.jpg" width="1600" height="1000" alt="The certificates list after a correction. A message confirms the certificate kept its number, and the row shows a Corrected badge with its delivery dates intact." />
+              <noscript><img src="assets/certificate-system/correction-keeps-number.jpg" width="1600" height="1000" alt="The certificates list after a correction. A message confirms the certificate kept its number, and the row shows a Corrected badge with its delivery dates intact." /></noscript>
+            </figure>
+          </div>
+
+          <div class="detail-section">
+            <h3 class="cs-subtitle">Design editor</h3>
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>Staff can change a design's wording with the page redrawing beside them. Copying a close design is the usual way to start a new one, so a copy marks every line that still carries the previous course's wording.</p>
+            </div>
+            <figure class="cs-shot" style="--cs-ratio:1600/1000">
+              <img data-src="assets/certificate-system/design-editor-markers.jpg" width="1600" height="1000" alt="The design editor showing red warnings on a copied design: the footer line still names the old design, and three lines still mention the previous course." />
+              <noscript><img src="assets/certificate-system/design-editor-markers.jpg" width="1600" height="1000" alt="The design editor showing red warnings on a copied design: the footer line still names the old design, and three lines still mention the previous course." /></noscript>
+            </figure>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">The hard part</h2>
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>The old program's output was the specification, so the new renderer had to be measured against it, pixel by pixel, instead of judged by eye.</p>
+            </div>
+            <p class="cs-bignum">327 of 146,157 pixels</p>
+            <div class="detail-text">
+              <p>On the reference design, 99.78% of the new renderer's ink lands within one pixel of the old system's output. Most of the remaining difference is two thin lines in the signature area.</p>
+              <!-- TODO for Russel: the source line says this was re-measured "on the live server".
+                   Add those words back only if you confirm them. -->
+              <p>I measured it again on the final build, and the number has not moved.</p>
+            </div>
+            <figure class="cs-shot cs-shot-narrow" style="--cs-ratio:1100/1424">
+              <img data-src="assets/certificate-system/difference-map.jpg" width="1100" height="1424" alt="A blank page the size of a certificate showing only the pixels that differ, as red marks: two thin horizontal lines at lower left and a few small marks at upper right." />
+              <noscript><img src="assets/certificate-system/difference-map.jpg" width="1100" height="1424" alt="A blank page the size of a certificate showing only the pixels that differ, as red marks: two thin horizontal lines at lower left and a few small marks at upper right." /></noscript>
+            </figure>
+            <p class="cs-caption">Every pixel that differs by more than one pixel's distance, enlarged so it can be seen. Nothing else from the certificate is shown.</p>
+            <figure class="cs-shot" style="--cs-ratio:1600/457">
+              <img data-src="assets/certificate-system/difference-map-cluster.jpg" width="1600" height="457" alt="A close-up of the densest cluster of differing pixels: a single straight row of red squares." />
+              <noscript><img src="assets/certificate-system/difference-map-cluster.jpg" width="1600" height="457" alt="A close-up of the densest cluster of differing pixels: a single straight row of red squares." /></noscript>
+            </figure>
+            <p class="cs-caption">The densest cluster, zoomed in: one unbroken row.</p>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">Timeline</h2>
+            <ol class="cs-timeline">
+              <li><span class="cs-timeline-date">Aug 7</span><span class="cs-timeline-text">System analysis</span></li>
+              <li><span class="cs-timeline-date">Aug 13</span><span class="cs-timeline-text">Project start</span></li>
+              <li><span class="cs-timeline-date">Aug 29</span><span class="cs-timeline-text">Live on their own server</span></li>
+              <li><span class="cs-timeline-date">Sep 24</span><span class="cs-timeline-text">Staff training</span></li>
+              <li><span class="cs-timeline-date">Sep 25</span><span class="cs-timeline-text">In daily use</span></li>
+            </ol>
+            <p class="cs-caption">All before their October renewal.</p>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">What they ended up with</h2>
+            <!-- DRAFT -->
+            <ul class="cs-list">
+              <li>One system on their own server and domain, holding records, certificates, the delivery record and the designs.</li>
+              <li>179 certificate designs, rebuilt from a legacy library of 1,044.</li>
+              <li>150 of the 155 courses on their list able to produce a certificate.</li>
+              <li>Their staff entering real records in it since September 25, and both old subscriptions cancelled.</li>
+              <li>A plain-English manual for their staff, and handover documents for whoever looks after it next.</li>
+            </ul>
+          </div>
+
+          <div class="detail-section">
+            <h2 class="detail-section-title">How it was run</h2>
+            <!-- DRAFT -->
+            <div class="detail-text">
+              <p>I worked directly with their team on regular calls, and when their staff started using it, what they reported went to the front of the queue. Inside their old systems I only ever read; nothing there was changed. Nearly 600 automated tests guard the work.</p>
+            </div>
+            <div class="service-skills cs-chips">
+              <span class="skill-chip">Laravel</span>
+              <span class="skill-chip">Filament</span>
+              <span class="skill-chip">PHP</span>
+              <span class="skill-chip">TCPDF</span>
+              <span class="skill-chip">MySQL</span>
+              <span class="skill-chip">Nginx</span>
+              <span class="skill-chip">Ubuntu</span>
+              <span class="skill-chip">PHPUnit</span>
+              <span class="skill-chip">Python</span>
+            </div>
+          </div>
+
+          <!-- Quote slot. Stays hidden until a real quote is supplied. Never invent one.
+               To use it: add the words, then remove the hidden attribute. -->
+          <div class="detail-section" id="cs-quote" hidden>
+            <div class="detail-quote"></div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <a class="cv-button" id="footer-cv" href="#" target="_blank" rel="noopener"></a>
+      <div class="footer-links" id="footer-links"></div>
+      <div>
+        <p class="footer-cta" id="footer-cta"></p>
+        <a class="footer-email" id="footer-email" href="#"></a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/russellm.js"></script>
+  <script>
+    // Screenshots load as they near the viewport, behind the standard placeholder.
+    (function () {
+      const shots = document.querySelectorAll(".cs-shot img[data-src]");
+      const reveal = (img) => {
+        const done = () => {
+          img.classList.add("is-loaded");
+          const ph = img.parentElement.querySelector(".cs-shot-ph");
+          if (ph) ph.remove();
+        };
+        img.addEventListener("load", done, { once: true });
+        img.src = img.dataset.src;
+      };
+      shots.forEach((img) => img.insertAdjacentHTML("beforebegin", renderPlaceholderCover("cs-shot-ph")));
+      if (!("IntersectionObserver" in window)) {
+        shots.forEach(reveal);
+        return;
+      }
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            io.unobserve(e.target);
+            reveal(e.target);
+          });
+        },
+        { rootMargin: "300px 0px" }
+      );
+      shots.forEach((img) => io.observe(img));
+    })();
+  </script>
+</body>
+</html>
