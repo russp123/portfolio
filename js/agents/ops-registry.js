@@ -664,10 +664,139 @@ const OPS_AGENTS = [
       { id: "w7", from: "review", to: "card" },
     ],
   },
+
+  /* ---------------- Review Guardian and Dead Lead Revival, same engines ---------------- */
+  Object.assign(makeReviewGuardian({ id: "hb-review-guardian", business: OPS_BUSINESS, owner: HARBOURLINE.owner.first, place: "business", recordsWord: "job" }), {
+    team: "ops-team",
+    short: "Review Guardian",
+    role: "Replies to every review and alerts the owner to the ones that need a call.",
+    problem: "Replies to every review and flags the ones the owner must see.",
+  }),
+  Object.assign(
+    makeDeadLeadRevival({
+      id: "hb-dead-lead-revival",
+      business: OPS_BUSINESS,
+      city: "Sydney",
+      timeZone: HARBOURLINE.timeZone,
+      validDays: HARBOURLINE.quoteValidDays,
+      examples: { name: "e.g. Ben Carter", job: "e.g. hot water replacement", amount: "e.g. $1,180" },
+    }),
+    {
+      team: "ops-team",
+      short: "Dead Lead Revival",
+      role: "Sweeps old quotes, leaves opted-out customers alone and writes to the rest.",
+      problem: "Wins back old quotes sitting in the CRM.",
+    }
+  ),
+
+  /* ---------------- Owner's Daily Brief ---------------- */
+  {
+    id: "daily-brief",
+    team: "ops-team",
+    status: "live",
+    name: "Owner's Daily Brief",
+    short: "Daily Brief",
+    role: "Turns everything the team logged into one screen for the owner.",
+    business: OPS_BUSINESS,
+    problem: "One screen on everything the team did, and what needs the owner.",
+    icon: "pulse",
+    preview: "table",
+    trigger: {
+      payload: "fields",
+      fields: [
+        { id: "receivedAt", type: "hidden" },
+        {
+          id: "rows",
+          type: "table",
+          label: "The day's log",
+          minRows: 3,
+          maxRows: 30,
+          maxTotal: 7000,
+          required: true,
+          primary: true,
+          rowLabel: "Entry",
+          columns: [
+            { id: "time", label: "Time", type: "text", maxLength: 10, required: true, placeholder: "e.g. 7:05am" },
+            { id: "agent", label: "Agent", type: "text", maxLength: 30, required: true, placeholder: "e.g. Scheduler" },
+            { id: "kind", label: "Kind", type: "text", maxLength: 12, required: true, placeholder: "e.g. booking" },
+            { id: "amount", label: "Invoiced", type: "text", maxLength: 12, placeholder: "e.g. $400" },
+            { id: "flag", label: "Owner? (yes)", type: "text", maxLength: 3, placeholder: "yes" },
+            { id: "who", label: "Who", type: "text", maxLength: 40, placeholder: "e.g. Jo Kim" },
+            { id: "what", label: "What happened", type: "text", maxLength: 320, required: true, placeholder: "One line from the team", wide: true },
+          ],
+        },
+      ],
+      hints: {
+        sample: "This sample replays a recorded run, no live call. Edit any cell to run it live.",
+        custom: "Custom logs run the agent live.",
+        empty: "Pick the sample day or write your own log.",
+      },
+      emptyError: "Pick a sample, or fill in the time, agent, kind and what happened for at least 3 entries.",
+      caption: (v) => (v && Array.isArray(v.rows) ? `${v.rows.length} entries` : ""),
+    },
+    summarize(r) {
+      return `${r.needsYou.length} for the owner · ${r.invoiced} invoiced`;
+    },
+    liveStatus: (v) => {
+      const n = v && Array.isArray(v.rows) ? v.rows.length : 0;
+      return [`Reading ${n} log entries…`, "Working out what needs the owner…", "Writing the brief…"];
+    },
+
+    nodes: [
+      {
+        id: "log",
+        type: "trigger",
+        col: 0,
+        row: 0,
+        label: "Day's log",
+        icon: "listCheck",
+        about: "Everything the team logged today. Pick the sample day or write your own, then run the agent.",
+      },
+      {
+        id: "count",
+        type: "action",
+        col: 1,
+        row: 0,
+        label: "Count",
+        icon: "gauge",
+        about: "Adds up the day and the invoices in code. The model never does the sums.",
+        caption: (r) => `${r.invoiced} invoiced`,
+        view: (run) => [{ type: "kv", rows: run.result.counts.map((c) => [c.label, String(c.n)]).concat([["Invoiced today", run.result.invoiced]]) }],
+      },
+      {
+        id: "needs",
+        type: "ai",
+        col: 2,
+        row: 0,
+        label: "What needs you",
+        icon: "flag",
+        about: "Every flagged row becomes one item with one action. A flagged row can't be dropped.",
+        caption: (r) => `${r.needsYou.length} item${r.needsYou.length === 1 ? "" : "s"}`,
+        view: (run) => [{ type: "list", title: "For the owner", items: run.result.needsYou.map((n) => `${n.who}: ${n.action}`), empty: "Nothing today." }],
+      },
+      {
+        id: "brief",
+        type: "output",
+        col: 3,
+        row: 0,
+        label: "Brief",
+        icon: "pulse",
+        about: "The deliverable: the owner's day, on one screen.",
+        caption: () => "Ready to read",
+        view: (run) => [{ type: "brief", result: run.result }, { type: "note", body: "A visual mock for a fictional business. Nothing is sent." }],
+      },
+    ],
+
+    edges: [
+      { id: "b1", from: "log", to: "count" },
+      { id: "b2", from: "count", to: "needs" },
+      { id: "b3", from: "needs", to: "brief" },
+    ],
+  },
 ];
 
 AGENTS.push(...OPS_AGENTS);
 
 // The eight on the board, in lane order. Speed-to-Lead is the existing
 // agent, unchanged.
-const OPS_TEAM = ["hb-front-desk", "speed-to-lead", "quote-builder", "scheduler", "job-wrap-up"];
+const OPS_TEAM = ["hb-front-desk", "speed-to-lead", "quote-builder", "scheduler", "job-wrap-up", "hb-review-guardian", "hb-dead-lead-revival", "daily-brief"];

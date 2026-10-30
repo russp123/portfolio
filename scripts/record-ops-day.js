@@ -325,9 +325,10 @@ const clock12 = (t) => {
   const [hh, mm] = t.split(":").map(Number);
   return `${hh % 12 || 12}:${String(mm).padStart(2, "0")}${hh < 12 ? "am" : "pm"}`;
 };
+const AGENT_NAMES = { "speed-to-lead": "Speed-to-Lead", "hb-front-desk": "Front Desk", "quote-builder": "Quote Builder", scheduler: "Scheduler", "job-wrap-up": "Job Wrap-up", "hb-review-guardian": "Review Guardian", "hb-dead-lead-revival": "Dead Lead Revival" };
 function logRow(step, ev, r) {
   const at = clock12(ev.time);
-  const row = (what, kind, extra = {}) => ({ time: at, agent: step.agent, what, kind, flag: "", amount: "", ...extra });
+  const row = (what, kind, extra = {}) => ({ time: at, agent: AGENT_NAMES[step.agent], what, kind, flag: "", who: "", amount: "", ...extra });
   switch (step.agent) {
     case "speed-to-lead":
       return row(`${r.lead.name || "New lead"}, ${r.lead.suburb || "suburb not given"}: ${r.lead.job}. Scored ${r.score}${r.emergency ? ", emergency, on-call plumber alerted" : ""}. Text reply drafted.`, "lead");
@@ -336,11 +337,11 @@ function logRow(step, ev, r) {
     case "quote-builder":
       return row(`Quote ${r.quote.number} for ${r.quote.customer}: ${r.jobLabel}, ${r.totals ? r.totals.label : "not on the services list"}${r.totals && r.totals.partsOnSite ? " plus parts quoted on site" : ""}.`, "quote");
     case "scheduler":
-      return row(`${r.customer}, ${r.suburb}: ${r.jobLabel} placed ${r.slot ? `${r.slot.dayLabel}, ${r.slot.window.toLowerCase()}, with ${r.slot.techName}` : "with the office"}.${r.bump ? ` Moved ${r.bump.who} to ${r.bump.label}, the customer needs telling.` : ""}`, r.emergency ? "emergency" : "booking", r.bump ? { flag: "yes" } : {});
+      return row(`${r.customer}, ${r.suburb}: ${r.jobLabel} placed ${r.slot ? `${r.slot.dayLabel}, ${r.slot.window.toLowerCase()}, with ${r.slot.techName}` : "with the office"}.${r.bump ? ` Moved ${r.bump.who} to ${r.bump.label}, the customer needs telling.` : ""}`, r.emergency ? "emergency" : "booking", r.bump ? { flag: "yes", who: r.bump.who } : {});
     case "job-wrap-up":
-      return row(`${r.customer}: ${r.job} finished, ${r.amount} invoiced, due ${r.dueLabel}.${r.problem ? ` Problem on the job: ${r.ownerFlag} Review request waits until the owner has called.` : " Review request drafted."}`, "job", { amount: r.amount, flag: r.problem ? "yes" : "" });
+      return row(`${r.customer}: ${r.job} finished, ${r.amount} invoiced, due ${r.dueLabel}.${r.problem ? ` Problem on the job: ${r.ownerFlag} Review request waits until the owner has called.` : " Review request drafted."}`, "job", { amount: r.amount, flag: r.problem ? "yes" : "", who: r.problem ? r.customer : "" });
     case "hb-review-guardian":
-      return row(`${r.rating}-star review from ${step.fields.name}: reply drafted${r.isNegative ? `. ${r.ownerAlert.summary}` : ""}.`, "review", r.isNegative ? { flag: "yes" } : {});
+      return row(`${r.rating}-star review from ${step.fields.name}: reply drafted.${r.isNegative ? ` ${r.ownerAlert.summary}` : ""}`, "review", r.isNegative ? { flag: "yes", who: step.fields.name } : {});
     case "hb-dead-lead-revival":
       return row(`Old quotes sweep: ${r.summary.reEngage} to re-engage, ${r.summary.nurture} to nurture, ${r.summary.dontContact} not to contact. ${r.leads.filter((l) => l.message).length} messages drafted.`, "campaign");
     default:

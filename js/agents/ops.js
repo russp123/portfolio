@@ -24,6 +24,7 @@ const AgentOps = (function () {
         (AGENT_SAMPLES[s.agent] = AGENT_SAMPLES[s.agent] || []).push(s);
       }
     }
+    if (OPS_DAY.brief) AGENT_SAMPLES["daily-brief"] = [OPS_DAY.brief];
   }
 
   /* ---------------- Blocks ---------------- */
@@ -97,6 +98,27 @@ const AgentOps = (function () {
         ${["Week of 2 Nov", "Week of 9 Nov"].map((l, i) => `<button type="button" data-cal-week="${i}" aria-pressed="${i === shown}">${l}</button>`).join("")}
       </div>
       ${weeks.map(week).join("")}
+    </div>`;
+  }
+
+  // The owner's day on one screen.
+  function brief(b, { esc }) {
+    const r = b.result;
+    const section = (head, items) => (items.length ? `<h4>${esc(head)}</h4><ul>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : "");
+    return `<div class="ag-brief${b.wide ? " is-wide" : ""}">
+      <span class="ag-brief-day">${esc(r.day)}</span>
+      <p class="ag-brief-head">${esc(r.headline)}</p>
+      <dl class="ag-brief-counts">
+        ${r.counts.map((c) => `<div><dd>${esc(c.n)}</dd><dt>${esc(c.label)}</dt></div>`).join("")}
+        <div><dd>${esc(r.invoiced)}</dd><dt>Invoiced</dt></div>
+      </dl>
+      <div class="ag-brief-cols">
+        <div class="ag-brief-needs">
+          <h4>Needs you</h4>
+          ${r.needsYou.length ? `<ol>${r.needsYou.map((n) => `<li><strong>${esc(n.who)}</strong><span>${esc(n.what)}</span><em>${esc(n.action)}</em></li>`).join("")}</ol>` : `<p>Nothing today.</p>`}
+        </div>
+        <div>${section("Handled", r.done)}${section("Coming up", r.tomorrow)}</div>
+      </div>
     </div>`;
   }
 
@@ -190,7 +212,7 @@ const AgentOps = (function () {
       root.hidden = true;
     },
     blocks(helpers) {
-      return { quoteDoc: (b) => quoteDoc(b, helpers), calendar: (b) => calendar(b, helpers) };
+      return { quoteDoc: (b) => quoteDoc(b, helpers), calendar: (b) => calendar(b, helpers), brief: (b) => brief(b, helpers) };
     },
     loadSamples,
   };

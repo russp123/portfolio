@@ -113,6 +113,309 @@ function groupNode(id, group, row, icon, about) {
   };
 }
 
+// Review Guardian and Dead Lead Revival are one engine each; everything
+// specific to a business comes from c, so the Ops Team can run its own.
+function makeReviewGuardian(c) {
+  return {
+    id: c.id,
+    status: "live",
+    name: "Review Guardian",
+    business: c.business,
+    problem: "Replies to every review and flags the ones the owner must see.",
+    icon: "star",
+    preview: "review",
+    trigger: {
+      payload: "fields",
+      fields: [
+        { id: "rating", type: "rating", label: "Star rating", required: true },
+        { id: "name", type: "text", label: "Reviewer first name", maxLength: 40, required: true, placeholder: "e.g. Sam" },
+        { id: "review", type: "textarea", label: "Review", maxLength: 1200, rows: 6, required: true, primary: true, placeholder: "Paste or write a customer review." },
+        {
+          id: "jobNote",
+          type: "textarea",
+          label: "Internal job note (optional)",
+          maxLength: 600,
+          rows: 3,
+          placeholder: `What the ${c.recordsWord} records say. Used for the owner alert only, never shown publicly.`,
+        },
+      ],
+      hints: {
+        sample: "This sample replays a recorded run, no live call. Edit any field to run it live.",
+        custom: "Custom input runs the agent live.",
+        empty: "Pick a sample or write your own review.",
+      },
+      emptyError: "Pick a sample, or add a star rating, a first name and the review.",
+      caption: (v) => (v && Number(v.rating) ? `${v.rating} star${Number(v.rating) === 1 ? "" : "s"}` : ""),
+    },
+    summarize(r) {
+      return [`${r.rating} star${r.rating === 1 ? "" : "s"}`, cap(r.sentiment), r.isNegative ? "Owner alerted" : ""].filter(Boolean).join(" · ");
+    },
+    liveStatus: (v) => ["Reading the review…", v && v.jobNote ? "Checking it against the job note…" : "Checking what the review is about…", `Drafting ${c.owner}'s reply…`],
+
+    nodes: [
+      {
+        id: "review",
+        type: "trigger",
+        col: 0,
+        row: 0,
+        label: "New review",
+        icon: "star",
+        about: `A new review lands on the ${c.place}'s Google profile. Pick a sample or write your own, then run the agent.`,
+      },
+      {
+        id: "read",
+        type: "ai",
+        col: 1,
+        row: 0,
+        label: "Read review",
+        icon: "sparkle",
+        about: "Works out how the customer feels and what the review is about.",
+        caption: (r) => cap(r.sentiment),
+        view: (run) => {
+          const r = run.result;
+          return [
+            { type: "badge", label: cap(r.sentiment), tone: r.sentiment === "negative" ? "accent" : r.sentiment === "mixed" ? "strong" : "muted" },
+            { type: "kv", rows: [["Stars", `${r.rating} of 5`], ["Topics", r.topics.map(cap).join(", ")]], empty: "None" },
+          ];
+        },
+      },
+      {
+        id: "stars",
+        type: "branch",
+        col: 2,
+        row: 0,
+        label: "1 to 2 stars?",
+        icon: "split",
+        about: "Low ratings go to the owner before anything is posted.",
+        decide: (r) => (r.isNegative ? "yes" : "no"),
+        caption: (r) => (r.isNegative ? "Yes" : "No"),
+        view: (run) => [
+          { type: "badge", label: run.result.isNegative ? "Owner needs to see this" : "No alert needed", tone: run.result.isNegative ? "accent" : "muted" },
+          {
+            type: "text",
+            body: run.result.isNegative
+              ? `A 1 or 2 star review, so ${c.owner} gets an alert with what went wrong and a suggested next step.`
+              : "3 stars or more, so the reply goes straight to drafting.",
+          },
+        ],
+      },
+      {
+        id: "alert",
+        type: "action",
+        col: 3,
+        row: -1,
+        label: "Alert owner",
+        icon: "bell",
+        about: `On 1 and 2 star reviews only: tells ${c.owner} what went wrong, checks it against the job note, and suggests one action.`,
+        caption: () => `${c.owner} alerted`,
+        view: (run) => {
+          const a = run.result.ownerAlert || {};
+          return [
+            { type: "quote", title: "What went wrong", body: a.summary },
+            { type: "quote", title: "Against the job note", body: a.jobNoteMatch },
+            { type: "quote", title: "Suggested action", body: a.suggestedAction },
+            { type: "note", body: "A mock alert. Nothing is sent." },
+          ];
+        },
+      },
+      {
+        id: "reply",
+        type: "ai",
+        col: 4,
+        row: 0,
+        label: "Draft public reply",
+        icon: "message",
+        about: `The reply posted under the review: calm, specific, under 80 words, signed by ${c.owner}.`,
+        caption: (r) => `${r.publicReply.trim().split(/\s+/).length} words`,
+        view: (run) => [{ type: "sms", body: run.result.publicReply, limit: 80, unit: "words" }],
+      },
+      {
+        id: "followup",
+        type: "ai",
+        col: 5,
+        row: 0,
+        label: "Private follow-up",
+        icon: "chat",
+        about: "A short private message to the customer. Never posted.",
+        caption: () => "Text to customer",
+        view: (run) => [
+          { type: "quote", title: "Text message to the customer", body: run.result.followUp.message },
+          { type: "note", body: "Private. Never posted, and nothing is sent in this demo." },
+        ],
+      },
+      {
+        id: "card",
+        type: "output",
+        col: 6,
+        row: 0,
+        label: "Review card",
+        icon: "card",
+        about: "The deliverable: the review with the owner's response under it, plus the private follow-up.",
+        caption: () => "Ready to post",
+        view: (run) => {
+          const r = run.result;
+          const f = run.fields || {};
+          return [
+            { type: "review", title: "Google review", name: f.name, rating: r.rating, text: f.review, reply: r.publicReply },
+            { type: "quote", title: "Private follow-up", body: r.followUp.message },
+            { type: "note", body: "A visual mock. Nothing is posted or sent." },
+          ];
+        },
+      },
+    ],
+
+    edges: [
+      { id: "r1", from: "review", to: "read" },
+      { id: "r2", from: "read", to: "stars" },
+      { id: "r3", from: "stars", to: "alert", when: "yes", label: "Yes" },
+      { id: "r4", from: "alert", to: "reply" },
+      { id: "r5", from: "stars", to: "reply", when: "no", label: "No" },
+      { id: "r6", from: "reply", to: "followup" },
+      { id: "r7", from: "followup", to: "card" },
+    ],
+  };
+}
+const TORQUE_CONFIG = { id: "review-guardian", business: "Torque & Co Auto Service", owner: "Dan", place: "shop", recordsWord: "workshop" };
+
+function makeDeadLeadRevival(c) {
+  return {
+    id: c.id,
+    status: "live",
+    name: "Dead Lead Revival",
+    business: c.business,
+    problem: "Wins back old quotes sitting in your CRM.",
+    icon: "revive",
+    preview: "table",
+    // Phone: lanes read Re-engage, Nurture, Don't contact left to right.
+    layout: { vRow: 132, vMirror: true },
+    trigger: {
+      payload: "fields",
+      fields: [
+        { id: "receivedAt", type: "time", label: `Sending on (${c.city} time)`, timeZone: c.timeZone },
+        {
+          id: "leads",
+          type: "table",
+          label: "Old quotes",
+          minRows: 5,
+          maxRows: 8,
+          maxTotal: 2400,
+          required: true,
+          primary: true,
+          rowLabel: "Quote",
+          columns: [
+            { id: "name", label: "Name", type: "text", maxLength: 40, required: true, placeholder: c.examples.name },
+            { id: "job", label: "Job", type: "text", maxLength: 40, required: true, placeholder: c.examples.job },
+            { id: "quoteDate", label: "Quote date", type: "date", required: true },
+            { id: "amount", label: "Quote amount", type: "text", maxLength: 16, required: true, placeholder: c.examples.amount },
+            { id: "note", label: "Last note", type: "text", maxLength: 200, required: true, placeholder: "What the CRM says", wide: true },
+          ],
+        },
+      ],
+      hints: {
+        sample: "This sample replays a recorded run, no live call. Edit any cell to run it live.",
+        custom: "Custom lists run the agent live.",
+        empty: "Pick a sample list or fill in your own.",
+      },
+      emptyError: "Pick a sample, or fill in every cell for 5 to 8 old quotes.",
+      caption: (v) => (v && Array.isArray(v.leads) ? `${v.leads.length} old quotes` : ""),
+    },
+    summarize(r) {
+      const s = r.summary;
+      return `${s.reEngage} re-engage · ${s.nurture} nurture · ${s.dontContact} don't contact`;
+    },
+    liveStatus: (v) => {
+      const n = v && Array.isArray(v.leads) ? v.leads.length : 0;
+      return [`Checking ${n} quotes…`, `Sorting ${n} leads…`, "Writing the messages…"];
+    },
+
+    nodes: [
+      {
+        id: "load",
+        type: "trigger",
+        col: 0,
+        row: 0,
+        label: "Load list",
+        icon: "inbox",
+        about: "Old quotes exported from the CRM, 5 to 8 at a time. Pick a sample list or edit your own, then run the agent.",
+      },
+      {
+        id: "check",
+        type: "ai",
+        col: 1,
+        row: 0,
+        label: "Check quotes",
+        icon: "listCheck",
+        about: `Works out each quote's age, which quotes have expired (over ${c.validDays} days), and who has opted out or gone elsewhere.`,
+        caption: (r) => `${r.leads.filter((l) => l.quoteExpired).length} expired · ${r.leads.filter((l) => l.optedOut).length} opted out`,
+        view: (run) => {
+          const r = run.result;
+          const rows = campaignRows(run);
+          const oldest = rows.reduce((m, l) => Math.max(m, l.daysSinceQuote), 0);
+          return [
+            {
+              type: "kv",
+              rows: [
+                ["Quotes checked", String(rows.length)],
+                ["Oldest quote", `${oldest} days`],
+                [`Expired (over ${c.validDays} days)`, String(r.leads.filter((l) => l.quoteExpired).length)],
+                ["Opted out or went elsewhere", String(r.leads.filter((l) => l.optedOut).length)],
+              ],
+            },
+            {
+              type: "list",
+              title: "Flagged",
+              items: rows
+                .filter((l) => l.quoteExpired || l.optedOut)
+                .map((l) => `${l.name}: ${[l.quoteExpired ? `quote expired, ${l.daysSinceQuote} days old` : "", l.optedOut ? "opted out or went elsewhere" : ""].filter(Boolean).join(", ")}`),
+              empty: "Nothing flagged. Every quote is current and nobody has opted out.",
+            },
+          ];
+        },
+      },
+      {
+        id: "sort",
+        type: "ai",
+        col: 2,
+        row: 0,
+        label: "Sort leads",
+        icon: "split",
+        about: "Puts every lead in exactly one group, with a one-line reason.",
+        caption: (r) => `${r.leads.length} sorted`,
+        view: (run) => [{ type: "table", title: "Every lead, one group each", rows: campaignRows(run), compact: true }],
+      },
+      groupNode("reengage", "re-engage", -1, "revive", "Leads with a real chance now. Each gets a personal message and a follow-up step."),
+      groupNode("nurture", "nurture", 0, "sprout", "Interested but not now. A gentle check-in, never a discount."),
+      groupNode("dontcontact", "dont-contact", 1, "ban", "Went elsewhere, asked not to be contacted, or opted out. No message is written."),
+      {
+        id: "preview",
+        type: "output",
+        col: 4,
+        row: 0,
+        label: "Campaign preview",
+        icon: "table",
+        about: "The deliverable: every lead sorted, with its message, reason and next action. Tap a row to open it.",
+        caption: (r) => `${r.leads.filter((l) => l.message).length} messages`,
+        view: (run) => [
+          { type: "table", title: "Campaign preview", rows: campaignRows(run) },
+          { type: "note", body: "A visual mock. Nothing is sent." },
+        ],
+      },
+    ],
+
+    edges: [
+      { id: "d1", from: "load", to: "check" },
+      { id: "d2", from: "check", to: "sort" },
+      { id: "d3", from: "sort", to: "reengage" },
+      { id: "d4", from: "sort", to: "nurture" },
+      { id: "d5", from: "sort", to: "dontcontact" },
+      { id: "d6", from: "reengage", to: "preview" },
+      { id: "d7", from: "nurture", to: "preview" },
+      { id: "d8", from: "dontcontact", to: "preview" },
+    ],
+  };
+}
+const STONEBRIDGE_CONFIG = { id: "dead-lead-revival", business: "Stonebridge Bathrooms", city: "Perth", timeZone: "Australia/Perth", validDays: 60, examples: { name: "e.g. Sarah Nguyen", job: "e.g. ensuite", amount: "e.g. $18,400" } };
+
 const AGENTS = [
   {
     id: "speed-to-lead",
@@ -493,300 +796,9 @@ const AGENTS = [
     ],
   },
 
-  {
-    id: "review-guardian",
-    status: "live",
-    name: "Review Guardian",
-    business: "Torque & Co Auto Service",
-    problem: "Replies to every review and flags the ones the owner must see.",
-    icon: "star",
-    preview: "review",
-    trigger: {
-      payload: "fields",
-      fields: [
-        { id: "rating", type: "rating", label: "Star rating", required: true },
-        { id: "name", type: "text", label: "Reviewer first name", maxLength: 40, required: true, placeholder: "e.g. Sam" },
-        { id: "review", type: "textarea", label: "Review", maxLength: 1200, rows: 6, required: true, primary: true, placeholder: "Paste or write a customer review." },
-        {
-          id: "jobNote",
-          type: "textarea",
-          label: "Internal job note (optional)",
-          maxLength: 600,
-          rows: 3,
-          placeholder: "What the workshop records say. Used for the owner alert only, never shown publicly.",
-        },
-      ],
-      hints: {
-        sample: "This sample replays a recorded run, no live call. Edit any field to run it live.",
-        custom: "Custom input runs the agent live.",
-        empty: "Pick a sample or write your own review.",
-      },
-      emptyError: "Pick a sample, or add a star rating, a first name and the review.",
-      caption: (v) => (v && Number(v.rating) ? `${v.rating} star${Number(v.rating) === 1 ? "" : "s"}` : ""),
-    },
-    summarize(r) {
-      return [`${r.rating} star${r.rating === 1 ? "" : "s"}`, cap(r.sentiment), r.isNegative ? "Owner alerted" : ""].filter(Boolean).join(" · ");
-    },
-    liveStatus: (v) => ["Reading the review…", v && v.jobNote ? "Checking it against the job note…" : "Checking what the review is about…", "Drafting Dan's reply…"],
+  makeReviewGuardian(TORQUE_CONFIG),
 
-    nodes: [
-      {
-        id: "review",
-        type: "trigger",
-        col: 0,
-        row: 0,
-        label: "New review",
-        icon: "star",
-        about: "A new review lands on the shop's Google profile. Pick a sample or write your own, then run the agent.",
-      },
-      {
-        id: "read",
-        type: "ai",
-        col: 1,
-        row: 0,
-        label: "Read review",
-        icon: "sparkle",
-        about: "Works out how the customer feels and what the review is about.",
-        caption: (r) => cap(r.sentiment),
-        view: (run) => {
-          const r = run.result;
-          return [
-            { type: "badge", label: cap(r.sentiment), tone: r.sentiment === "negative" ? "accent" : r.sentiment === "mixed" ? "strong" : "muted" },
-            { type: "kv", rows: [["Stars", `${r.rating} of 5`], ["Topics", r.topics.map(cap).join(", ")]], empty: "None" },
-          ];
-        },
-      },
-      {
-        id: "stars",
-        type: "branch",
-        col: 2,
-        row: 0,
-        label: "1 to 2 stars?",
-        icon: "split",
-        about: "Low ratings go to the owner before anything is posted.",
-        decide: (r) => (r.isNegative ? "yes" : "no"),
-        caption: (r) => (r.isNegative ? "Yes" : "No"),
-        view: (run) => [
-          { type: "badge", label: run.result.isNegative ? "Owner needs to see this" : "No alert needed", tone: run.result.isNegative ? "accent" : "muted" },
-          {
-            type: "text",
-            body: run.result.isNegative
-              ? "A 1 or 2 star review, so Dan gets an alert with what went wrong and a suggested next step."
-              : "3 stars or more, so the reply goes straight to drafting.",
-          },
-        ],
-      },
-      {
-        id: "alert",
-        type: "action",
-        col: 3,
-        row: -1,
-        label: "Alert owner",
-        icon: "bell",
-        about: "On 1 and 2 star reviews only: tells Dan what went wrong, checks it against the job note, and suggests one action.",
-        caption: () => "Dan alerted",
-        view: (run) => {
-          const a = run.result.ownerAlert || {};
-          return [
-            { type: "quote", title: "What went wrong", body: a.summary },
-            { type: "quote", title: "Against the job note", body: a.jobNoteMatch },
-            { type: "quote", title: "Suggested action", body: a.suggestedAction },
-            { type: "note", body: "A mock alert. Nothing is sent." },
-          ];
-        },
-      },
-      {
-        id: "reply",
-        type: "ai",
-        col: 4,
-        row: 0,
-        label: "Draft public reply",
-        icon: "message",
-        about: "The reply posted under the review: calm, specific, under 80 words, signed by Dan.",
-        caption: (r) => `${r.publicReply.trim().split(/\s+/).length} words`,
-        view: (run) => [{ type: "sms", body: run.result.publicReply, limit: 80, unit: "words" }],
-      },
-      {
-        id: "followup",
-        type: "ai",
-        col: 5,
-        row: 0,
-        label: "Private follow-up",
-        icon: "chat",
-        about: "A short private message to the customer. Never posted.",
-        caption: () => "Text to customer",
-        view: (run) => [
-          { type: "quote", title: "Text message to the customer", body: run.result.followUp.message },
-          { type: "note", body: "Private. Never posted, and nothing is sent in this demo." },
-        ],
-      },
-      {
-        id: "card",
-        type: "output",
-        col: 6,
-        row: 0,
-        label: "Review card",
-        icon: "card",
-        about: "The deliverable: the review with the owner's response under it, plus the private follow-up.",
-        caption: () => "Ready to post",
-        view: (run) => {
-          const r = run.result;
-          const f = run.fields || {};
-          return [
-            { type: "review", title: "Google review", name: f.name, rating: r.rating, text: f.review, reply: r.publicReply },
-            { type: "quote", title: "Private follow-up", body: r.followUp.message },
-            { type: "note", body: "A visual mock. Nothing is posted or sent." },
-          ];
-        },
-      },
-    ],
-
-    edges: [
-      { id: "r1", from: "review", to: "read" },
-      { id: "r2", from: "read", to: "stars" },
-      { id: "r3", from: "stars", to: "alert", when: "yes", label: "Yes" },
-      { id: "r4", from: "alert", to: "reply" },
-      { id: "r5", from: "stars", to: "reply", when: "no", label: "No" },
-      { id: "r6", from: "reply", to: "followup" },
-      { id: "r7", from: "followup", to: "card" },
-    ],
-  },
-
-  {
-    id: "dead-lead-revival",
-    status: "live",
-    name: "Dead Lead Revival",
-    business: "Stonebridge Bathrooms",
-    problem: "Wins back old quotes sitting in your CRM.",
-    icon: "revive",
-    preview: "table",
-    // Phone: lanes read Re-engage, Nurture, Don't contact left to right.
-    layout: { vRow: 132, vMirror: true },
-    trigger: {
-      payload: "fields",
-      fields: [
-        { id: "receivedAt", type: "time", label: "Sending on (Perth time)", timeZone: "Australia/Perth" },
-        {
-          id: "leads",
-          type: "table",
-          label: "Old quotes",
-          minRows: 5,
-          maxRows: 8,
-          maxTotal: 2400,
-          required: true,
-          primary: true,
-          rowLabel: "Quote",
-          columns: [
-            { id: "name", label: "Name", type: "text", maxLength: 40, required: true, placeholder: "e.g. Sarah Nguyen" },
-            { id: "job", label: "Job", type: "text", maxLength: 40, required: true, placeholder: "e.g. ensuite" },
-            { id: "quoteDate", label: "Quote date", type: "date", required: true },
-            { id: "amount", label: "Quote amount", type: "text", maxLength: 16, required: true, placeholder: "e.g. $18,400" },
-            { id: "note", label: "Last note", type: "text", maxLength: 200, required: true, placeholder: "What the CRM says", wide: true },
-          ],
-        },
-      ],
-      hints: {
-        sample: "This sample replays a recorded run, no live call. Edit any cell to run it live.",
-        custom: "Custom lists run the agent live.",
-        empty: "Pick a sample list or fill in your own.",
-      },
-      emptyError: "Pick a sample, or fill in every cell for 5 to 8 old quotes.",
-      caption: (v) => (v && Array.isArray(v.leads) ? `${v.leads.length} old quotes` : ""),
-    },
-    summarize(r) {
-      const s = r.summary;
-      return `${s.reEngage} re-engage · ${s.nurture} nurture · ${s.dontContact} don't contact`;
-    },
-    liveStatus: (v) => {
-      const n = v && Array.isArray(v.leads) ? v.leads.length : 0;
-      return [`Checking ${n} quotes…`, `Sorting ${n} leads…`, "Writing the messages…"];
-    },
-
-    nodes: [
-      {
-        id: "load",
-        type: "trigger",
-        col: 0,
-        row: 0,
-        label: "Load list",
-        icon: "inbox",
-        about: "Old quotes exported from the CRM, 5 to 8 at a time. Pick a sample list or edit your own, then run the agent.",
-      },
-      {
-        id: "check",
-        type: "ai",
-        col: 1,
-        row: 0,
-        label: "Check quotes",
-        icon: "listCheck",
-        about: "Works out each quote's age, which quotes have expired (over 60 days), and who has opted out or gone elsewhere.",
-        caption: (r) => `${r.leads.filter((l) => l.quoteExpired).length} expired · ${r.leads.filter((l) => l.optedOut).length} opted out`,
-        view: (run) => {
-          const r = run.result;
-          const rows = campaignRows(run);
-          const oldest = rows.reduce((m, l) => Math.max(m, l.daysSinceQuote), 0);
-          return [
-            {
-              type: "kv",
-              rows: [
-                ["Quotes checked", String(rows.length)],
-                ["Oldest quote", `${oldest} days`],
-                ["Expired (over 60 days)", String(r.leads.filter((l) => l.quoteExpired).length)],
-                ["Opted out or went elsewhere", String(r.leads.filter((l) => l.optedOut).length)],
-              ],
-            },
-            {
-              type: "list",
-              title: "Flagged",
-              items: rows
-                .filter((l) => l.quoteExpired || l.optedOut)
-                .map((l) => `${l.name}: ${[l.quoteExpired ? `quote expired, ${l.daysSinceQuote} days old` : "", l.optedOut ? "opted out or went elsewhere" : ""].filter(Boolean).join(", ")}`),
-              empty: "Nothing flagged. Every quote is current and nobody has opted out.",
-            },
-          ];
-        },
-      },
-      {
-        id: "sort",
-        type: "ai",
-        col: 2,
-        row: 0,
-        label: "Sort leads",
-        icon: "split",
-        about: "Puts every lead in exactly one group, with a one-line reason.",
-        caption: (r) => `${r.leads.length} sorted`,
-        view: (run) => [{ type: "table", title: "Every lead, one group each", rows: campaignRows(run), compact: true }],
-      },
-      groupNode("reengage", "re-engage", -1, "revive", "Leads with a real chance now. Each gets a personal message and a follow-up step."),
-      groupNode("nurture", "nurture", 0, "sprout", "Interested but not now. A gentle check-in, never a discount."),
-      groupNode("dontcontact", "dont-contact", 1, "ban", "Went elsewhere, asked not to be contacted, or opted out. No message is written."),
-      {
-        id: "preview",
-        type: "output",
-        col: 4,
-        row: 0,
-        label: "Campaign preview",
-        icon: "table",
-        about: "The deliverable: every lead sorted, with its message, reason and next action. Tap a row to open it.",
-        caption: (r) => `${r.leads.filter((l) => l.message).length} messages`,
-        view: (run) => [
-          { type: "table", title: "Campaign preview", rows: campaignRows(run) },
-          { type: "note", body: "A visual mock. Nothing is sent." },
-        ],
-      },
-    ],
-
-    edges: [
-      { id: "d1", from: "load", to: "check" },
-      { id: "d2", from: "check", to: "sort" },
-      { id: "d3", from: "sort", to: "reengage" },
-      { id: "d4", from: "sort", to: "nurture" },
-      { id: "d5", from: "sort", to: "dontcontact" },
-      { id: "d6", from: "reengage", to: "preview" },
-      { id: "d7", from: "nurture", to: "preview" },
-      { id: "d8", from: "dontcontact", to: "preview" },
-    ],
-  },
+  makeDeadLeadRevival(STONEBRIDGE_CONFIG),
 
   // An agent with status "training" shows a placeholder card only: not
   // routable, not in the dock. None are in training right now.

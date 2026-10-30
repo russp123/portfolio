@@ -1698,3 +1698,29 @@ html[data-theme="dark"] .agents-app {
 @media (max-width: 699px) {
   .agents-app .ag-cal.is-wide .ag-cal-week { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Owner's Daily Brief. */
+.agents-app .ag-brief { padding: 16px; border-radius: 12px; background: var(--ag-surface); border: 1px solid var(--ag-border); }
+.agents-app .ag-brief-day { font-size: 12px; color: var(--ag-text-2); }
+.agents-app .ag-brief-head { margin: 4px 0 0; font-size: 17px; line-height: 1.35; font-weight: 600; }
+.agents-app .ag-brief-counts { margin: 14px 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 8px; }
+.agents-app .ag-brief-counts dd { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.2; }
+.agents-app .ag-brief-counts dt { font-size: 11px; line-height: 1.25; color: var(--ag-text-2); }
+.agents-app .ag-brief-cols { margin-top: 14px; display: grid; gap: 14px; }
+.agents-app .ag-brief h4 { margin: 0 0 6px; font-size: 13px; }
+.agents-app .ag-brief ul { margin: 0 0 12px; padding-left: 18px; font-size: 13px; }
+.agents-app .ag-brief ul li + li { margin-top: 3px; }
+.agents-app .ag-brief-needs { padding: 12px; border-radius: 10px; background: var(--ag-accent-soft); }
+.agents-app .ag-brief-needs p { margin: 0; font-size: 13px; }
+.agents-app .ag-brief-needs ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.agents-app .ag-brief-needs li { font-size: 13px; }
+.agents-app .ag-brief-needs strong,
+.agents-app .ag-brief-needs span,
+.agents-app .ag-brief-needs em { display: block; }
+.agents-app .ag-brief-needs em { margin-top: 2px; font-style: normal; font-weight: 600; color: var(--ag-accent); }
+.agents-app .ag-brief.is-wide .ag-brief-counts { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.agents-app .ag-brief.is-wide .ag-brief-cols { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+@media (max-width: 699px) {
+  .agents-app .ag-brief.is-wide .ag-brief-counts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .agents-app .ag-brief.is-wide .ag-brief-cols { grid-template-columns: minmax(0, 1fr); }
+}

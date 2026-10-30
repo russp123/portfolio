@@ -831,6 +831,60 @@ const OPS_DAY = {
    ]
   },
   {
+   "id": "e06",
+   "time": "12:00",
+   "timeLabel": "12:00pm",
+   "title": "1-star review",
+   "short": "1-star review",
+   "source": "Google review",
+   "incoming": "Booked a plumber for a leaking cistern and waited most of the morning with no call to say they were running late. It did get fixed, but I lost half a day off work and nobody said sorry.",
+   "steps": [
+    {
+     "id": "e06-review",
+     "agent": "hb-review-guardian",
+     "label": "1 star, Greg",
+     "channel": "Google review",
+     "receivedAt": "2026-11-04T12:00",
+     "recordedOn": "2026-10-30",
+     "fields": {
+      "rating": 1,
+      "name": "Greg",
+      "review": "Booked a plumber for a leaking cistern and waited most of the morning with no call to say they were running late. It did get fixed, but I lost half a day off work and nobody said sorry.",
+      "jobNote": "Sam on site at 10:40 on 28 October, inside the 7am to 12pm window. Earlier job overran and no call was made. Cistern kit fitted, invoice $260 paid."
+     },
+     "recorded": {
+      "agent": "hb-review-guardian",
+      "result": {
+       "sentiment": "negative",
+       "rating": 1,
+       "topics": [
+        "timing",
+        "communication"
+       ],
+       "isNegative": true,
+       "ownerAlert": {
+        "summary": "Greg experienced a long wait for a plumber without any communication about delays, costing him half a day of work with no apology.",
+        "jobNoteMatch": "The review and job note agree that the job was completed, but no call was made to update Greg about the overrun on the earlier job.",
+        "suggestedAction": "Call Greg directly to apologize for the poor communication and delay."
+       },
+       "publicReply": "Hi Greg, thank you for sharing your feedback. I am sorry to hear that we left you waiting without an update on our arrival time. We aim to keep our customers informed, and I apologize that we fell short this time. I would welcome the chance to speak with you directly about this. Please give me a call on (02) 7010 3310 when you have a moment.\nRenee, Harbourline Plumbing",
+       "followUp": {
+        "channel": "sms",
+        "message": "Hi Greg, I am very sorry for the lack of communication regarding our arrival time for your job. I would appreciate the opportunity to talk this through with you directly. Please give me a call on (02) 7010 3310 when you are free. Renee"
+       }
+      },
+      "received": {
+       "at": "2026-11-04T12:00",
+       "label": "Wednesday 4 November 2026, 12pm",
+       "inHours": true,
+       "nextOpen": "now, 12pm on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 5112
+     }
+    }
+   ]
+  },
+  {
    "id": "e07",
    "time": "13:20",
    "timeLabel": "1:20pm",
@@ -1005,6 +1059,147 @@ const OPS_DAY = {
    "incoming": "Six old quotes from the CRM, checked for age and opt-outs.",
    "steps": [
     {
+     "id": "e09-sweep",
+     "agent": "hb-dead-lead-revival",
+     "label": "Six old quotes",
+     "channel": "CRM export",
+     "receivedAt": "2026-11-04T15:00",
+     "recordedOn": "2026-10-30",
+     "handoffTo": "quote-builder",
+     "why": "Ben replied yes, so he gets a fresh quote",
+     "fields": {
+      "leads": [
+       {
+        "id": "q1",
+        "name": "Ben Carter",
+        "job": "hot water replacement",
+        "quoteDate": "2026-10-14",
+        "amount": "$1,180",
+        "note": "Asked us to follow up once he's back from leave at the end of October."
+       },
+       {
+        "id": "q2",
+        "name": "Nina Petrova",
+        "job": "gas cooktop connection",
+        "quoteDate": "2026-08-20",
+        "amount": "$420",
+        "note": "Renovating the kitchen. Said to check back once the new benchtop is in."
+       },
+       {
+        "id": "q3",
+        "name": "Tom Whelan",
+        "job": "heat pump install",
+        "quoteDate": "2026-07-30",
+        "amount": "$1,040",
+        "note": "Went with another plumber."
+       },
+       {
+        "id": "q4",
+        "name": "Sofia Marin",
+        "job": "leak repair",
+        "quoteDate": "2026-10-05",
+        "amount": "$420",
+        "note": "Thought it was over budget and asked if we could do it cheaper."
+       },
+       {
+        "id": "q5",
+        "name": "Kev Doyle",
+        "job": "toilet replacement",
+        "quoteDate": "2026-09-02",
+        "amount": "$610",
+        "note": "Asked us to stop texting him."
+       },
+       {
+        "id": "q6",
+        "name": "Alice Romero",
+        "job": "hot water repair",
+        "quoteDate": "2026-10-22",
+        "amount": "$420",
+        "note": "Went quiet after the site visit."
+       }
+      ]
+     },
+     "recorded": {
+      "agent": "hb-dead-lead-revival",
+      "result": {
+       "leads": [
+        {
+         "rowId": "q1",
+         "group": "re-engage",
+         "reason": "Returned from leave at the end of October, as mentioned in the notes.",
+         "daysSinceQuote": 21,
+         "quoteExpired": false,
+         "optedOut": false,
+         "message": "Hi Ben, it's Renee from Harbourline Plumbing. Hope you had a great break! Following up on your hot water replacement quote. We are currently booking planned work 1 to 2 weeks out if you'd like to move forward. Reply STOP to opt out.",
+         "nextAction": "Call on day 3 if no reply."
+        },
+        {
+         "rowId": "q2",
+         "group": "re-engage",
+         "reason": "Checking back regarding the kitchen benchtop installation.",
+         "daysSinceQuote": 76,
+         "quoteExpired": true,
+         "optedOut": false,
+         "message": "Hi Nina, it's Renee from Harbourline Plumbing. Checking in to see how your kitchen renovation is coming along and if your benchtop is in for the gas cooktop connection. As the quote has expired, pricing may need a quick refresh. Reply STOP to opt out.",
+         "nextAction": "Follow up with a call next week if no text response."
+        },
+        {
+         "rowId": "q3",
+         "group": "dont-contact",
+         "reason": "Customer went with another plumber.",
+         "daysSinceQuote": 97,
+         "quoteExpired": true,
+         "optedOut": true,
+         "message": null,
+         "nextAction": "Archive lead and update CRM status."
+        },
+        {
+         "rowId": "q4",
+         "group": "nurture",
+         "reason": "Over budget and requested a price reduction.",
+         "daysSinceQuote": 30,
+         "quoteExpired": false,
+         "optedOut": false,
+         "message": "Hi Sofia, it's Renee from Harbourline Plumbing. Following up on your leak repair quote. We can't change our pricing, but I'm happy to talk through the scope of work with you if that helps. Reply STOP to opt out.",
+         "nextAction": "Check in via phone if no reply within 5 days."
+        },
+        {
+         "rowId": "q5",
+         "group": "dont-contact",
+         "reason": "Customer opted out and requested no further texts.",
+         "daysSinceQuote": 63,
+         "quoteExpired": true,
+         "optedOut": true,
+         "message": null,
+         "nextAction": "Flag as do-not-contact in CRM immediately."
+        },
+        {
+         "rowId": "q6",
+         "group": "re-engage",
+         "reason": "Went quiet after the site visit and quote is still valid.",
+         "daysSinceQuote": 13,
+         "quoteExpired": false,
+         "optedOut": false,
+         "message": "Hi Alice, it's Renee from Harbourline Plumbing. Following up on the quote for your hot water repair after our site visit. Let me know if you have any questions or if you'd like to get this scheduled. Reply STOP to opt out.",
+         "nextAction": "Call in 2 days if no response."
+        }
+       ],
+       "summary": {
+        "reEngage": 3,
+        "nurture": 1,
+        "dontContact": 2
+       }
+      },
+      "received": {
+       "at": "2026-11-04T15:00",
+       "label": "Wednesday 4 November 2026, 3pm",
+       "inHours": true,
+       "nextOpen": "now, 3pm on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 4107
+     }
+    },
+    {
      "id": "e09-quote",
      "agent": "quote-builder",
      "label": "Hot water replacement, Ben",
@@ -1083,7 +1278,307 @@ const OPS_DAY = {
      }
     }
    ]
+  },
+  {
+   "id": "e10",
+   "time": "16:45",
+   "timeLabel": "4:45pm",
+   "title": "5-star review",
+   "short": "5-star review",
+   "source": "Google review",
+   "incoming": "Pipe burst just after 7am and Mick was here that morning. Clear about the cost, tidy and friendly. Would use Harbourline again.",
+   "steps": [
+    {
+     "id": "e10-review",
+     "agent": "hb-review-guardian",
+     "label": "5 stars, Dana",
+     "channel": "Google review",
+     "receivedAt": "2026-11-04T16:45",
+     "recordedOn": "2026-10-30",
+     "fields": {
+      "rating": 5,
+      "name": "Dana",
+      "review": "Pipe burst just after 7am and Mick was here that morning. Clear about the cost, tidy and friendly. Would use Harbourline again.",
+      "jobNote": "Burst pipe under the kitchen sink repaired this morning."
+     },
+     "recorded": {
+      "agent": "hb-review-guardian",
+      "result": {
+       "sentiment": "positive",
+       "rating": 5,
+       "topics": [
+        "timing",
+        "price",
+        "cleanliness",
+        "staff"
+       ],
+       "isNegative": false,
+       "ownerAlert": null,
+       "publicReply": "Hi Dana, thank you for the wonderful feedback. We are glad Mick could get out to you quickly to fix the burst pipe and provide a clear, friendly, and tidy service. Thanks for choosing Harbourline Plumbing.\nRenee, Harbourline Plumbing",
+       "followUp": {
+        "channel": "sms",
+        "message": "Hi Dana, thanks so much for leaving us a review. We are really glad Mick could help you out with the burst pipe today. Best regards, Renee"
+       }
+      },
+      "received": {
+       "at": "2026-11-04T16:45",
+       "label": "Wednesday 4 November 2026, 4:45pm",
+       "inHours": true,
+       "nextOpen": "now, 4:45pm on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 2303
+     }
+    }
+   ]
   }
  ],
- "brief": null
+ "brief": {
+  "id": "brief",
+  "agent": "daily-brief",
+  "label": "Wednesday's brief",
+  "channel": "End of day",
+  "receivedAt": "2026-11-04T17:05",
+  "recordedOn": "2026-10-30",
+  "fields": {
+   "rows": [
+    {
+     "id": "r1",
+     "time": "7:05am",
+     "agent": "Speed-to-Lead",
+     "what": "Dana Moretti, Marrickville: pipe under kitchen sink has burst with water all over the floor. Scored hot, emergency, on-call plumber alerted. Text reply drafted.",
+     "kind": "lead",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r2",
+     "time": "7:05am",
+     "agent": "Scheduler",
+     "what": "Dana Moretti, Marrickville: Burst pipe repair placed Wednesday 4 November, morning, with Mick Tran. Moved Jo Kim to Wednesday 4 November, afternoon, the customer needs telling.",
+     "kind": "emergency",
+     "flag": "yes",
+     "who": "Jo Kim",
+     "amount": ""
+    },
+    {
+     "id": "r3",
+     "time": "8:20am",
+     "agent": "Front Desk",
+     "what": "Website chat with Hannah Cole: booking request sent.",
+     "kind": "chat",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r4",
+     "time": "8:20am",
+     "agent": "Scheduler",
+     "what": "Hannah Cole, Petersham: Blocked drain placed Monday 9 November, morning, with Mick Tran.",
+     "kind": "booking",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r5",
+     "time": "9:30am",
+     "agent": "Speed-to-Lead",
+     "what": "Luke Brennan, Annandale: replace electric hot water tank with a heat pump. Scored hot. Text reply drafted.",
+     "kind": "lead",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r6",
+     "time": "9:30am",
+     "agent": "Quote Builder",
+     "what": "Quote HP-1104-0930 for Luke Brennan: Heat pump hot water install, $680 to $960 plus parts quoted on site.",
+     "kind": "quote",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r7",
+     "time": "10:40am",
+     "agent": "Job Wrap-up",
+     "what": "Dana Moretti: Burst pipe repair finished, $400 invoiced, due Wednesday 11 November. Review request drafted.",
+     "kind": "job",
+     "flag": "",
+     "who": "",
+     "amount": "$400"
+    },
+    {
+     "id": "r8",
+     "time": "11:10am",
+     "agent": "Front Desk",
+     "what": "Website chat with Grace Liu: emergency, on-call plumber alerted.",
+     "kind": "chat",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r9",
+     "time": "11:10am",
+     "agent": "Speed-to-Lead",
+     "what": "Grace Liu, Leichhardt: gas smell near cooktop. Scored hot, emergency, on-call plumber alerted. Text reply drafted.",
+     "kind": "lead",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r10",
+     "time": "11:10am",
+     "agent": "Scheduler",
+     "what": "Grace Liu, Leichhardt: Gas fitting or gas leak placed Wednesday 4 November, morning, with Tess Romano. Moved Alan Yip to Thursday 5 November, morning, the customer needs telling.",
+     "kind": "emergency",
+     "flag": "yes",
+     "who": "Alan Yip",
+     "amount": ""
+    },
+    {
+     "id": "r11",
+     "time": "12:00pm",
+     "agent": "Review Guardian",
+     "what": "1-star review from Greg: reply drafted. Greg experienced a long wait for a plumber without any communication about delays, costing him half a day of work with no apology.",
+     "kind": "review",
+     "flag": "yes",
+     "who": "Greg",
+     "amount": ""
+    },
+    {
+     "id": "r12",
+     "time": "1:20pm",
+     "agent": "Scheduler",
+     "what": "Luke Brennan, Annandale: Heat pump hot water install placed Wednesday 11 November, morning, with Tess Romano.",
+     "kind": "booking",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r13",
+     "time": "2:30pm",
+     "agent": "Job Wrap-up",
+     "what": "Omar Haddad: Dripping tap repair finished, $295 invoiced, due Wednesday 11 November. Problem on the job: Omar was unhappy because water was left on the floor under his kitchen sink and he had to ask Sam to clean it up. Review request waits until the owner has called.",
+     "kind": "job",
+     "flag": "yes",
+     "who": "Omar Haddad",
+     "amount": "$295"
+    },
+    {
+     "id": "r14",
+     "time": "3:00pm",
+     "agent": "Dead Lead Revival",
+     "what": "Old quotes sweep: 3 to re-engage, 1 to nurture, 2 not to contact. 4 messages drafted.",
+     "kind": "campaign",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r15",
+     "time": "3:00pm",
+     "agent": "Quote Builder",
+     "what": "Quote HP-1104-1500 for Ben Carter: Hot water replacement, $540 to $820 plus parts quoted on site.",
+     "kind": "quote",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    },
+    {
+     "id": "r16",
+     "time": "4:45pm",
+     "agent": "Review Guardian",
+     "what": "5-star review from Dana: reply drafted.",
+     "kind": "review",
+     "flag": "",
+     "who": "",
+     "amount": ""
+    }
+   ],
+   "receivedAt": "2026-11-04T17:05"
+  },
+  "recorded": {
+   "agent": "daily-brief",
+   "result": {
+    "day": "Wednesday 4 November 2026",
+    "headline": "The team managed seven jobs, leads, and reviews today, invoicing $695.",
+    "counts": [
+     {
+      "label": "Leads answered",
+      "n": 3
+     },
+     {
+      "label": "Chats handled",
+      "n": 2
+     },
+     {
+      "label": "Jobs placed",
+      "n": 4
+     },
+     {
+      "label": "Emergencies",
+      "n": 2
+     },
+     {
+      "label": "Quotes written",
+      "n": 2
+     },
+     {
+      "label": "Jobs closed",
+      "n": 2
+     },
+     {
+      "label": "Reviews answered",
+      "n": 2
+     }
+    ],
+    "invoiced": "$695",
+    "needsYou": [
+     {
+      "who": "Jo Kim",
+      "what": "Jo Kim was moved to Wednesday 4 November, afternoon, to accommodate an emergency burst pipe job.",
+      "action": "Contact Jo Kim to inform them of the moved job time."
+     },
+     {
+      "who": "Alan Yip",
+      "what": "Alan Yip was moved to Thursday 5 November, morning, to fit in an emergency gas leak job.",
+      "action": "Contact Alan Yip to inform them of the updated job time."
+     },
+     {
+      "who": "Greg",
+      "what": "Greg left a 1-star review about waiting half a day for a plumber without any communication regarding delays.",
+      "action": "Review and approve the drafted reply to Greg."
+     },
+     {
+      "who": "Omar Haddad",
+      "what": "Omar was unhappy that water was left under his kitchen sink and Sam had to be asked to clean it up.",
+      "action": "Call Omar Haddad before sending the review request."
+     }
+    ],
+    "done": [
+     "Handled three new leads and two website chats, placing emergency and general bookings.",
+     "Drafted two quotes for hot water installations, including a heat pump system.",
+     "Completed two jobs, invoicing a total of $695.",
+     "Managed review responses and ran an old quotes sweep campaign."
+    ],
+    "tomorrow": [
+     "Alan Yip is scheduled for Thursday 5 November, morning, with Tess Romano."
+    ]
+   },
+   "received": {
+    "at": "2026-11-04T17:05",
+    "label": "Wednesday 4 November 2026, 5:05pm",
+    "inHours": false,
+    "nextOpen": "Thursday 5 November 2026, 7am"
+   },
+   "ms": 5065
+  }
+ }
 };
