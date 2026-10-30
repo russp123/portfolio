@@ -1043,6 +1043,13 @@ ${list}`;
   },
 };
 
+// The Ops Team's own agents (Harbourline Plumbing) live in their own file
+// and run through exactly the same pipeline as the agents above.
+Object.assign(
+  AGENTS,
+  require("./_ops-agents.js")({ SHARED_RULES, stripEmDashes, promisedTime, nullableString, WEEKDAYS_7_TO_5, MAX_MESSAGE_LENGTH, MONTH_NAMES })
+);
+
 /* ---------------- Gemini call (structured JSON) ---------------- */
 async function callGemini(apiKey, agent, contents, signal) {
   let geminiRes;

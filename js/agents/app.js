@@ -176,7 +176,7 @@
 
   /* ---------------- Dock ---------------- */
   function buildDock() {
-    const agentButtons = LIVE.map(
+    const agentButtons = LIVE.filter((a) => !a.team).map(
       (a) => `<button type="button" class="ag-dock-btn" data-route="${a.id}" data-tip="${esc(a.name)}" aria-label="${esc(a.name)}">${agentIcon(a.icon, 24)}</button>`
     ).join("");
     els.dock.innerHTML = `
@@ -194,9 +194,14 @@
     });
     applyTheme(currentTheme());
   }
+  // A team agent lights up its team's tile.
+  const activeRoute = () => {
+    const a = byId(state.route);
+    return a && a.team ? a.team : state.route;
+  };
   function renderDock() {
     els.dock.querySelectorAll("[data-route]").forEach((b) => {
-      const on = b.dataset.route === state.route;
+      const on = b.dataset.route === activeRoute();
       b.classList.toggle("is-active", on);
       if (on) b.setAttribute("aria-current", "page");
       else b.removeAttribute("aria-current");
@@ -269,10 +274,17 @@
       <div class="ag-pv ag-pv-table">
         ${["accent", "strong", "muted"].map((tone, i) => `<div class="ag-pv-row">${line([54, 46, 50][i])}<span class="ag-pv-tag" data-tone="${tone}"></span></div>`).join("")}
       </div>`,
+    board: () => `
+      <div class="ag-pv ag-pv-board">
+        ${[[0, 1, 0, 0, 1, 0, 0], [1, 0, 1, 0, 0, 0, 1], [0, 0, 1, 1, 0, 1, 0], [0, 1, 0, 0, 1, 0, 0]]
+          .map((row) => `<div class="ag-pv-lane">${row.map((on, i) => `<span class="${on ? (i === 2 ? "is-on" : "is-chip") : ""}"></span>`).join("")}</div>`)
+          .join("")}
+      </div>`,
   };
   const previewHtml = (agent) => `<div class="ag-pv-wrap" aria-hidden="true">${(PREVIEWS[agent.preview] || PREVIEWS.phone)()}</div>`;
   function buildCards() {
-    els.cards.innerHTML = AGENTS.map((a) => {
+    const cards = AGENTS.filter((a) => !a.team).sort((a, b) => (b.flagship ? 1 : 0) - (a.flagship ? 1 : 0));
+    els.cards.innerHTML = cards.map((a) => {
       const live = a.status === "live";
       const media = live
         ? `<div class="ag-card-media">${previewHtml(a)}</div>`
@@ -287,10 +299,10 @@
             </div>
           </div>
           <p class="ag-card-problem">${esc(a.problem)}</p>
-          ${live ? `<span class="ag-card-cta">Open agent ${agentIcon("arrow", 16)}</span>` : `<span class="ag-card-state">In training</span>`}
+          ${live ? `<span class="ag-card-cta">${esc(a.cta || "Open agent")} ${agentIcon("arrow", 16)}</span>` : `<span class="ag-card-state">In training</span>`}
         </div>`;
       return live
-        ? `<a class="ag-card is-live" href="#${a.id}" data-route="${a.id}">${media}${meta}</a>`
+        ? `<a class="ag-card is-live${a.flagship ? " is-wide" : ""}" href="#${a.id}" data-route="${a.id}">${media}${meta}</a>`
         : `<div class="ag-card is-training" aria-disabled="true">${media}${meta}</div>`;
     }).join("");
     els.cards.addEventListener("click", (e) => {
@@ -325,7 +337,9 @@
     if (isChat(byId(prev))) stopChat(byId(prev));
     closePanel({ restoreFocus: false });
     hideTip();
-    if (agent) showAgent(agent, prev === "");
+    AgentOps.hide();
+    if (agent && agent.view === "ops") showOps(agent, prev === "");
+    else if (agent) showAgent(agent, prev === "");
     else showLanding();
     renderDock();
   }
@@ -338,6 +352,16 @@
     window.scrollTo(0, state.landingScroll || 0);
   }
 
+  // The ops board is a page of its own, not a canvas.
+  function showOps(agent, fromLanding) {
+    if (fromLanding) state.landingScroll = window.scrollY;
+    els.landing.hidden = true;
+    els.workspace.hidden = true;
+    document.body.classList.remove("is-workspace");
+    document.title = `${agent.name} | AI Business Agents`;
+    AgentOps.show();
+  }
+
   function showAgent(agent, fromLanding) {
     if (fromLanding) state.landingScroll = window.scrollY;
     els.landing.hidden = true;
@@ -346,6 +370,7 @@
     document.title = `${agent.name} | AI Business Agents`;
     els.titleName.textContent = agent.name;
     els.titleBiz.textContent = agent.business;
+    els.back.setAttribute("aria-label", agent.team ? "Back to the Ops Team" : "Back to all agents");
     window.scrollTo(0, 0);
     canvas.setVertical(mqMobile.matches);
     if (canvas.agent !== agent) {
@@ -363,8 +388,11 @@
   }
 
   els.back.addEventListener("click", () => {
-    if (history.state && history.state.agFrom === "") history.back();
-    else go("");
+    // Back to where the visitor came from: the board, or the landing view.
+    const from = history.state && history.state.agFrom;
+    const parent = state.agent && state.agent.team ? state.agent.team : "";
+    if (from === parent || from === "ops-team") history.back();
+    else go(parent);
   });
   window.addEventListener("popstate", render);
   window.addEventListener("hashchange", render);
@@ -813,6 +841,7 @@
         ${b.summary ? `<div class="ag-next"><span>For the front desk</span><p>${esc(b.summary)}</p></div>` : ""}
       </div>`,
   };
+  Object.assign(BLOCKS, AgentOps.blocks({ esc, isEmpty, title }));
   const renderBlock = (b) => `<section class="ag-block" data-block="${esc(b.type)}">${(BLOCKS[b.type] || (() => ""))(b)}</section>`;
 
   /* ---------------- Trigger panel (the only place a run starts) ---------------- */
@@ -883,6 +912,7 @@
     samplesFor(agent).find((s) => fieldsOf(agent).every((f) => norm(f, sampleValue(s, f)) === norm(f, d[f.id]))) || null;
 
   function fieldHtml(f, value) {
+    if (f.type === "hidden") return ""; // carried with the sample, e.g. when it arrived
     const id = `ag-f-${f.id}`;
     const label = `<span class="ag-label"${f.type === "rating" ? ` id="${id}-label"` : ""}>${esc(f.label)}</span>`;
     if (f.type === "time") {
@@ -1290,6 +1320,15 @@
     if (output) openPanel({ kind: "node", id: output.id });
   }
 
+  // The ops board opening one recorded step on its agent's canvas. A replay:
+  // no live call and nothing added to the visitor's execution logs.
+  function openRun(step) {
+    const agent = byId(step.agent);
+    if (!agent) return;
+    if (step.turns) return playConversation(agent, sampleTurns(step, "sample"), { source: "sample", sampleId: step.id, sampleLabel: step.label, replay: true });
+    playRun(runFromSample(agent, step, "sample"), { replay: true });
+  }
+
   /* ---------------- Chat mode ---------------- */
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const newId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -1380,7 +1419,7 @@
       out.push(msgHtml("user", roles.user, t.user, i));
       if (t.shownNotes !== false) {
         for (const n of agent.chat.notes(t.result) || []) {
-          out.push(`<div class="ag-chat-sys" data-tone="${esc(n.tone)}">${agentIcon("stethoscope", 14)}<span>${esc(n.text)}</span></div>`);
+          out.push(`<div class="ag-chat-sys" data-tone="${esc(n.tone)}">${agentIcon(n.icon || "stethoscope", 14)}<span>${esc(n.text)}</span></div>`);
         }
       }
       if (t.shownReply !== false) out.push(msgHtml("assistant", roles.assistant, t.result.reply));
@@ -1925,6 +1964,7 @@
 
   /* ---------------- Boot ---------------- */
   document.querySelectorAll("[data-icon]").forEach((el) => el.insertAdjacentHTML("afterbegin", agentIcon(el.dataset.icon, Number(el.dataset.size) || 20)));
+  AgentOps.init({ go, openRun, byId, esc, mqReduce, toast });
   buildDock();
   bindTips();
   buildCards();
