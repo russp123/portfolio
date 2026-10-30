@@ -209,6 +209,7 @@ const OPS_AGENTS = [
                 ["Preferred", c.preferredTime],
               ],
               summary: r.booking.summary,
+              summaryLabel: "For the Scheduler",
             },
             { type: "note", body: "A visual mock. Nothing is sent and no time is confirmed." },
           ];
@@ -352,10 +353,321 @@ const OPS_AGENTS = [
       { id: "q5", from: "note", to: "quote" },
     ],
   },
+
+  /* ---------------- Scheduler ---------------- */
+  {
+    id: "scheduler",
+    team: "ops-team",
+    status: "live",
+    name: "Scheduler",
+    short: "Scheduler",
+    role: "Places jobs on the technicians' calendar. Emergencies jump the queue, and nobody is promised an exact time.",
+    business: OPS_BUSINESS,
+    problem: "Places jobs on the week's calendar. Emergencies jump the queue.",
+    icon: "calendar",
+    preview: "table",
+    trigger: {
+      payload: "fields",
+      fields: [
+        { id: "receivedAt", type: "hidden" },
+        { id: "bookedToday", type: "hidden" },
+        { id: "customer", type: "text", label: "Customer", maxLength: 60, required: true, placeholder: "e.g. Hannah Cole" },
+        { id: "mobile", type: "text", label: "Mobile (optional)", maxLength: 24, placeholder: "e.g. 0491 570 157" },
+        { id: "suburb", type: "select", label: "Suburb", options: Object.keys(HARBOURLINE.suburbs).map((v) => ({ value: v, label: v })) },
+        { id: "jobType", type: "select", label: "Job type", options: HARBOURLINE.jobTypes.map((j) => ({ value: j.id, label: j.label })) },
+        { id: "details", type: "textarea", label: "Job details", maxLength: 600, rows: 4, required: true, primary: true, placeholder: "What needs doing, and how urgent it is." },
+        { id: "preferred", type: "text", label: "Preferred time (optional)", maxLength: 80, placeholder: "e.g. Any morning next week" },
+      ],
+      hints: {
+        sample: "This sample replays a recorded run, no live call. Edit any field to run it live on the same board.",
+        custom: "Custom input runs the agent live, on the fictional board as it stood for this sample.",
+        empty: "Pick a sample or describe a job.",
+      },
+      emptyError: "Pick a sample, or add a customer and the job details.",
+      caption: (v) => (v && v.customer ? v.customer : ""),
+    },
+    summarize(r) {
+      return [r.jobLabel, r.emergency ? "Jumped the queue" : r.slot ? r.slot.dayLabel : "With the office"].join(" · ");
+    },
+    liveStatus: () => ["Reading the job…", "Checking the calendar…", "Writing the text…"],
+
+    nodes: [
+      {
+        id: "job",
+        type: "trigger",
+        col: 0,
+        row: 0,
+        label: "New job",
+        icon: "inbox",
+        about: "A job handed over by Speed-to-Lead, Front Desk or Quote Builder. Pick a sample or write your own, then run the agent.",
+      },
+      {
+        id: "read",
+        type: "ai",
+        col: 1,
+        row: 0,
+        label: "Read job",
+        icon: "sparkle",
+        about: "Works out what the job is, against the job types on the fact sheet.",
+        caption: (r) => r.jobLabel,
+        view: (run) => {
+          const r = run.result;
+          return [
+            { type: "badge", label: r.jobLabel, tone: "strong" },
+            { type: "kv", rows: [["Customer", r.customer], ["Suburb", r.suburb], ["Reads as", r.read], ["Kind of work", r.planned ? "Planned, booked at least a week out" : "Repair"]] },
+          ];
+        },
+      },
+      {
+        id: "emergency",
+        type: "branch",
+        col: 2,
+        row: 0,
+        label: "Emergency?",
+        icon: "split",
+        about: "Escaping water, sewage or gas can't wait for a free slot.",
+        decide: (r) => (r.emergency ? "yes" : "no"),
+        caption: (r) => (r.emergency ? "Yes" : "No"),
+        view: (run) => [
+          { type: "badge", label: run.result.emergency ? "Emergency" : "Not an emergency", tone: run.result.emergency ? "accent" : "muted" },
+          { type: "text", body: run.result.emergencyReason || "This job can take the next suitable free slot." },
+        ],
+      },
+      {
+        id: "bump",
+        type: "action",
+        col: 3,
+        row: -1,
+        label: "Jump the queue",
+        icon: "bolt",
+        about: "Takes the current window of the right technician. Whoever was there moves to that technician's next free window. Worked out in code.",
+        caption: (r) => (r.bump ? `Moved ${r.bump.who}` : "Window was free"),
+        view: (run) => {
+          const r = run.result;
+          return [
+            { type: "kv", title: "Takes", rows: [["Technician", r.slot.techName], ["Day", r.slot.dayLabel], ["Window", `${r.slot.window}, ${r.slot.range}`], ["Travel allowance", `About ${r.slot.travelMinutes} minutes`]] },
+            r.bump
+              ? { type: "kv", title: "Moves", rows: [["Customer", r.bump.who], ["Job", r.bump.jobLabel], ["New window", r.bump.label]] }
+              : { type: "text", body: "That window was free, so nobody had to move." },
+            ...(r.bump ? [{ type: "note", body: `${r.bump.who} needs a call about the new window. It's on the owner's brief.` }] : []),
+          ];
+        },
+      },
+      {
+        id: "pick",
+        type: "ai",
+        col: 3,
+        row: 0,
+        label: "Pick a slot",
+        icon: "calendarCheck",
+        about: "Chooses from the free slots the code found, weighing the customer's preference, how soon it is, and travel.",
+        caption: (r) => (r.slot ? `${r.slot.dayLabel.split(" ")[0]}, ${r.slot.window.toLowerCase()}` : "With the office"),
+        view: (run) => {
+          const r = run.result;
+          if (!r.slot) return [{ type: "text", body: "No free slot on the two-week board, so the office takes it from here." }];
+          return [
+            { type: "kv", title: "Chosen", rows: [["Technician", r.slot.techName], ["Day", r.slot.dayLabel], ["Window", `${r.slot.window}, ${r.slot.range}`], ["Travel allowance", `About ${r.slot.travelMinutes} minutes${r.slot.travelFrom ? ` from ${r.slot.travelFrom}` : ""}`], ["Why", r.slotReason]] },
+            { type: "list", title: "Slots it weighed", items: r.considered.map((c) => `${c.label}, ${c.tech}, about ${c.travelMinutes} minutes' travel${c.chosen ? " (chosen)" : ""}`), empty: "None" },
+          ];
+        },
+      },
+      {
+        id: "text",
+        type: "ai",
+        col: 4,
+        row: 0,
+        label: "Customer text",
+        icon: "message",
+        about: "The text to the customer: a window, never an exact time, and never a named technician.",
+        caption: (r) => `${r.customerMessage.length} chars`,
+        view: (run) => [{ type: "sms", body: run.result.customerMessage, limit: 320 }],
+      },
+      {
+        id: "calendar",
+        type: "output",
+        col: 5,
+        row: 0,
+        label: "Week calendar",
+        icon: "calendar",
+        about: "The deliverable: the board with this job on it. Morning and afternoon windows, one job per technician per window.",
+        caption: (r) => (r.slot ? `${r.slot.techName.split(" ")[0]}, ${r.slot.dayLabel.split(" ").slice(0, 2).join(" ")}` : "With the office"),
+        view: (run) => {
+          const r = run.result;
+          let before = [];
+          try { before = JSON.parse((run.fields && run.fields.bookedToday) || "[]"); } catch (e) { before = []; }
+          return [
+            ...(r.slot ? [{ type: "kv", title: "This job", rows: [["Technician", r.slot.techName], ["Day", r.slot.dayLabel], ["Window", `${r.slot.window}, ${r.slot.range}`], ["Travel allowance", `About ${r.slot.travelMinutes} minutes`]] }] : []),
+            { type: "calendar", title: "The board after this job", changes: before.concat(r.changes), focus: r.addedId, moved: r.bump ? r.bump.job : null, week: r.slot ? r.slot.date : HARBOURLINE.dayOfTheDemo },
+            { type: "note", body: "A fictional board. Nothing is booked or sent." },
+          ];
+        },
+      },
+    ],
+
+    edges: [
+      { id: "s1", from: "job", to: "read" },
+      { id: "s2", from: "read", to: "emergency" },
+      { id: "s3", from: "emergency", to: "bump", when: "yes", label: "Yes" },
+      { id: "s4", from: "emergency", to: "pick", when: "no", label: "No" },
+      { id: "s5", from: "bump", to: "text" },
+      { id: "s6", from: "pick", to: "text" },
+      { id: "s7", from: "text", to: "calendar" },
+    ],
+  },
+
+  /* ---------------- Job Wrap-up ---------------- */
+  {
+    id: "job-wrap-up",
+    team: "ops-team",
+    status: "live",
+    name: "Job Wrap-up",
+    short: "Job Wrap-up",
+    role: "After each job, writes the payment reminder and the review request, and tells the owner if something went wrong.",
+    business: OPS_BUSINESS,
+    problem: "After a job: a payment reminder, a review request, and a flag if it went badly.",
+    icon: "listCheck",
+    preview: "phone",
+    trigger: {
+      payload: "fields",
+      fields: [
+        { id: "receivedAt", type: "hidden" },
+        { id: "customer", type: "text", label: "Customer", maxLength: 60, required: true, placeholder: "e.g. Dana Moretti" },
+        { id: "mobile", type: "text", label: "Mobile (optional)", maxLength: 24, placeholder: "e.g. 0491 570 156" },
+        { id: "suburb", type: "text", label: "Suburb", maxLength: 40, required: true, placeholder: "e.g. Marrickville" },
+        { id: "job", type: "text", label: "Job", maxLength: 80, required: true, placeholder: "e.g. Burst pipe repair" },
+        { id: "tech", type: "text", label: "Technician (optional)", maxLength: 40, placeholder: "e.g. Mick Tran" },
+        { id: "amount", type: "text", label: "Invoice amount", maxLength: 12, required: true, placeholder: "e.g. $400" },
+        { id: "jobNote", type: "textarea", label: "Technician's note", maxLength: 600, rows: 4, required: true, primary: true, placeholder: "How the job went." },
+      ],
+      hints: {
+        sample: "This sample replays a recorded run, no live call. Edit any field to run it live.",
+        custom: "Custom input runs the agent live.",
+        empty: "Pick a sample or describe a finished job.",
+      },
+      emptyError: "Pick a sample, or fill in the customer, suburb, job, invoice amount and the note.",
+      caption: (v) => (v && v.customer ? v.customer : ""),
+    },
+    summarize(r) {
+      return [r.job, r.amount, r.problem ? "Owner flagged" : ""].filter(Boolean).join(" · ");
+    },
+    liveStatus: () => ["Reading the technician's note…", "Writing the payment reminder…", "Writing the review request…"],
+
+    nodes: [
+      {
+        id: "job",
+        type: "trigger",
+        col: 0,
+        row: 0,
+        label: "Job finished",
+        icon: "wrench",
+        about: "A technician marks a job as done. Pick a sample or write your own, then run the agent.",
+      },
+      {
+        id: "read",
+        type: "ai",
+        col: 1,
+        row: 0,
+        label: "Read note",
+        icon: "sparkle",
+        about: "Reads the technician's note to see how the job went.",
+        caption: (r) => (r.problem ? "A problem" : "Went fine"),
+        view: (run) => [{ type: "kv", rows: [["Job", run.result.job], ["Technician", run.result.tech], ["Reads as", run.result.noteRead]] }],
+      },
+      {
+        id: "payment",
+        type: "ai",
+        col: 2,
+        row: 0,
+        label: "Payment reminder",
+        icon: "dollar",
+        about: "A signed text with the invoice amount and the due date. The due date is worked out in code.",
+        caption: (r) => r.amount,
+        view: (run) => [{ type: "kv", rows: [["Invoice", run.result.amount], ["Due", run.result.dueLabel]] }, { type: "sms", body: run.result.paymentMessage, limit: 320 }],
+      },
+      {
+        id: "problem",
+        type: "branch",
+        col: 3,
+        row: 0,
+        label: "A problem?",
+        icon: "split",
+        about: "If the note shows something went wrong, the owner hears about it before the customer is asked for a review.",
+        decide: (r) => (r.problem ? "yes" : "no"),
+        caption: (r) => (r.problem ? "Yes" : "No"),
+        view: (run) => [
+          { type: "badge", label: run.result.problem ? "Owner should know" : "Nothing to flag", tone: run.result.problem ? "accent" : "muted" },
+          { type: "text", body: run.result.problem ? "Something went wrong, so the owner calls first. The customer still gets the review request afterwards." : "The job went fine, so the review request goes out today." },
+        ],
+      },
+      {
+        id: "flag",
+        type: "action",
+        col: 4,
+        row: -1,
+        label: "Flag the owner",
+        icon: "flag",
+        about: "On the problem path only: tells the owner what happened and suggests one action.",
+        caption: () => `${HARBOURLINE.owner.first} flagged`,
+        view: (run) => [
+          { type: "quote", title: "What happened", body: run.result.ownerFlag },
+          { type: "quote", title: "Suggested action", body: run.result.suggestedAction },
+          { type: "note", body: "A mock alert. Nothing is sent." },
+        ],
+      },
+      {
+        id: "review",
+        type: "ai",
+        col: 5,
+        row: 0,
+        label: "Review request",
+        icon: "star",
+        about: "Every customer is asked for an honest review, with a sender name and an opt-out. A problem only changes when it goes.",
+        caption: (r) => (r.problem ? "After the call" : "Today"),
+        view: (run) => [{ type: "kv", rows: [["When", run.result.reviewTiming]] }, { type: "sms", body: run.result.reviewMessage, limit: 320 }],
+      },
+      {
+        id: "card",
+        type: "output",
+        col: 6,
+        row: 0,
+        label: "Wrap-up card",
+        icon: "card",
+        about: "The deliverable: both texts and the state of the job, ready for the office.",
+        caption: (r) => (r.problem ? "Owner calls first" : "Ready to send"),
+        view: (run) => {
+          const r = run.result;
+          return [
+            {
+              type: "request",
+              title: "Job closed",
+              status: r.problem ? `${HARBOURLINE.owner.first} calls first` : "Ready to send",
+              name: r.customer,
+              rows: [["Mobile", r.mobile], ["Suburb", r.suburb], ["Job", r.job], ["Invoice", `${r.amount}, due ${r.dueLabel}`]],
+              summary: r.ownerFlag,
+              summaryLabel: `For ${HARBOURLINE.owner.first}`,
+            },
+            { type: "quote", title: "Payment reminder", body: r.paymentMessage },
+            { type: "quote", title: `Review request (${r.reviewTiming})`, body: r.reviewMessage },
+            { type: "note", body: "A visual mock. Nothing is sent." },
+          ];
+        },
+      },
+    ],
+
+    edges: [
+      { id: "w1", from: "job", to: "read" },
+      { id: "w2", from: "read", to: "payment" },
+      { id: "w3", from: "payment", to: "problem" },
+      { id: "w4", from: "problem", to: "flag", when: "yes", label: "Yes" },
+      { id: "w5", from: "flag", to: "review" },
+      { id: "w6", from: "problem", to: "review", when: "no", label: "No" },
+      { id: "w7", from: "review", to: "card" },
+    ],
+  },
 ];
 
 AGENTS.push(...OPS_AGENTS);
 
 // The eight on the board, in lane order. Speed-to-Lead is the existing
 // agent, unchanged.
-const OPS_TEAM = ["hb-front-desk", "speed-to-lead", "quote-builder"];
+const OPS_TEAM = ["hb-front-desk", "speed-to-lead", "quote-builder", "scheduler", "job-wrap-up"];

@@ -61,6 +61,95 @@ const OPS_DAY = {
       },
       "ms": 4122
      }
+    },
+    {
+     "id": "e01-slot",
+     "agent": "scheduler",
+     "label": "Burst pipe jumps the queue, Dana",
+     "channel": "From Speed-to-Lead",
+     "receivedAt": "2026-11-04T07:05",
+     "recordedOn": "2026-10-30",
+     "handoffTo": "job-wrap-up",
+     "why": "Picked up again when the job is finished",
+     "fields": {
+      "customer": "Dana Moretti",
+      "mobile": "0491 570 156",
+      "suburb": "Marrickville",
+      "jobType": "burst-pipe",
+      "details": "pipe under kitchen sink has burst with water all over the floor",
+      "preferred": "this morning",
+      "receivedAt": "2026-11-04T07:05",
+      "bookedToday": "[]"
+     },
+     "recorded": {
+      "agent": "scheduler",
+      "result": {
+       "read": "Burst pipe under kitchen sink flooding floor",
+       "customer": "Dana Moretti",
+       "mobile": "0491 570 156",
+       "suburb": "Marrickville",
+       "jobType": "burst-pipe",
+       "jobLabel": "Burst pipe repair",
+       "planned": false,
+       "emergency": true,
+       "emergencyReason": "Burst pipe under kitchen sink actively flooding floor",
+       "placed": true,
+       "slot": {
+        "tech": "mick",
+        "techName": "Mick Tran",
+        "date": "2026-11-04",
+        "win": "am",
+        "dayLabel": "Wednesday 4 November",
+        "window": "Morning",
+        "range": "7am to 12pm",
+        "travelFrom": null,
+        "travelMinutes": 20
+       },
+       "slotReason": null,
+       "bump": {
+        "job": "j07",
+        "who": "Jo Kim",
+        "jobLabel": "Leaking shower mixer",
+        "suburb": "Petersham",
+        "tech": "mick",
+        "date": "2026-11-04",
+        "win": "pm",
+        "label": "Wednesday 4 November, afternoon"
+       },
+       "considered": [],
+       "customerMessage": "Hi Dana, you are at the front of the queue and our plumber will call you shortly. Harbourline Plumbing",
+       "addedId": "n0705",
+       "changes": [
+        {
+         "add": "n0705",
+         "tech": "mick",
+         "date": "2026-11-04",
+         "win": "am",
+         "who": "Dana Moretti",
+         "suburb": "Marrickville",
+         "job": "Burst pipe repair",
+         "emergency": true
+        },
+        {
+         "move": "j07",
+         "tech": "mick",
+         "date": "2026-11-04",
+         "win": "pm"
+        }
+       ],
+       "handoff": {
+        "to": "job-wrap-up",
+        "why": "Picked up again when the job is finished"
+       }
+      },
+      "received": {
+       "at": "2026-11-04T07:05",
+       "label": "Wednesday 4 November 2026, 7:05am",
+       "inHours": true,
+       "nextOpen": "now, 7:05am on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 2331
+     }
     }
    ]
   },
@@ -204,6 +293,103 @@ const OPS_DAY = {
        }
       }
      ]
+    },
+    {
+     "id": "e02-slot",
+     "agent": "scheduler",
+     "label": "Blocked drain placed, Hannah",
+     "channel": "From Front Desk",
+     "receivedAt": "2026-11-04T08:20",
+     "recordedOn": "2026-10-30",
+     "fields": {
+      "customer": "Hannah Cole",
+      "mobile": "0491 570 157",
+      "suburb": "Petersham",
+      "jobType": "blocked-drain",
+      "details": "blocked laundry drain",
+      "preferred": "Any morning next week",
+      "receivedAt": "2026-11-04T08:20",
+      "bookedToday": "[{\"add\":\"n0705\",\"tech\":\"mick\",\"date\":\"2026-11-04\",\"win\":\"am\",\"who\":\"Dana Moretti\",\"suburb\":\"Marrickville\",\"job\":\"Burst pipe repair\",\"emergency\":true},{\"move\":\"j07\",\"tech\":\"mick\",\"date\":\"2026-11-04\",\"win\":\"pm\"}]"
+     },
+     "recorded": {
+      "agent": "scheduler",
+      "result": {
+       "read": "Blocked laundry drain in Petersham",
+       "customer": "Hannah Cole",
+       "mobile": "0491 570 157",
+       "suburb": "Petersham",
+       "jobType": "blocked-drain",
+       "jobLabel": "Blocked drain",
+       "planned": false,
+       "emergency": false,
+       "emergencyReason": null,
+       "placed": true,
+       "slot": {
+        "tech": "mick",
+        "techName": "Mick Tran",
+        "date": "2026-11-09",
+        "win": "am",
+        "dayLabel": "Monday 9 November",
+        "window": "Morning",
+        "range": "7am to 12pm",
+        "travelFrom": null,
+        "travelMinutes": 20
+       },
+       "slotReason": "Matches customer preference for next week morning with shortest travel time",
+       "bump": null,
+       "considered": [
+        {
+         "label": "Thursday 5 November, morning",
+         "tech": "Sam Okafor",
+         "travelMinutes": 20,
+         "chosen": false
+        },
+        {
+         "label": "Thursday 5 November, afternoon",
+         "tech": "Sam Okafor",
+         "travelMinutes": 20,
+         "chosen": false
+        },
+        {
+         "label": "Thursday 5 November, afternoon",
+         "tech": "Mick Tran",
+         "travelMinutes": 30,
+         "chosen": false
+        },
+        {
+         "label": "Monday 9 November, morning",
+         "tech": "Mick Tran",
+         "travelMinutes": 20,
+         "chosen": true
+        }
+       ],
+       "customerMessage": "Hi Hannah, we have pencilled you in for Monday 9 November in the morning (7am to 12pm). The office will confirm the exact time shortly. Harbourline Plumbing",
+       "addedId": "n0820",
+       "changes": [
+        {
+         "add": "n0820",
+         "tech": "mick",
+         "date": "2026-11-09",
+         "win": "am",
+         "who": "Hannah Cole",
+         "suburb": "Petersham",
+         "job": "Blocked drain",
+         "emergency": false
+        }
+       ],
+       "handoff": {
+        "to": "job-wrap-up",
+        "why": "Picked up again when the job is finished"
+       }
+      },
+      "received": {
+       "at": "2026-11-04T08:20",
+       "label": "Wednesday 4 November 2026, 8:20am",
+       "inHours": true,
+       "nextOpen": "now, 8:20am on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 1816
+     }
     }
    ]
   },
@@ -348,6 +534,61 @@ const OPS_DAY = {
        "nextOpen": "now, 9:30am on Wednesday 4 November 2026 (open until 5pm today)"
       },
       "ms": 1989
+     }
+    }
+   ]
+  },
+  {
+   "id": "e04",
+   "time": "10:40",
+   "timeLabel": "10:40am",
+   "title": "Burst pipe job finished",
+   "short": "Job finished",
+   "source": "Technician app",
+   "incoming": "Mick marked Dana's burst pipe job as done.",
+   "steps": [
+    {
+     "id": "e04-wrap",
+     "agent": "job-wrap-up",
+     "label": "Burst pipe wrapped up, Dana",
+     "channel": "Technician app",
+     "receivedAt": "2026-11-04T10:40",
+     "recordedOn": "2026-10-30",
+     "fields": {
+      "customer": "Dana Moretti",
+      "mobile": "0491 570 156",
+      "suburb": "Marrickville",
+      "job": "Burst pipe repair",
+      "tech": "Mick Tran",
+      "amount": "$400",
+      "jobNote": "Cut out the split section of copper under the kitchen sink and replaced it. Tested, no further leaks. Dana was happy and thanked Mick.",
+      "receivedAt": "2026-11-04T10:40"
+     },
+     "recorded": {
+      "agent": "job-wrap-up",
+      "result": {
+       "customer": "Dana Moretti",
+       "mobile": "0491 570 156",
+       "suburb": "Marrickville",
+       "job": "Burst pipe repair",
+       "tech": "Mick Tran",
+       "amount": "$400",
+       "dueLabel": "Wednesday 11 November",
+       "noteRead": "Burst pipe under kitchen sink repaired and tested, job completed successfully.",
+       "problem": false,
+       "ownerFlag": null,
+       "suggestedAction": null,
+       "paymentMessage": "Hi Dana, it's Renee from Harbourline Plumbing. Thank you for using our team today for your burst pipe repair. Your invoice for $400 is due on Wednesday 11 November, and can be paid easily by card or bank transfer.",
+       "reviewMessage": "Hi Dana, it's Renee from Harbourline Plumbing. Thanks again for choosing us today. If you have a moment, could you please leave us an honest Google review about the service you received? Reply STOP to opt out.",
+       "reviewTiming": "Goes out today"
+      },
+      "received": {
+       "at": "2026-11-04T10:40",
+       "label": "Wednesday 4 November 2026, 10:40am",
+       "inHours": true,
+       "nextOpen": "now, 10:40am on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 2569
      }
     }
    ]
@@ -498,6 +739,258 @@ const OPS_DAY = {
        "nextOpen": "now, 11:10am on Wednesday 4 November 2026 (open until 5pm today)"
       },
       "ms": 2415
+     }
+    },
+    {
+     "id": "e05-slot",
+     "agent": "scheduler",
+     "label": "Gas leak jumps the queue, Grace",
+     "channel": "From Speed-to-Lead",
+     "receivedAt": "2026-11-04T11:10",
+     "recordedOn": "2026-10-30",
+     "fields": {
+      "customer": "Grace Liu",
+      "mobile": "0491 570 159",
+      "suburb": "Leichhardt",
+      "jobType": "gas",
+      "details": "gas smell near cooktop",
+      "preferred": "",
+      "receivedAt": "2026-11-04T11:10",
+      "bookedToday": "[{\"add\":\"n0705\",\"tech\":\"mick\",\"date\":\"2026-11-04\",\"win\":\"am\",\"who\":\"Dana Moretti\",\"suburb\":\"Marrickville\",\"job\":\"Burst pipe repair\",\"emergency\":true},{\"move\":\"j07\",\"tech\":\"mick\",\"date\":\"2026-11-04\",\"win\":\"pm\"},{\"add\":\"n0820\",\"tech\":\"mick\",\"date\":\"2026-11-09\",\"win\":\"am\",\"who\":\"Hannah Cole\",\"suburb\":\"Petersham\",\"job\":\"Blocked drain\",\"emergency\":false}]"
+     },
+     "recorded": {
+      "agent": "scheduler",
+      "result": {
+       "read": "Gas smell near cooktop in Leichhardt",
+       "customer": "Grace Liu",
+       "mobile": "0491 570 159",
+       "suburb": "Leichhardt",
+       "jobType": "gas",
+       "jobLabel": "Gas fitting or gas leak",
+       "planned": false,
+       "emergency": true,
+       "emergencyReason": "Smell of gas reported near cooktop",
+       "placed": true,
+       "slot": {
+        "tech": "tess",
+        "techName": "Tess Romano",
+        "date": "2026-11-04",
+        "win": "am",
+        "dayLabel": "Wednesday 4 November",
+        "window": "Morning",
+        "range": "7am to 12pm",
+        "travelFrom": "Newtown",
+        "travelMinutes": 30
+       },
+       "slotReason": null,
+       "bump": {
+        "job": "j08",
+        "who": "Alan Yip",
+        "jobLabel": "Hot water repair",
+        "suburb": "Balmain",
+        "tech": "tess",
+        "date": "2026-11-05",
+        "win": "am",
+        "label": "Thursday 5 November, morning"
+       },
+       "considered": [],
+       "customerMessage": "Hi Grace, you are at the front of the queue for your gas leak. Our plumber will call you shortly to confirm. Harbourline Plumbing",
+       "addedId": "n1110",
+       "changes": [
+        {
+         "add": "n1110",
+         "tech": "tess",
+         "date": "2026-11-04",
+         "win": "am",
+         "who": "Grace Liu",
+         "suburb": "Leichhardt",
+         "job": "Gas fitting or gas leak",
+         "emergency": true
+        },
+        {
+         "move": "j08",
+         "tech": "tess",
+         "date": "2026-11-05",
+         "win": "am"
+        }
+       ],
+       "handoff": {
+        "to": "job-wrap-up",
+        "why": "Picked up again when the job is finished"
+       }
+      },
+      "received": {
+       "at": "2026-11-04T11:10",
+       "label": "Wednesday 4 November 2026, 11:10am",
+       "inHours": true,
+       "nextOpen": "now, 11:10am on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 1989
+     }
+    }
+   ]
+  },
+  {
+   "id": "e07",
+   "time": "13:20",
+   "timeLabel": "1:20pm",
+   "title": "Luke accepts the quote",
+   "short": "Quote accepted",
+   "source": "Text message",
+   "incoming": "Thanks, that all looks fine. Please go ahead with the heat pump. A morning would suit best.",
+   "steps": [
+    {
+     "id": "e07-slot",
+     "agent": "scheduler",
+     "label": "Heat pump placed, Luke",
+     "channel": "From Quote Builder",
+     "receivedAt": "2026-11-04T13:20",
+     "recordedOn": "2026-10-30",
+     "handoffTo": "job-wrap-up",
+     "why": "Picked up again when the job is finished",
+     "fields": {
+      "customer": "Luke Brennan",
+      "mobile": "0491 570 158",
+      "suburb": "Annandale",
+      "jobType": "heat-pump",
+      "details": "Accepted quote HP-1104-0930. Supply and install a new heat pump hot water system to replace the existing leaking electric hot water tank.",
+      "preferred": "A morning",
+      "receivedAt": "2026-11-04T13:20",
+      "bookedToday": "[{\"add\":\"n0705\",\"tech\":\"mick\",\"date\":\"2026-11-04\",\"win\":\"am\",\"who\":\"Dana Moretti\",\"suburb\":\"Marrickville\",\"job\":\"Burst pipe repair\",\"emergency\":true},{\"move\":\"j07\",\"tech\":\"mick\",\"date\":\"2026-11-04\",\"win\":\"pm\"},{\"add\":\"n0820\",\"tech\":\"mick\",\"date\":\"2026-11-09\",\"win\":\"am\",\"who\":\"Hannah Cole\",\"suburb\":\"Petersham\",\"job\":\"Blocked drain\",\"emergency\":false},{\"add\":\"n1110\",\"tech\":\"tess\",\"date\":\"2026-11-04\",\"win\":\"am\",\"who\":\"Grace Liu\",\"suburb\":\"Leichhardt\",\"job\":\"Gas fitting or gas leak\",\"emergency\":true},{\"move\":\"j08\",\"tech\":\"tess\",\"date\":\"2026-11-05\",\"win\":\"am\"}]"
+     },
+     "recorded": {
+      "agent": "scheduler",
+      "result": {
+       "read": "Heat pump hot water install",
+       "customer": "Luke Brennan",
+       "mobile": "0491 570 158",
+       "suburb": "Annandale",
+       "jobType": "heat-pump",
+       "jobLabel": "Heat pump hot water install",
+       "planned": true,
+       "emergency": false,
+       "emergencyReason": null,
+       "placed": true,
+       "slot": {
+        "tech": "tess",
+        "techName": "Tess Romano",
+        "date": "2026-11-11",
+        "win": "am",
+        "dayLabel": "Wednesday 11 November",
+        "window": "Morning",
+        "range": "7am to 12pm",
+        "travelFrom": null,
+        "travelMinutes": 20
+       },
+       "slotReason": "Matches customer preference for a morning slot and is the soonest available option.",
+       "bump": null,
+       "considered": [
+        {
+         "label": "Wednesday 11 November, morning",
+         "tech": "Tess Romano",
+         "travelMinutes": 20,
+         "chosen": true
+        },
+        {
+         "label": "Wednesday 11 November, afternoon",
+         "tech": "Tess Romano",
+         "travelMinutes": 20,
+         "chosen": false
+        },
+        {
+         "label": "Thursday 12 November, morning",
+         "tech": "Tess Romano",
+         "travelMinutes": 20,
+         "chosen": false
+        },
+        {
+         "label": "Friday 13 November, morning",
+         "tech": "Tess Romano",
+         "travelMinutes": 20,
+         "chosen": false
+        }
+       ],
+       "customerMessage": "Hi Luke, we have pencilled you in for Wednesday 11 November, morning (7am to 12pm). The office will confirm the exact time soon. Harbourline Plumbing",
+       "addedId": "n1320",
+       "changes": [
+        {
+         "add": "n1320",
+         "tech": "tess",
+         "date": "2026-11-11",
+         "win": "am",
+         "who": "Luke Brennan",
+         "suburb": "Annandale",
+         "job": "Heat pump hot water install",
+         "emergency": false
+        }
+       ],
+       "handoff": {
+        "to": "job-wrap-up",
+        "why": "Picked up again when the job is finished"
+       }
+      },
+      "received": {
+       "at": "2026-11-04T13:20",
+       "label": "Wednesday 4 November 2026, 1:20pm",
+       "inHours": true,
+       "nextOpen": "now, 1:20pm on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 1939
+     }
+    }
+   ]
+  },
+  {
+   "id": "e08",
+   "time": "14:30",
+   "timeLabel": "2:30pm",
+   "title": "Tap repair finished",
+   "short": "Job finished",
+   "source": "Technician app",
+   "incoming": "Sam marked Omar's tap repair as done, with a note about the customer.",
+   "steps": [
+    {
+     "id": "e08-wrap",
+     "agent": "job-wrap-up",
+     "label": "Tap repair with a problem, Omar",
+     "channel": "Technician app",
+     "receivedAt": "2026-11-04T14:30",
+     "recordedOn": "2026-10-30",
+     "fields": {
+      "customer": "Omar Haddad",
+      "mobile": "0491 570 110",
+      "suburb": "Ashfield",
+      "job": "Dripping tap repair",
+      "tech": "Sam Okafor",
+      "amount": "$295",
+      "jobNote": "Replaced the washer and seat kit on the kitchen mixer. Tap is fixed. Omar was unhappy that water was left on the floor under the sink and he had to ask for it to be cleaned up.",
+      "receivedAt": "2026-11-04T14:30"
+     },
+     "recorded": {
+      "agent": "job-wrap-up",
+      "result": {
+       "customer": "Omar Haddad",
+       "mobile": "0491 570 110",
+       "suburb": "Ashfield",
+       "job": "Dripping tap repair",
+       "tech": "Sam Okafor",
+       "amount": "$295",
+       "dueLabel": "Wednesday 11 November",
+       "noteRead": "Fixed kitchen tap dripping, but customer unhappy about water left under sink.",
+       "problem": true,
+       "ownerFlag": "Omar was unhappy because water was left on the floor under his kitchen sink and he had to ask Sam to clean it up.",
+       "suggestedAction": "Call Omar to apologize for the mess left under the sink and ensure he is satisfied with the final cleanup.",
+       "paymentMessage": "Hi Omar, it's Renee from Harbourline Plumbing. Thank you for using us today for your dripping tap repair. Your invoice for $295 is due on Wednesday 11 November, and can be paid by card or bank transfer.",
+       "reviewMessage": "Hi Omar, it's Renee from Harbourline Plumbing. Thank you for choosing us today. If you have a moment, please leave an honest Google review of our work and service. Reply STOP to opt out.",
+       "reviewTiming": "Goes out after Renee has called"
+      },
+      "received": {
+       "at": "2026-11-04T14:30",
+       "label": "Wednesday 4 November 2026, 2:30pm",
+       "inHours": true,
+       "nextOpen": "now, 2:30pm on Wednesday 4 November 2026 (open until 5pm today)"
+      },
+      "ms": 2728
      }
     }
    ]

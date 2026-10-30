@@ -838,7 +838,7 @@
         <dl class="ag-kv is-compact">${b.rows
           .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd${isEmpty(v) ? ' class="is-empty"' : ""}>${esc(isEmpty(v) ? "Not given" : v)}</dd></div>`)
           .join("")}</dl>
-        ${b.summary ? `<div class="ag-next"><span>For the front desk</span><p>${esc(b.summary)}</p></div>` : ""}
+        ${b.summary ? `<div class="ag-next"><span>${esc(b.summaryLabel || "For the front desk")}</span><p>${esc(b.summary)}</p></div>` : ""}
       </div>`,
   };
   Object.assign(BLOCKS, AgentOps.blocks({ esc, isEmpty, title }));

@@ -1672,3 +1672,29 @@ html[data-theme="dark"] .agents-app {
   body.agents-app.is-printing .ag-qdoc { padding: 0; border: 0; border-radius: 0; font-size: 14px; }
   body.agents-app.is-printing .ag-qdoc-meta { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* Week calendar. One column per day when wide (.is-wide); a list of days
+   in the side panel and on a phone. */
+.agents-app .ag-cal-tabs { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 12px; border-radius: 10px; background: var(--ag-surface-2); }
+.agents-app .ag-cal-tabs button { height: 30px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font-size: 12.5px; font-weight: 600; color: var(--ag-text-2); cursor: pointer; }
+.agents-app .ag-cal-tabs button[aria-pressed="true"] { background: var(--ag-surface); color: var(--ag-text); box-shadow: var(--ag-shadow-sm); }
+.agents-app .ag-cal-week { display: grid; gap: 10px; }
+.agents-app .ag-cal.is-wide .ag-cal-week { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.agents-app .ag-cal-day { padding: 10px; border-radius: 12px; background: var(--ag-surface); border: 1px solid var(--ag-border); }
+.agents-app .ag-cal-day.is-today { border-color: var(--ag-accent-ring); box-shadow: inset 0 0 0 1px var(--ag-accent-ring); }
+.agents-app .ag-cal-day h4 { margin: 0 0 8px; font-size: 13px; }
+.agents-app .ag-cal-win + .ag-cal-win { margin-top: 10px; }
+.agents-app .ag-cal-winlabel { display: block; margin-bottom: 4px; font-size: 11px; color: var(--ag-text-2); }
+.agents-app .ag-cal-win ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.agents-app .ag-cal-win p { margin: 0; font-size: 12px; color: var(--ag-text-2); }
+.agents-app .ag-cal-job { position: relative; padding: 6px 8px; border-radius: 8px; background: var(--ag-surface-2); font-size: 12px; line-height: 1.3; }
+.agents-app .ag-cal-job strong { display: block; font-size: 12.5px; }
+.agents-app .ag-cal-job span { color: var(--ag-text-2); }
+.agents-app .ag-cal-tech { display: block; margin-bottom: 1px; font-size: 11px; font-weight: 600; }
+.agents-app .ag-cal-job em { display: block; margin-top: 3px; font-style: normal; font-size: 11px; font-weight: 700; color: var(--ag-accent); }
+.agents-app .ag-cal-job.is-new { background: var(--ag-accent-soft); }
+.agents-app .ag-cal-job.is-moved { background: transparent; box-shadow: inset 0 0 0 1px var(--ag-border-strong); }
+.agents-app .ag-cal-job.is-focus { box-shadow: inset 0 0 0 2px var(--ag-accent); }
+@media (max-width: 699px) {
+  .agents-app .ag-cal.is-wide .ag-cal-week { grid-template-columns: minmax(0, 1fr); }
+}

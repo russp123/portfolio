@@ -63,6 +63,43 @@ const AgentOps = (function () {
     <button type="button" class="ag-btn ag-qdoc-print" data-print-quote="${esc(q.number)}">${icon("quote", 16)}<span>Print or save as PDF</span></button>`;
   }
 
+  // The two-week board, a week at a time: day columns on a wide screen, a
+  // list of days on a phone or in the side panel. Used by the Scheduler's
+  // output and the ops board.
+  function calendar(b, { esc, title }) {
+    const H = HARBOURLINE;
+    const jobs = H.calendarWith(b.changes);
+    const weeks = [H.calendarDays.slice(0, 5), H.calendarDays.slice(5)];
+    const shown = weeks.findIndex((w) => w.includes(b.week)) === 1 ? 1 : 0;
+    const entry = (j) => {
+      const t = H.tech(j.tech);
+      const cls = [j.id === b.focus ? "is-focus" : "", j.added ? "is-new" : "", j.moved ? "is-moved" : "", j.emergency ? "is-emergency" : ""].filter(Boolean).join(" ");
+      const tag = j.emergency ? "Emergency" : j.moved ? "Moved" : j.added ? "New" : "";
+      return `<li class="ag-cal-job ${cls}"><span class="ag-cal-tech">${esc(t.first)}</span><strong>${esc(j.who)}</strong><span>${esc(j.job)}, ${esc(j.suburb)}</span>${tag ? `<em>${tag}</em>` : ""}</li>`;
+    };
+    const win = (date, w) => {
+      const list = jobs.filter((j) => j.date === date && j.win === w).sort((x, y) => H.technicians.findIndex((t) => t.id === x.tech) - H.technicians.findIndex((t) => t.id === y.tech));
+      return `<div class="ag-cal-win"><span class="ag-cal-winlabel">${H.windows[w].label}</span>${list.length ? `<ul>${list.map(entry).join("")}</ul>` : `<p>Free</p>`}</div>`;
+    };
+    // In the side panel, the shown week starts at the day this job landed.
+    const fromDay = !b.wide && b.week ? b.week : null;
+    const week = (days, i) => `<div class="ag-cal-week" data-week="${i}"${i === shown ? "" : " hidden"}>
+      ${days
+        .filter((d) => i !== shown || !fromDay || d >= fromDay)
+        .map((d) => {
+          const [name, num, month] = H.dayLabel(d).split(" ");
+          return `<section class="ag-cal-day${d === H.dayOfTheDemo ? " is-today" : ""}"><h4>${name.slice(0, 3)} ${num} ${month.slice(0, 3)}</h4>${win(d, "am")}${win(d, "pm")}</section>`;
+        })
+        .join("")}
+    </div>`;
+    return `${title(b.title)}<div class="ag-cal${b.wide ? " is-wide" : ""}">
+      <div class="ag-cal-tabs" role="group" aria-label="Week">
+        ${["Week of 2 Nov", "Week of 9 Nov"].map((l, i) => `<button type="button" data-cal-week="${i}" aria-pressed="${i === shown}">${l}</button>`).join("")}
+      </div>
+      ${weeks.map(week).join("")}
+    </div>`;
+  }
+
   // Printing copies the document into a body-level root, so the print
   // sheet shows that one page and nothing else.
   function printQuote(btn) {
@@ -134,6 +171,12 @@ const AgentOps = (function () {
       document.addEventListener("click", (e) => {
         const btn = e.target.closest("[data-print-quote]");
         if (btn) printQuote(btn);
+        const tab = e.target.closest("[data-cal-week]");
+        if (tab) {
+          const cal = tab.closest(".ag-cal");
+          cal.querySelectorAll("[data-cal-week]").forEach((t) => t.setAttribute("aria-pressed", String(t === tab)));
+          cal.querySelectorAll(".ag-cal-week").forEach((w) => (w.hidden = w.dataset.week !== tab.dataset.calWeek));
+        }
       });
       render();
     },
@@ -147,7 +190,7 @@ const AgentOps = (function () {
       root.hidden = true;
     },
     blocks(helpers) {
-      return { quoteDoc: (b) => quoteDoc(b, helpers) };
+      return { quoteDoc: (b) => quoteDoc(b, helpers), calendar: (b) => calendar(b, helpers) };
     },
     loadSamples,
   };
