@@ -312,8 +312,7 @@ function initSmoothScroll() {
   });
 }
 
-// The "About" pill — a sibling to the fixed RUSSELLM toggle, sitting
-// just to its left so the two live together (top-right) on every page.
+// The "About" pill, top-right on every page beside the theme toggle.
 // Skipped on the About page itself (no self-link). Built in JS so it
 // needn't be pasted into every page's HTML.
 function initAboutButton() {
@@ -324,12 +323,6 @@ function initAboutButton() {
   a.href = "/about";
   a.textContent = "About";
   document.body.appendChild(a);
-  const russellm = document.getElementById("russellm-toggle");
-  const place = () => {
-    if (russellm) a.style.right = Math.round(russellm.getBoundingClientRect().width + 32) + "px";
-  };
-  place();
-  window.addEventListener("load", place);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

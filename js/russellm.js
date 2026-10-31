@@ -1,7 +1,8 @@
 /* ============================================================
-   RUSSELLM — the "ask me about myself" chat widget. Self
-   -contained: wires its own toggle/drawer/log/chips/form and
-   talks only to /api/chat (never to Gemini directly). Follows
+   RUSSELLM: the "ask me about myself" chat widget. A launcher
+   bottom-right with an unread badge and a preview card, and a chat
+   panel above it. Self-contained: wires its own
+   launcher/panel/log/chips/form and talks only to /api/chat (never to Gemini directly). Follows
    the same plain-function, single DOMContentLoaded-init pattern
    as js/theme.js.
    ============================================================ */
@@ -41,7 +42,8 @@ function initRussellm() {
   const input = document.getElementById("russellm-input");
   if (!toggle || !drawer || !overlay || !closeBtn || !form || !input) return;
 
-  toggle.addEventListener("click", openRussellmDrawer);
+  toggle.addEventListener("click", () => (russellmOpen ? closeRussellmDrawer() : openRussellmDrawer()));
+  initRussellmPreview();
   closeBtn.addEventListener("click", closeRussellmDrawer);
   overlay.addEventListener("click", closeRussellmDrawer);
   document.addEventListener("keydown", (e) => {
@@ -71,11 +73,68 @@ function initRussellm() {
   });
 }
 
+// The preview card shows once per visit, not on every page. The badge
+// stays until the chat has been opened.
+const RUSSELLM_SEEN_KEY = "russellm.seen";
+const RUSSELLM_PREVIEW_KEY = "russellm.previewShown";
+function russellmFlag(key) {
+  try { return window.sessionStorage.getItem(key) === "1"; } catch (e) { return false; }
+}
+function setRussellmFlag(key) {
+  try { window.sessionStorage.setItem(key, "1"); } catch (e) { /* in-memory only */ }
+}
+function markRussellmSeen() {
+  setRussellmFlag(RUSSELLM_SEEN_KEY);
+  hideRussellmPreview();
+  const badge = document.getElementById("russellm-badge");
+  if (badge) badge.hidden = true;
+}
+function hideRussellmPreview() {
+  const card = document.getElementById("russellm-preview");
+  if (card) card.classList.remove("show");
+}
+function initRussellmPreview() {
+  if (russellmFlag(RUSSELLM_SEEN_KEY)) {
+    const badge = document.getElementById("russellm-badge");
+    if (badge) badge.hidden = true;
+    return;
+  }
+  if (russellmFlag(RUSSELLM_PREVIEW_KEY)) return;
+  const card = document.createElement("div");
+  card.className = "russellm-preview";
+  card.id = "russellm-preview";
+  card.setAttribute("role", "button");
+  card.setAttribute("tabindex", "0");
+  card.setAttribute("aria-label", "Open chat with RUSSELLM");
+  card.innerHTML = `<img src="assets/russellm-avatar.jpg" alt="" width="38" height="38" />
+    <span class="russellm-preview-text"><strong>Hi there, ask me anything about Russel's work.</strong><small>RUSSELLM AI · Just now</small></span>
+    <button type="button" class="russellm-preview-close" aria-label="Dismiss">×</button>`;
+  document.body.appendChild(card);
+  card.addEventListener("click", (e) => {
+    if (e.target.closest(".russellm-preview-close")) return hideRussellmPreview();
+    openRussellmDrawer();
+  });
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openRussellmDrawer();
+    }
+  });
+  setTimeout(() => {
+    if (russellmOpen) return;
+    card.classList.add("show");
+    setRussellmFlag(RUSSELLM_PREVIEW_KEY);
+  }, 1200);
+  // On a phone it would sit over the page, so it doesn't stay. The badge does.
+  if (russellmIsPhone()) setTimeout(hideRussellmPreview, 9000);
+}
+const russellmIsPhone = () => window.matchMedia("(max-width: 600px)").matches;
+
 function syncRussellmViewport() {
   const drawer = document.getElementById("russellm-drawer");
   if (!drawer) return;
   const vv = window.visualViewport;
-  if (!russellmOpen || !vv) {
+  if (!russellmOpen || !vv || !russellmIsPhone()) {
     // Not open (or unsupported) — hand height/position back to the CSS.
     drawer.style.height = "";
     drawer.style.top = "";
@@ -93,6 +152,8 @@ function openRussellmDrawer() {
   drawer.classList.add("open");
   overlay.classList.add("open");
   drawer.setAttribute("aria-hidden", "false");
+  document.getElementById("russellm-toggle").setAttribute("aria-expanded", "true");
+  markRussellmSeen();
   if (!russellmGreeted) {
     russellmGreeted = true;
     renderRussellmGreeting();
@@ -111,9 +172,13 @@ function closeRussellmDrawer() {
   const overlay = document.getElementById("russellm-overlay");
   if (!drawer || !overlay) return;
   russellmOpen = false;
+  const hadFocus = drawer.contains(document.activeElement);
   drawer.classList.remove("open");
   overlay.classList.remove("open");
   drawer.setAttribute("aria-hidden", "true");
+  const toggle = document.getElementById("russellm-toggle");
+  toggle.setAttribute("aria-expanded", "false");
+  if (hadFocus) toggle.focus({ preventScroll: true });
   syncRussellmViewport(); // clears the inline height/top back to CSS
 }
 
@@ -205,7 +270,7 @@ async function russellmSendMessage(text, topic) {
     if (loadingBubble) loadingBubble.remove();
 
     if (!res.ok) {
-      appendRussellmBubble("ai error", data.error || "Something went wrong — try again in a moment.");
+      appendRussellmBubble("ai error", data.error || "Something went wrong. Try again in a moment.");
     } else {
       appendRussellmBubble("ai", data.reply);
       russellmHistory.push({ role: "model", text: data.reply });
@@ -213,7 +278,7 @@ async function russellmSendMessage(text, topic) {
     }
   } catch {
     if (loadingBubble) loadingBubble.remove();
-    appendRussellmBubble("ai error", "Something went wrong — try again in a moment.");
+    appendRussellmBubble("ai error", "Something went wrong. Try again in a moment.");
   } finally {
     russellmSending = false;
     toggleRussellmInput(false);
