@@ -574,12 +574,12 @@ const OPS_DAY = {
        "tech": "Mick Tran",
        "amount": "$400",
        "dueLabel": "Wednesday 11 November",
-       "noteRead": "Burst pipe under kitchen sink repaired and tested, job completed successfully.",
+       "noteRead": "Replaced split copper pipe under kitchen sink and confirmed no leaks.",
        "problem": false,
        "ownerFlag": null,
        "suggestedAction": null,
-       "paymentMessage": "Hi Dana, it's Renee from Harbourline Plumbing. Thank you for using our team today for your burst pipe repair. Your invoice for $400 is due on Wednesday 11 November, and can be paid easily by card or bank transfer.",
-       "reviewMessage": "Hi Dana, it's Renee from Harbourline Plumbing. Thanks again for choosing us today. If you have a moment, could you please leave us an honest Google review about the service you received? Reply STOP to opt out.",
+       "paymentMessage": "Hi Dana, it's Renee from Harbourline Plumbing. Thank you for using us today. Your invoice for the burst pipe repair is $400 and is due on Wednesday 11 November. Payment can be made by card or bank transfer.",
+       "reviewMessage": "Hi Dana, it's Renee from Harbourline Plumbing. Thanks again for your business. If you have a moment, we would really appreciate it if you could leave an honest Google review about our service. Reply STOP to opt out.",
        "reviewTiming": "Goes out today"
       },
       "received": {
@@ -588,7 +588,7 @@ const OPS_DAY = {
        "inHours": true,
        "nextOpen": "now, 10:40am on Wednesday 4 November 2026 (open until 5pm today)"
       },
-      "ms": 2569
+      "ms": 5026
      }
     }
    ]
@@ -863,14 +863,14 @@ const OPS_DAY = {
        ],
        "isNegative": true,
        "ownerAlert": {
-        "summary": "Greg experienced a long wait for a plumber without any communication about delays, costing him half a day of work with no apology.",
-        "jobNoteMatch": "The review and job note agree that the job was completed, but no call was made to update Greg about the overrun on the earlier job.",
-        "suggestedAction": "Call Greg directly to apologize for the poor communication and delay."
+        "summary": "Greg waited most of the morning for a plumber with no call to advise they were running late, causing him to lose half a day of work without receiving an apology.",
+        "jobNoteMatch": "The review and job note agree that no call was made when running behind. The job note states Sam arrived at 10:40am within the 7am-12pm window, but acknowledges the earlier job overran and no courtesy call was placed.",
+        "suggestedAction": "Call Greg directly to offer a personal apology for the communication breakdown and discuss his experience."
        },
-       "publicReply": "Hi Greg, thank you for sharing your feedback. I am sorry to hear that we left you waiting without an update on our arrival time. We aim to keep our customers informed, and I apologize that we fell short this time. I would welcome the chance to speak with you directly about this. Please give me a call on (02) 7010 3310 when you have a moment.\nRenee, Harbourline Plumbing",
+       "publicReply": "Hi Greg, thank you for sharing your feedback. I am really sorry to hear that we did not give you a call to let you know we were running late, and that this cost you time off work. We aim to keep our customers informed, and I apologise that we fell short this time. Please call me on (02) 7010 3310 so I can discuss this with you directly.\nRenee, Harbourline Plumbing",
        "followUp": {
         "channel": "sms",
-        "message": "Hi Greg, I am very sorry for the lack of communication regarding our arrival time for your job. I would appreciate the opportunity to talk this through with you directly. Please give me a call on (02) 7010 3310 when you are free. Renee"
+        "message": "Hi Greg, I am really sorry for the lack of communication regarding your appointment and the inconvenience it caused to your day. I would appreciate the chance to speak with you directly. Please give me a call on (02) 7010 3310 when you have a moment. Renee"
        }
       },
       "received": {
@@ -879,7 +879,7 @@ const OPS_DAY = {
        "inHours": true,
        "nextOpen": "now, 12pm on Wednesday 4 November 2026 (open until 5pm today)"
       },
-      "ms": 5112
+      "ms": 3437
      }
     }
    ]
@@ -1030,12 +1030,12 @@ const OPS_DAY = {
        "tech": "Sam Okafor",
        "amount": "$295",
        "dueLabel": "Wednesday 11 November",
-       "noteRead": "Fixed kitchen tap dripping, but customer unhappy about water left under sink.",
+       "noteRead": "Fixed kitchen mixer tap by replacing washer and seat kit.",
        "problem": true,
-       "ownerFlag": "Omar was unhappy because water was left on the floor under his kitchen sink and he had to ask Sam to clean it up.",
-       "suggestedAction": "Call Omar to apologize for the mess left under the sink and ensure he is satisfied with the final cleanup.",
-       "paymentMessage": "Hi Omar, it's Renee from Harbourline Plumbing. Thank you for using us today for your dripping tap repair. Your invoice for $295 is due on Wednesday 11 November, and can be paid by card or bank transfer.",
-       "reviewMessage": "Hi Omar, it's Renee from Harbourline Plumbing. Thank you for choosing us today. If you have a moment, please leave an honest Google review of our work and service. Reply STOP to opt out.",
+       "ownerFlag": "Omar was unhappy because water was left under the kitchen sink and he had to ask Sam to clean it up.",
+       "suggestedAction": "Call Omar to apologise for the mess left behind and ensure he is satisfied with the final result.",
+       "paymentMessage": "Hi Omar, it's Renee from Harbourline Plumbing. Thanks for having us out today for your tap repair. Your invoice for $295 is due on Wednesday 11 November, and can be paid by card or bank transfer.",
+       "reviewMessage": "Hi Omar, it's Renee from Harbourline Plumbing. Thanks again for using our service. If you have a moment, we would appreciate it if you could leave an honest Google review about your experience with us. Reply STOP to opt out.",
        "reviewTiming": "Goes out after Renee has called"
       },
       "received": {
@@ -1044,7 +1044,7 @@ const OPS_DAY = {
        "inHours": true,
        "nextOpen": "now, 2:30pm on Wednesday 4 November 2026 (open until 5pm today)"
       },
-      "ms": 2728
+      "ms": 2472
      }
     }
    ]
@@ -1314,10 +1314,10 @@ const OPS_DAY = {
        ],
        "isNegative": false,
        "ownerAlert": null,
-       "publicReply": "Hi Dana, thank you for the wonderful feedback. We are glad Mick could get out to you quickly to fix the burst pipe and provide a clear, friendly, and tidy service. Thanks for choosing Harbourline Plumbing.\nRenee, Harbourline Plumbing",
+       "publicReply": "Hi Dana, thank you for the wonderful review. We are so glad Mick could get out to help with the burst pipe quickly and keep everything clear, tidy, and friendly for you. We really appreciate your recommendation and look forward to helping you again if you ever need us.\nRenee, Harbourline Plumbing",
        "followUp": {
         "channel": "sms",
-        "message": "Hi Dana, thanks so much for leaving us a review. We are really glad Mick could help you out with the burst pipe today. Best regards, Renee"
+        "message": "Hi Dana, thanks so much for the 5-star review! We are glad Mick took good care of you this morning. Renee"
        }
       },
       "received": {
@@ -1326,7 +1326,7 @@ const OPS_DAY = {
        "inHours": true,
        "nextOpen": "now, 4:45pm on Wednesday 4 November 2026 (open until 5pm today)"
       },
-      "ms": 2303
+      "ms": 2209
      }
     }
    ]
@@ -1445,7 +1445,7 @@ const OPS_DAY = {
      "id": "r11",
      "time": "12:00pm",
      "agent": "Review Guardian",
-     "what": "1-star review from Greg: reply drafted. Greg experienced a long wait for a plumber without any communication about delays, costing him half a day of work with no apology.",
+     "what": "1-star review from Greg: reply drafted. Greg waited most of the morning for a plumber with no call to advise they were running late, causing him to lose half a day of work without receiving an apology.",
      "kind": "review",
      "flag": "yes",
      "who": "Greg",
@@ -1465,7 +1465,7 @@ const OPS_DAY = {
      "id": "r13",
      "time": "2:30pm",
      "agent": "Job Wrap-up",
-     "what": "Omar Haddad: Dripping tap repair finished, $295 invoiced, due Wednesday 11 November. Problem on the job: Omar was unhappy because water was left on the floor under his kitchen sink and he had to ask Sam to clean it up. Review request waits until the owner has called.",
+     "what": "Omar Haddad: Dripping tap repair finished, $295 invoiced, due Wednesday 11 November. Problem on the job: Omar was unhappy because water was left under the kitchen sink and he had to ask Sam to clean it up. Review request waits until the owner has called.",
      "kind": "job",
      "flag": "yes",
      "who": "Omar Haddad",
@@ -1508,7 +1508,7 @@ const OPS_DAY = {
    "agent": "daily-brief",
    "result": {
     "day": "Wednesday 4 November 2026",
-    "headline": "The team had a busy day managing emergency calls, bookings and customer reviews.",
+    "headline": "The team managed urgent callouts and standard jobs steadily throughout the day.",
     "counts": [
      {
       "label": "Leads answered",
@@ -1543,33 +1543,34 @@ const OPS_DAY = {
     "needsYou": [
      {
       "who": "Jo Kim",
-      "what": "Jo Kim was moved to Wednesday 4 November, afternoon to fit in an emergency burst pipe job.",
-      "action": "Notify Jo Kim about the rescheduled job time."
+      "what": "Jo was moved to Wednesday 4 November afternoon to fit in an emergency burst pipe job.",
+      "action": "Notify Jo Kim about the schedule change to Wednesday afternoon."
      },
      {
       "who": "Alan Yip",
-      "what": "Alan Yip was moved to Thursday 5 November, morning to clear space for a gas leak emergency.",
-      "action": "Notify Alan Yip about the new time slot."
+      "what": "Alan was moved to Thursday 5 November morning to accommodate an emergency gas leak job.",
+      "action": "Notify Alan Yip about the schedule change to Thursday morning."
      },
      {
       "who": "Greg",
-      "what": "Greg left a 1-star review about waiting half a day for a plumber without communication or an apology.",
-      "action": "Review the drafted reply for Greg's review."
+      "what": "Greg left a 1 star review after waiting most of the morning without a call about a late plumber.",
+      "action": "Review the drafted reply and contact Greg regarding the delayed service."
      },
      {
       "who": "Omar Haddad",
-      "what": "Omar Haddad was unhappy that water was left under his kitchen sink after a dripping tap repair.",
-      "action": "Call Omar Haddad before sending a review request."
+      "what": "Omar was unhappy that water was left under his kitchen sink after a dripping tap repair.",
+      "action": "Call Omar Haddad before releasing his review request."
      }
     ],
     "done": [
-     "Handled 3 leads, 2 chats, 2 emergency jobs, and drafted 2 quotes.",
-     "Booked 4 jobs including blocked drain repairs and hot water installs.",
-     "Completed 2 jobs, invoiced $695, and drafted replies for customer reviews.",
-     "Ran an old quotes sweep, drafting 4 follow-up messages."
+     "Responded to leads and website chats for emergency and standard plumbing requests.",
+     "Booked jobs for burst pipes, gas leaks, blocked drains, and hot water installs.",
+     "Drafted quotes for hot water replacements and completed quote sweeps for old leads.",
+     "Wrapped up jobs for a burst pipe and a dripping tap, invoicing $695 in total.",
+     "Drafted replies for customer reviews including a 5 star review from Dana."
     ],
     "tomorrow": [
-     "Alan Yip job moved to Thursday 5 November, morning."
+     "Alan Yip is rescheduled for Thursday 5 November morning with Tess Romano."
     ]
    },
    "received": {
@@ -1578,7 +1579,7 @@ const OPS_DAY = {
     "inHours": false,
     "nextOpen": "Thursday 5 November 2026, 7am"
    },
-   "ms": 3630
+   "ms": 3699
   }
  }
 };

@@ -570,6 +570,8 @@ ${H.factSheet()}
 
 ${SHARED_RULES}
 
+Always use Australian spelling: apologise, organise, colour.
+
 READING THE NOTE
 - problem: true if the note shows the customer was unhappy or something went wrong that the owner should hear about, otherwise false.
 - ownerFlag: when problem is true, one or two plain sentences for ${H.owner.first}, the owner, saying what happened. Otherwise null.
@@ -657,7 +659,8 @@ ${fields.jobNote}
     facts: `- Name: ${H.name}, a plumber in ${H.region}.
 - Hours: Monday to Friday, 7am to 5pm.
 - Owner and manager: ${H.owner.first}. Replies are signed "${H.sign}".
-- Office phone for follow-up: ${H.phone}.`,
+- Office phone for follow-up: ${H.phone}.
+- Always use Australian spelling: apologise, organise, colour.`,
     policyRule: "",
     recordsWord: "job",
     sign: H.sign,
