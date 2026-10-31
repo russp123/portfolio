@@ -106,7 +106,7 @@ function initRussellmPreview() {
   card.setAttribute("role", "button");
   card.setAttribute("tabindex", "0");
   card.setAttribute("aria-label", "Open chat with RUSSELLM");
-  card.innerHTML = `<img src="assets/russellm-avatar.jpg" alt="" width="38" height="38" />
+  card.innerHTML = `<img src="assets/russellm-avatar.svg" alt="" width="38" height="38" />
     <span class="russellm-preview-text"><strong>Hi there, ask me anything about Russel's work.</strong><small>RUSSELLM AI · Just now</small></span>
     <button type="button" class="russellm-preview-close" aria-label="Dismiss">×</button>`;
   document.body.appendChild(card);
