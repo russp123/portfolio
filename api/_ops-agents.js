@@ -193,6 +193,8 @@ ${latest}
         const kept = sentencesOf(reply).filter((x) => !FD_BANNED.test(x) && !FD_DIY.test(x) && !promisedTime(x) && !(x.match(/\$\s?\d[\d,.]*/g) || []).some((p) => !FD_PRICES.includes(p.replace(/[\s,]/g, "").replace(/\.$/, ""))));
         out.reply = kept.length ? kept.join(" ") : SAFE_UNKNOWN;
       }
+      // Whatever was taken out, a finished booking always says so plainly.
+      if (out.bookingReady && !/\brequest\b/i.test(out.reply)) out.reply = `Thanks ${captured.name.split(/\s+/)[0]}. I've sent your booking request to the team, who will confirm a time with you.`;
       if (out.reply.length > MAX_MESSAGE_LENGTH) {
         const cut = out.reply.slice(0, MAX_MESSAGE_LENGTH - 1);
         const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("? "), cut.lastIndexOf("! "));
