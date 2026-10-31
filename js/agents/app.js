@@ -176,7 +176,7 @@
 
   /* ---------------- Dock ---------------- */
   function buildDock() {
-    const agentButtons = LIVE.filter((a) => !a.team).map(
+    const agentButtons = LIVE.filter((a) => !a.team).sort((a, b) => (b.flagship ? 1 : 0) - (a.flagship ? 1 : 0)).map(
       (a) => `<button type="button" class="ag-dock-btn" data-route="${a.id}" data-tip="${esc(a.name)}" aria-label="${esc(a.name)}">${agentIcon(a.icon, 24)}</button>`
     ).join("");
     els.dock.innerHTML = `
@@ -274,17 +274,24 @@
       <div class="ag-pv ag-pv-table">
         ${["accent", "strong", "muted"].map((tone, i) => `<div class="ag-pv-row">${line([54, 46, 50][i])}<span class="ag-pv-tag" data-tone="${tone}"></span></div>`).join("")}
       </div>`,
-    board: () => `
-      <div class="ag-pv ag-pv-board">
-        ${[[0, 1, 0, 0, 1, 0, 0], [1, 0, 1, 0, 0, 0, 1], [0, 0, 1, 1, 0, 1, 0], [0, 1, 0, 0, 1, 0, 0]]
-          .map((row) => `<div class="ag-pv-lane">${row.map((on, i) => `<span class="${on ? (i === 2 ? "is-on" : "is-chip") : ""}"></span>`).join("")}</div>`)
-          .join("")}
-      </div>`,
   };
   const previewHtml = (agent) => `<div class="ag-pv-wrap" aria-hidden="true">${(PREVIEWS[agent.preview] || PREVIEWS.phone)()}</div>`;
   function buildCards() {
-    const cards = AGENTS.filter((a) => !a.team).sort((a, b) => (b.flagship ? 1 : 0) - (a.flagship ? 1 : 0));
-    els.cards.innerHTML = cards.map((a) => {
+    // The flagship gets the whole first row; the rest sit under it.
+    const flagship = AGENTS.find((a) => a.flagship);
+    const feature = flagship
+      ? `<a class="ag-feature" href="#${flagship.id}" data-route="${flagship.id}">
+          <div class="ag-feature-text">
+            <p class="ag-feature-tag">${esc(flagship.name)} · ${esc(flagship.business)}</p>
+            <h2><em>${esc(flagship.pitchDim)}</em>${esc(flagship.pitch)}</h2>
+            <p class="ag-feature-body">${esc(flagship.problem)}</p>
+            <span class="ag-feature-cta">${esc(flagship.cta)} ${agentIcon("arrow", 16)}</span>
+          </div>
+          <figure class="ag-feature-media" aria-hidden="true">${AgentOps.dotMatrix("7:05")}<figcaption>7:05am. A pipe bursts in Marrickville.</figcaption></figure>
+        </a>
+        <h2 class="ag-cards-label">Or try one agent on its own</h2>`
+      : "";
+    els.cards.innerHTML = feature + AGENTS.filter((a) => !a.team && !a.flagship).map((a) => {
       const live = a.status === "live";
       const media = live
         ? `<div class="ag-card-media">${previewHtml(a)}</div>`
@@ -299,10 +306,10 @@
             </div>
           </div>
           <p class="ag-card-problem">${esc(a.problem)}</p>
-          ${live ? `<span class="ag-card-cta">${esc(a.cta || "Open agent")} ${agentIcon("arrow", 16)}</span>` : `<span class="ag-card-state">In training</span>`}
+          ${live ? `<span class="ag-card-cta">Open agent ${agentIcon("arrow", 16)}</span>` : `<span class="ag-card-state">In training</span>`}
         </div>`;
       return live
-        ? `<a class="ag-card is-live${a.flagship ? " is-wide" : ""}" href="#${a.id}" data-route="${a.id}">${media}${meta}</a>`
+        ? `<a class="ag-card is-live" href="#${a.id}" data-route="${a.id}">${media}${meta}</a>`
         : `<div class="ag-card is-training" aria-disabled="true">${media}${meta}</div>`;
     }).join("");
     els.cards.addEventListener("click", (e) => {

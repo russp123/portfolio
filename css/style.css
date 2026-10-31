@@ -2081,6 +2081,10 @@ html, body { overflow-x: clip; }
   transition: border-color 160ms ease, transform 160ms ease;
 }
 .hero-email:hover { border-color: var(--text-primary); transform: translateY(-1px); }
+.hero-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.hero-email.hero-new { background: #2860f0; border-color: #2860f0; color: #fff; font-family: inherit; font-weight: 600; }
+.hero-email.hero-new:hover { border-color: #2860f0; filter: brightness(1.08); }
+.hero-email.hero-new sup { color: rgba(255, 255, 255, 0.85); }
 .hero-email sup { font-size: 9px; margin-left: 1px; color: var(--text-tertiary); }
 
 /* Full-bleed 3D stage for the cylinder. `perspective` is set inline
@@ -2380,9 +2384,52 @@ html[data-theme="light"] .agents-hl {
   margin: 0 0 30px;
   text-wrap: balance;
 }
+.ah-title .ah-dim { color: var(--text-secondary); }
 .ah-subrow { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .ah-sub { font-size: clamp(15px, 1.2vw, 17px); line-height: 1.6; color: var(--text-secondary); margin: 0; }
 .hero-email.ah-cta { flex: none; margin-top: 0; white-space: nowrap; }
+
+/* The Ops Team leads the section: a dark block in both themes, with the
+   recorded day drawn as a grid of events by agent. */
+.ah-ops {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr);
+  gap: 40px;
+  align-items: center;
+  margin-top: 56px;
+  padding: 44px;
+  border-radius: 26px;
+  background: #0d0f14;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f4f5f7;
+  text-decoration: none;
+  transition: transform 200ms ease;
+}
+.ah-ops:hover { transform: translateY(-2px); }
+.ah-ops:focus-visible { outline: 2px solid #2860f0; outline-offset: 4px; }
+.ah-ops-tag { margin: 0 0 14px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; color: #b4b8c2; }
+.ah-ops-body { margin: 0; font-size: clamp(22px, 2.3vw, 32px); font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; }
+.ah-ops-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; padding: 11px 18px; border-radius: 12px; background: #2860f0; color: #fff; font-size: 14.5px; font-weight: 600; }
+.ah-ops-cta i { display: inline-grid; width: 16px; height: 16px; }
+.ah-ops-cta svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ah-ops-board { min-height: 240px; min-width: 0; }
+.ah-grid { display: grid; grid-template-columns: 112px repeat(var(--cols), minmax(0, 1fr)); gap: 5px; align-items: center; }
+.ah-grid b { font-size: 10.5px; font-weight: 500; color: #b4b8c2; text-align: center; white-space: nowrap; }
+.ah-grid b.is-minor { visibility: hidden; }
+.ah-grid b.is-first { justify-self: start; }
+.ah-grid b.is-last { justify-self: end; }
+.ah-grid em { font-style: normal; font-size: 12px; color: #c6c9d1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ah-grid i { height: 18px; border-radius: 5px; background: rgba(255, 255, 255, 0.07); }
+.ah-grid i.is-on { background: #2860f0; }
+.ah-ops-stats { margin: 14px 0 0; font-size: 12.5px; color: #b4b8c2; }
+.ah-also { margin: 64px 0 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary); }
+@media (max-width: 900px) {
+  .ah-ops { grid-template-columns: minmax(0, 1fr); padding: 26px 20px; gap: 26px; margin-top: 36px; }
+  .ah-grid { grid-template-columns: 92px repeat(var(--cols), minmax(0, 1fr)); gap: 3px; }
+  .ah-grid b { font-size: 9.5px; }
+  .ah-grid em { font-size: 11px; }
+  .ah-grid i { height: 15px; border-radius: 4px; }
+}
 
 /* Cards: the featured middle one is a touch wider and taller, like the
    reference, so it rises a few px above its neighbours. */
@@ -2391,7 +2438,7 @@ html[data-theme="light"] .agents-hl {
   grid-template-columns: 1fr 1.03fr 1fr;
   gap: 28px;
   align-items: end;
-  margin-top: 84px;
+  margin-top: 28px;
 }
 .ah-card { display: block; container-type: inline-size; border-radius: 26px; color: inherit; text-decoration: none; transition: transform 200ms ease; }
 .ah-card:focus-visible { outline: 2px solid var(--ah-blue); outline-offset: 4px; }

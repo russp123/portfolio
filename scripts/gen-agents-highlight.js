@@ -26,10 +26,10 @@ const OUT = path.join(ROOT, "js", "agents-highlight.json");
 // The /agents scripts are plain browser scripts; run them in one context
 // so their top-level consts see each other, like on the page.
 const ctx = vm.createContext({});
-for (const file of ["js/agents/registry.js", "js/agents/samples.js", "js/agents/canvas.js"]) {
+for (const file of ["js/agents/registry.js", "js/agents/harbourline.js", "js/agents/ops-registry.js", "js/agents/samples.js", "js/agents/ops-day.js", "js/agents/canvas.js"]) {
   vm.runInContext(fs.readFileSync(path.join(ROOT, file), "utf8"), ctx, { filename: file });
 }
-const { AGENTS, AGENT_SAMPLES, AgentCanvas } = vm.runInContext("({ AGENTS, AGENT_SAMPLES, AgentCanvas })", ctx);
+const { AGENTS, AGENT_SAMPLES, AgentCanvas, OPS_DAY, OPS_TEAM } = vm.runInContext("({ AGENTS, AGENT_SAMPLES, AgentCanvas, OPS_DAY, OPS_TEAM })", ctx);
 const agentById = (id) => AGENTS.find((a) => a.id === id);
 const sampleById = (agent, id) => {
   const s = (AGENT_SAMPLES[agent] || []).find((x) => x.id === id);
@@ -54,7 +54,7 @@ function clip(text, max) {
 
 // Card copy check: data.js repeats each agent's name and problem line.
 const problems = [];
-for (const card of (PORTFOLIO.agentsHighlight || {}).cards || []) {
+for (const card of [...((PORTFOLIO.agentsHighlight || {}).cards || []), PORTFOLIO.agentsHighlight.ops]) {
   const agent = agentById(card.agent);
   if (!agent) problems.push(`data.js card "${card.agent}" is not an agent id`);
   else {
@@ -102,8 +102,20 @@ const deadLead = {
   leads: list.recorded.result.leads.map((l) => ({ days: l.daysSinceQuote, group: l.group })),
 };
 
+// Ops Team: the recorded day as events by agent, straight from js/agents/ops-day.js.
+const dayEvents = OPS_DAY.brief ? [...OPS_DAY.events, { timeLabel: "5:05pm", steps: [OPS_DAY.brief] }] : OPS_DAY.events;
+const opsTeam = {
+  lanes: OPS_TEAM.map((id) => {
+    const a = agentById(id);
+    return a.short || (id === "speed-to-lead" ? "Speed-to-Lead" : a.name);
+  }),
+  events: dayEvents.map((e) => ({ time: e.timeLabel, lanes: e.steps.map((s) => OPS_TEAM.indexOf(s.agent)) })),
+  stats: { events: OPS_DAY.events.length, agents: OPS_TEAM.length, runs: dayEvents.reduce((n, e) => n + e.steps.length, 0) },
+};
+
 const data = {
-  _generated: "By scripts/gen-agents-highlight.js from js/agents/registry.js and samples.js. Don't edit by hand.",
+  _generated: "By scripts/gen-agents-highlight.js from js/agents/registry.js, samples.js and ops-day.js. Don't edit by hand.",
+  "ops-team": opsTeam,
   "front-desk": frontDesk,
   "speed-to-lead": speedToLead,
   "dead-lead-revival": deadLead,

@@ -121,7 +121,10 @@
           </div>
           <h1 class="hero-headline">Hey, I&rsquo;m Russ</h1>
           <p class="hero-sub">a designer who engineers, then <i>automates</i> what&rsquo;s left.</p>
-          <a class="hero-email" id="hero-email" href="#"></a>
+          <div class="hero-links">
+            <a class="hero-email" id="hero-email" href="#"></a>
+            <a class="hero-email hero-new" id="hero-new" href="/agents#ops-team"></a>
+          </div>
         </div>
         <div class="hero-carousel" id="hero-carousel">
           <div class="hero-carousel-track" id="hero-carousel-track"></div>
@@ -137,7 +140,7 @@
         <div class="wid-list" id="wid-list"></div>
       </section>
 
-      <!-- AI agents [2]: three cards from PORTFOLIO.agentsHighlight, each
+      <!-- AI agents [2]: the Ops Team, then three cards from PORTFOLIO.agentsHighlight, each
            opening /agents. Text renders right away; each card's small
            widget fills in from js/agents-highlight.json (real /agents
            recordings), fetched only when the section nears the viewport.
@@ -521,6 +524,8 @@
       // up. The JSON (about 1.5KB) loads only when the section is near.
       const agentsHl = document.getElementById("agents-hl");
       const AH = PORTFOLIO.agentsHighlight;
+      const heroNew = document.getElementById("hero-new");
+      if (heroNew && AH) heroNew.innerHTML = `${AH.heroPill}<sup>↗</sup>`;
       if (agentsHl && AH) {
         const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
         const svg = (body, cls) => `<svg viewBox="0 0 24 24"${cls ? ` class="${cls}"` : ""} aria-hidden="true">${body}</svg>`;
@@ -528,11 +533,20 @@
         const DOTS = '<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>';
         agentsHl.innerHTML = `
           <div class="section-label ah-eyebrow"><span class="section-num">[2]</span></div>
-          <h2 class="ah-title" id="ah-title">${esc(AH.headline)}</h2>
+          <h2 class="ah-title" id="ah-title"><span class="ah-dim">${esc(AH.headlineDim)}</span> ${esc(AH.headline)}</h2>
           <div class="ah-subrow">
             <p class="ah-sub">${esc(AH.sub)}</p>
             <a class="hero-email ah-cta" href="${esc(AH.cta.url)}">${esc(AH.cta.label)}<sup>↗</sup></a>
           </div>
+          <a class="ah-ops" href="/agents#${esc(AH.ops.agent)}" aria-label="${esc(AH.ops.title)}: ${esc(AH.ops.body)}">
+            <div class="ah-ops-text">
+              <p class="ah-ops-tag">${esc(AH.ops.title)} · ${esc(AH.ops.business)}</p>
+              <p class="ah-ops-body">${esc(AH.ops.body)}</p>
+              <span class="ah-ops-cta">${esc(AH.ops.cta)}<i>${svg(ARROW)}</i></span>
+            </div>
+            <div class="ah-ops-board" data-widget="${esc(AH.ops.agent)}" aria-hidden="true"></div>
+          </a>
+          <h3 class="ah-also">${esc(AH.alsoLabel)}</h3>
           <div class="ah-cards">
             ${AH.cards
               .map(
@@ -559,6 +573,15 @@
           </div>`;
 
         const WIDGETS = {
+          // The recorded day: one column per event, one row per agent.
+          "ops-team": (d) => `
+            <div class="ah-grid" style="--cols:${d.events.length}">
+              <span></span>${d.events.map((e, i) => `<b class="${i === 0 ? "is-first" : i === d.events.length - 1 ? "is-last" : i % 5 === 0 ? "" : "is-minor"}">${esc(e.time)}</b>`).join("")}
+              ${d.lanes
+                .map((name, r) => `<em>${esc(name)}</em>${d.events.map((e) => `<i class="${e.lanes.includes(r) ? "is-on" : ""}"></i>`).join("")}`)
+                .join("")}
+            </div>
+            <p class="ah-ops-stats">${d.stats.events} events · ${d.stats.agents} agents · ${d.stats.runs} agent runs, recorded from real runs</p>`,
           "front-desk": (d) =>
             `<div class="ah-chat">${d.messages.map((m) => `<p class="ah-bubble ${m.from === "patient" ? "is-in" : "is-out"}">${esc(m.text)}</p>`).join("")}</div>`,
           "speed-to-lead": (d) => `<div class="ah-lead">
@@ -582,7 +605,7 @@
           },
         };
         const fillWidgets = (data) => {
-          agentsHl.querySelectorAll(".ah-w-body[data-widget]").forEach((el) => {
+          agentsHl.querySelectorAll("[data-widget]").forEach((el) => {
             const make = WIDGETS[el.dataset.widget];
             if (make && data[el.dataset.widget]) el.innerHTML = make(data[el.dataset.widget]);
           });

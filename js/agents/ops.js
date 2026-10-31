@@ -779,6 +779,7 @@ const AgentOps = (function () {
       return { quoteDoc: (b) => quoteDoc(b, helpers), calendar: (b) => calendar(b, helpers), brief: (b) => brief(b, helpers) };
     },
     loadSamples,
+    dotMatrix,
   };
 })();
 

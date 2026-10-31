@@ -1584,13 +1584,36 @@ html[data-theme="dark"] .agents-app {
 }
 
 /* ---------------- Ops Team ---------------- */
-.agents-app .ag-card.is-wide { grid-column: 1 / -1; }
-.agents-app .ag-card.is-wide .ag-card-media { aspect-ratio: 16 / 4.2; }
-.agents-app .ag-pv-board { width: min(420px, 74vw); gap: 8px; }
-.agents-app .ag-pv-lane { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.agents-app .ag-pv-lane span { height: 12px; border-radius: 4px; background: var(--ag-border); }
-.agents-app .ag-pv-lane span.is-chip { background: var(--ag-border-strong); }
-.agents-app .ag-pv-lane span.is-on { background: var(--ag-accent); }
+/* The flagship on the landing view. A dark block in both themes, so it
+   reads as the headline act above the smaller cards. */
+.agents-app .ag-feature {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+  padding: 44px;
+  border-radius: 24px;
+  background: #0d0f14;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f4f5f7;
+  text-decoration: none;
+  box-shadow: var(--ag-shadow-lg);
+  transition: transform 0.2s var(--ag-ease);
+}
+.agents-app .ag-feature:hover { transform: translateY(-2px); }
+.agents-app .ag-feature-tag { margin: 0 0 16px; font-family: var(--ag-mono); font-size: 12.5px; color: #b4b8c2; }
+.agents-app .ag-feature h2 { margin: 0; font-size: clamp(32px, 4vw, 52px); font-weight: 700; line-height: 1.04; letter-spacing: -0.035em; }
+.agents-app .ag-feature h2 em { display: block; font-style: normal; color: #a4a8b3; }
+.agents-app .ag-feature-body { margin: 16px 0 0; font-size: 16px; line-height: 1.5; color: #c6c9d1; }
+.agents-app .ag-feature-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; padding: 11px 18px; border-radius: 12px; background: #2860f0; color: #fff; font-size: 14.5px; font-weight: 600; }
+.agents-app .ag-feature-media { margin: 0; color: #f4f5f7; }
+.agents-app .ag-feature-media .ag-st-dots .is-accent { fill: #6b97ff; }
+.agents-app .ag-feature-media figcaption { margin-top: 12px; font-family: var(--ag-mono); font-size: 12px; color: #b4b8c2; }
+.agents-app .ag-cards-label { grid-column: 1 / -1; margin: 28px 0 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+@media (max-width: 900px) {
+  .agents-app .ag-feature { grid-template-columns: minmax(0, 1fr); padding: 26px 22px; gap: 24px; }
+}
 
 .agents-app .ag-ops { padding: 16px 40px 96px var(--ag-side); }
 .agents-app .ag-ops-wrap { max-width: 1200px; margin: 0 auto; }
