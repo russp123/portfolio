@@ -5,8 +5,8 @@
    the end of this file).
    ============================================================ */
 
-/* The launcher: a round button fixed bottom-right, with a one-line
-   preview card above it. The chat itself opens as
+/* The launcher: a round button fixed bottom-right with a red unread
+   badge, and a one-line preview card above it. The chat itself opens as
    a panel above the launcher, or full screen on a phone. */
 .russellm-toggle {
   position: fixed;
@@ -31,6 +31,24 @@
 .russellm-icon-close { opacity: 0; transform: rotate(-30deg); }
 .russellm-toggle[aria-expanded="true"] .russellm-icon-chat { opacity: 0; transform: rotate(30deg); }
 .russellm-toggle[aria-expanded="true"] .russellm-icon-close { opacity: 1; transform: none; }
+
+.russellm-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #e5262a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+.russellm-badge[hidden] { display: none; }
 
 .russellm-preview {
   position: fixed;
