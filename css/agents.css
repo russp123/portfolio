@@ -2020,6 +2020,10 @@ html[data-theme="dark"] .agents-app {
     border-bottom: 1px solid var(--ag-border);
   }
   .agents-app .ag-ops-controls { width: 100%; flex-wrap: nowrap; }
-  .agents-app .ag-run.ag-ops-go { flex: 1; min-width: 0; width: auto; }
+  .agents-app .ag-run.ag-ops-go { flex: 1; min-width: 0; width: auto; padding: 0 10px; }
+  .agents-app .ag-ops-controls { gap: 6px; }
+  .agents-app .ag-ops-controls .ag-btn { flex: none; padding: 0 10px; }
+  .agents-app .ag-ops-speed { flex: none; }
+  .agents-app .ag-ops-speed button { min-width: 28px; }
   .agents-app .ag-ops-now { width: 100%; }
 }
