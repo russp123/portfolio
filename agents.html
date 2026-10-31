@@ -32,6 +32,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/agents.css" />
+<link rel="stylesheet" href="css/russellm.css" />
 <link rel="icon" href="assets/portfolio-logo.jpg" />
 </head>
 <body class="agents-app">
@@ -109,6 +110,24 @@
 <aside class="ag-panel" id="ag-panel" role="dialog" aria-labelledby="ag-panel-title" hidden></aside>
 <div class="ag-toast" id="ag-toast" role="status" aria-live="polite"></div>
 
+  <button class="russellm-toggle" id="russellm-toggle" aria-label="Chat with RUSSELLM" aria-expanded="false" aria-controls="russellm-drawer">
+    <svg class="russellm-icon-chat" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5h-.5v2.5L12.5 18.5H7A3.5 3.5 0 0 1 3.5 15V7A3.5 3.5 0 0 1 7 3.5z"/></svg>
+    <svg class="russellm-icon-close" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    <span class="russellm-badge" id="russellm-badge" aria-hidden="true">1</span>
+  </button>
+  <div class="russellm-overlay" id="russellm-overlay"></div>
+  <aside class="russellm-drawer" id="russellm-drawer" aria-hidden="true">
+    <div class="russellm-drawer-header">
+      <span class="russellm-drawer-who"><img src="assets/russellm-avatar.svg" alt="" width="36" height="36" /><span><strong class="russellm-drawer-title">RUSSELLM</strong><small>An AI chatting as Russel</small></span></span>
+      <button class="russellm-close" id="russellm-close" aria-label="Close chat">×</button>
+    </div>
+    <div class="russellm-log" id="russellm-log"></div>
+    <form class="russellm-input-row" id="russellm-form">
+      <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="russellm-send" id="russellm-send" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m6 11 6-6 6 6"/></svg></button>
+    </form>
+  </aside>
+
 <script src="js/data.js"></script>
 <script src="js/agents/registry.js"></script>
 <script src="js/agents/harbourline.js"></script>
@@ -118,5 +137,6 @@
 <script src="js/agents/canvas.js"></script>
 <script src="js/agents/ops.js"></script>
 <script src="js/agents/app.js"></script>
+<script src="js/russellm.js"></script>
 </body>
 </html>
