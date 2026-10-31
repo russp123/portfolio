@@ -695,6 +695,7 @@ ${fields.jobNote}
     ["Jobs closed", (r) => r.kind === "job"],
     ["Reviews answered", (r) => r.kind === "review"],
   ];
+  const BRIEF_NUMBER_WORDS = /\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|dozen)\b/i;
   const briefFacts = (rows) => {
     const invoiced = rows.reduce((n, r) => n + (Number(String(r.amount || "").replace(/[^\d.]/g, "")) || 0), 0);
     return { counts: BRIEF_COUNTS.map(([label, test]) => ({ label, n: rows.filter(test).length })), invoiced: `$${invoiced.toLocaleString("en-AU")}`, flagged: rows.filter((r) => /^y/i.test(r.flag || "")) };
@@ -730,10 +731,10 @@ ${fields.jobNote}
       return `You are the Owner's Daily Brief for ${H.name}. You turn the log the team wrote today into a brief for ${H.owner.first}, the owner, that fits on one screen. Return JSON that matches the schema.
 
 ${SHARED_RULES}
-- The only facts you have are in the log. Don't add anything to it. Every number you use must appear in the log exactly.
+- The only facts you have are in the log. Don't add anything to it. Every number you use must appear in the log or the totals exactly, written in digits, never as a word like "seven". Write money with a dollar sign, like $400, never "400 dollars".
 
 FIELD RULES
-- headline: one plain sentence on how the day went, under 20 words. No hype.
+- headline: one plain sentence on how the day went, under 20 words. No hype and no numbers at all; the totals sit right under it.
 - needsYou: one entry for every log row marked NEEDS OWNER, and nothing else. who: the person's name. what: what happened, in one short sentence. action: the one thing ${H.owner.first} should do, starting with a verb.
 - done: 3 to 5 short lines on what the team handled without ${H.owner.first}. Group similar work. No names of the agents.
 - tomorrow: up to 3 short lines on what the log says is coming up. Only things in the log, such as a job moved to a named day. Empty if the log doesn't say.`;
@@ -775,6 +776,8 @@ ${list}`;
       const f = briefFacts(fields.rows);
       if (!clean(r.headline)) problems.push("headline is empty.");
       else if (String(r.headline).trim().split(/\s+/).length > 22) problems.push("headline must be under 20 words.");
+      if (/\d/.test(String(r.headline || ""))) problems.push("headline must not contain any numbers. The totals sit right under it.");
+      if (/\d\s*dollars?\b/i.test(briefText(r))) problems.push('Write money with a dollar sign, like $400, never "400 dollars".');
       const needs = (r.needsYou || []).map((n) => `${n.who} ${n.what}`).join(" ");
       for (const row of f.flagged) {
         if (row.who && !needs.includes(row.who.split(/\s+/)[0])) problems.push(`needsYou must include ${row.who}: "${row.what}"`);
@@ -782,6 +785,8 @@ ${list}`;
       const done = r.done || [];
       if (done.length < 3 || done.length > 5) problems.push("done must have 3 to 5 short lines.");
       if ((r.tomorrow || []).length > 3) problems.push("tomorrow has at most 3 lines.");
+      const spelled = briefText(r).match(BRIEF_NUMBER_WORDS);
+      if (spelled) problems.push(`Write numbers in digits from the totals, not as words ("${spelled[0]}").`);
       const unknown = unknownNumbers(briefText(r), fields.rows, f);
       if (unknown.length) problems.push(`These numbers aren't in the log: ${unknown.join(", ")}. Use only numbers from the log.`);
       return problems;
@@ -790,7 +795,7 @@ ${list}`;
     finalize(r, received, fields) {
       const out = stripEmDashes(r);
       const f = briefFacts(fields.rows);
-      const fine = (t) => !unknownNumbers(t, fields.rows, f).length;
+      const fine = (t) => !unknownNumbers(t, fields.rows, f).length && !BRIEF_NUMBER_WORDS.test(String(t));
       const needsYou = (Array.isArray(out.needsYou) ? out.needsYou : []).filter((n) => n && clean(n.who) && clean(n.what) && clean(n.action) && fine(`${n.who} ${n.what} ${n.action}`));
       // A flagged row is never dropped, whatever the model returned.
       for (const row of f.flagged) {
@@ -798,7 +803,7 @@ ${list}`;
       }
       return {
         day: received.label.replace(/,\s*[^,]*$/, ""),
-        headline: fine(out.headline) && clean(out.headline) ? clean(out.headline) : `The team handled ${fields.rows.length} items today.`,
+        headline: fine(out.headline) && clean(out.headline) && !/\d/.test(out.headline) ? clean(out.headline) : "The team worked through the day's log, and some items need you.",
         counts: f.counts,
         invoiced: f.invoiced,
         needsYou,

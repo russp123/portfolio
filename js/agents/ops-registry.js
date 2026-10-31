@@ -16,6 +16,7 @@ Object.assign(AGENT_ICONS, {
   wrench: '<path d="M14.5 6.5a4 4 0 0 1 5-1l-2.8 2.8 1.9 1.9 2.8-2.8a4 4 0 0 1-5.3 5.3L9 19.8a2 2 0 0 1-2.8-2.8l7.1-7.1a4 4 0 0 1 1.2-3.4z"/>',
   flag: '<path d="M6 21V4"/><path d="M6 4.5h11.5l-2.5 4 2.5 4H6"/>',
   pulse: '<path d="M3.5 12h4l2.2-6 4.3 12 2.3-6h4.2"/>',
+  pause: '<path d="M8.5 5.5v13M15.5 5.5v13"/>',
 });
 
 const OPS_BUSINESS = HARBOURLINE.name;

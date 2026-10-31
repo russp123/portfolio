@@ -1964,7 +1964,7 @@
 
   /* ---------------- Boot ---------------- */
   document.querySelectorAll("[data-icon]").forEach((el) => el.insertAdjacentHTML("afterbegin", agentIcon(el.dataset.icon, Number(el.dataset.size) || 20)));
-  AgentOps.init({ go, openRun, byId, esc, mqReduce, toast });
+  AgentOps.init({ go, openRun, byId, esc, mqReduce, renderBlock });
   buildDock();
   bindTips();
   buildCards();

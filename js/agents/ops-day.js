@@ -18,7 +18,7 @@ const OPS_DAY = {
      "label": "Burst pipe, Dana",
      "channel": "Text message",
      "receivedAt": "2026-11-04T07:05",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "scheduler",
      "why": "An emergency, so it needs a place on the board now",
      "input": "Hi, it's Dana Moretti in Marrickville. The pipe under my kitchen sink has just burst and there's water all over the floor. Can someone come this morning? 0491 570 156",
@@ -68,7 +68,7 @@ const OPS_DAY = {
      "label": "Burst pipe jumps the queue, Dana",
      "channel": "From Speed-to-Lead",
      "receivedAt": "2026-11-04T07:05",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "job-wrap-up",
      "why": "Picked up again when the job is finished",
      "fields": {
@@ -168,7 +168,7 @@ const OPS_DAY = {
      "label": "Blocked drain booking, Hannah",
      "channel": "Website chat",
      "receivedAt": "2026-11-04T08:20",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "scheduler",
      "why": "All five booking details are in",
      "turns": [
@@ -300,7 +300,7 @@ const OPS_DAY = {
      "label": "Blocked drain placed, Hannah",
      "channel": "From Front Desk",
      "receivedAt": "2026-11-04T08:20",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "fields": {
       "customer": "Hannah Cole",
       "mobile": "0491 570 157",
@@ -408,7 +408,7 @@ const OPS_DAY = {
      "label": "Hot water enquiry, Luke",
      "channel": "Web form",
      "receivedAt": "2026-11-04T09:30",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "quote-builder",
      "why": "Asked for a written quote",
      "input": "Hi, Luke Brennan from Annandale here. Our electric hot water tank is about 15 years old and has started leaking at the base. I'd like a quote to replace it, ideally with a heat pump. Mobile is 0491 570 158.",
@@ -461,7 +461,7 @@ const OPS_DAY = {
      "label": "Heat pump quote, Luke",
      "channel": "From Speed-to-Lead",
      "receivedAt": "2026-11-04T09:30",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "scheduler",
      "why": "Goes on the board once Luke accepts",
      "fields": {
@@ -553,7 +553,7 @@ const OPS_DAY = {
      "label": "Burst pipe wrapped up, Dana",
      "channel": "Technician app",
      "receivedAt": "2026-11-04T10:40",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "fields": {
       "customer": "Dana Moretti",
       "mobile": "0491 570 156",
@@ -608,7 +608,7 @@ const OPS_DAY = {
      "label": "Smell of gas, Grace",
      "channel": "Website chat",
      "receivedAt": "2026-11-04T11:10",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "speed-to-lead",
      "why": "An emergency, so it goes straight to the on-call flow",
      "turns": [
@@ -696,7 +696,7 @@ const OPS_DAY = {
      "label": "Gas emergency, Grace",
      "channel": "From Front Desk",
      "receivedAt": "2026-11-04T11:10",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "scheduler",
      "why": "An emergency, so it needs a place on the board now",
      "input": "Website chat hand-off. Grace Liu reporting gas smell near cooktop in Leichhardt. Mobile: 0491 570 159. Customer: Grace Liu, Leichhardt, 0491 570 159.",
@@ -747,7 +747,7 @@ const OPS_DAY = {
      "label": "Gas leak jumps the queue, Grace",
      "channel": "From Speed-to-Lead",
      "receivedAt": "2026-11-04T11:10",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "fields": {
       "customer": "Grace Liu",
       "mobile": "0491 570 159",
@@ -845,7 +845,7 @@ const OPS_DAY = {
      "label": "1 star, Greg",
      "channel": "Google review",
      "receivedAt": "2026-11-04T12:00",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "fields": {
       "rating": 1,
       "name": "Greg",
@@ -899,7 +899,7 @@ const OPS_DAY = {
      "label": "Heat pump placed, Luke",
      "channel": "From Quote Builder",
      "receivedAt": "2026-11-04T13:20",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "job-wrap-up",
      "why": "Picked up again when the job is finished",
      "fields": {
@@ -1009,7 +1009,7 @@ const OPS_DAY = {
      "label": "Tap repair with a problem, Omar",
      "channel": "Technician app",
      "receivedAt": "2026-11-04T14:30",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "fields": {
       "customer": "Omar Haddad",
       "mobile": "0491 570 110",
@@ -1064,7 +1064,7 @@ const OPS_DAY = {
      "label": "Six old quotes",
      "channel": "CRM export",
      "receivedAt": "2026-11-04T15:00",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "handoffTo": "quote-builder",
      "why": "Ben replied yes, so he gets a fresh quote",
      "fields": {
@@ -1205,7 +1205,7 @@ const OPS_DAY = {
      "label": "Hot water replacement, Ben",
      "channel": "From Dead Lead Revival",
      "receivedAt": "2026-11-04T15:00",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "fields": {
       "name": "Ben Carter",
       "mobile": "0491 572 549",
@@ -1294,7 +1294,7 @@ const OPS_DAY = {
      "label": "5 stars, Dana",
      "channel": "Google review",
      "receivedAt": "2026-11-04T16:45",
-     "recordedOn": "2026-10-30",
+     "recordedOn": "2026-10-31",
      "fields": {
       "rating": 5,
       "name": "Dana",
@@ -1338,7 +1338,7 @@ const OPS_DAY = {
   "label": "Wednesday's brief",
   "channel": "End of day",
   "receivedAt": "2026-11-04T17:05",
-  "recordedOn": "2026-10-30",
+  "recordedOn": "2026-10-31",
   "fields": {
    "rows": [
     {
@@ -1508,7 +1508,7 @@ const OPS_DAY = {
    "agent": "daily-brief",
    "result": {
     "day": "Wednesday 4 November 2026",
-    "headline": "The team managed seven jobs, leads, and reviews today, invoicing $695.",
+    "headline": "The team had a busy day managing emergency calls, bookings and customer reviews.",
     "counts": [
      {
       "label": "Leads answered",
@@ -1543,33 +1543,33 @@ const OPS_DAY = {
     "needsYou": [
      {
       "who": "Jo Kim",
-      "what": "Jo Kim was moved to Wednesday 4 November, afternoon, to accommodate an emergency burst pipe job.",
-      "action": "Contact Jo Kim to inform them of the moved job time."
+      "what": "Jo Kim was moved to Wednesday 4 November, afternoon to fit in an emergency burst pipe job.",
+      "action": "Notify Jo Kim about the rescheduled job time."
      },
      {
       "who": "Alan Yip",
-      "what": "Alan Yip was moved to Thursday 5 November, morning, to fit in an emergency gas leak job.",
-      "action": "Contact Alan Yip to inform them of the updated job time."
+      "what": "Alan Yip was moved to Thursday 5 November, morning to clear space for a gas leak emergency.",
+      "action": "Notify Alan Yip about the new time slot."
      },
      {
       "who": "Greg",
-      "what": "Greg left a 1-star review about waiting half a day for a plumber without any communication regarding delays.",
-      "action": "Review and approve the drafted reply to Greg."
+      "what": "Greg left a 1-star review about waiting half a day for a plumber without communication or an apology.",
+      "action": "Review the drafted reply for Greg's review."
      },
      {
       "who": "Omar Haddad",
-      "what": "Omar was unhappy that water was left under his kitchen sink and Sam had to be asked to clean it up.",
-      "action": "Call Omar Haddad before sending the review request."
+      "what": "Omar Haddad was unhappy that water was left under his kitchen sink after a dripping tap repair.",
+      "action": "Call Omar Haddad before sending a review request."
      }
     ],
     "done": [
-     "Handled three new leads and two website chats, placing emergency and general bookings.",
-     "Drafted two quotes for hot water installations, including a heat pump system.",
-     "Completed two jobs, invoicing a total of $695.",
-     "Managed review responses and ran an old quotes sweep campaign."
+     "Handled 3 leads, 2 chats, 2 emergency jobs, and drafted 2 quotes.",
+     "Booked 4 jobs including blocked drain repairs and hot water installs.",
+     "Completed 2 jobs, invoiced $695, and drafted replies for customer reviews.",
+     "Ran an old quotes sweep, drafting 4 follow-up messages."
     ],
     "tomorrow": [
-     "Alan Yip is scheduled for Thursday 5 November, morning, with Tess Romano."
+     "Alan Yip job moved to Thursday 5 November, morning."
     ]
    },
    "received": {
@@ -1578,7 +1578,7 @@ const OPS_DAY = {
     "inHours": false,
     "nextOpen": "Thursday 5 November 2026, 7am"
    },
-   "ms": 5065
+   "ms": 3630
   }
  }
 };
