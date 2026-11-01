@@ -38,6 +38,7 @@ module.exports = {
   location: plain(P.location),
   email: plain(P.email),
   about: plain(P.bio),
+  pricing: plain(P.pricing),
   experience: P.experience.map(
     (e) => `${plain(e.name)}, ${plain(e.year)}${e.roles && e.roles.length ? ` (${e.roles.map(plain).join(", ")})` : ""}`
   ),
