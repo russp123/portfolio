@@ -96,15 +96,15 @@ const PORTFOLIO = {
   agentsHighlight: {
     headlineDim: "Most chatbots answer one question.",
     headline: "This team runs the whole day.",
-    sub: "Eight AI agents hand work to each other, from the first text to the owner's end-of-day brief. Watch a recorded day, then run any of them yourself.",
-    cta: { label: "See all agents", url: "/agents" },
+    sub: "Eight AI agents pass work to each other, from the first text to the owner's end-of-day brief. Watch a whole day, then try any of them yourself.",
+    cta: { label: "See the team", url: "/agents" },
     heroPill: "New: the AI Ops Team",
-    ops: { agent: "ops-team", title: "Ops Team", business: "Harbourline Plumbing", body: "Eight agents run a plumber's whole day, handing work to each other.", cta: "Run the day" },
+    ops: { agent: "ops-team", title: "Ops Team", business: "Harbourline Plumbing", body: "Eight agents run a plumber's whole day, handing work to each other.", cta: "Run the day", url: "/agents?play=1#ops-team" },
     alsoLabel: "Or try one agent on its own",
     cards: [
       { agent: "front-desk", title: "AI Front Desk", body: "Answers patient questions around the clock, and knows when to hand off.", widget: "Brightwater Dental · Chat" },
       { agent: "speed-to-lead", featured: true, title: "Speed-to-Lead Responder", body: "Replies to new leads in seconds, not hours.", widget: "New lead · Burst pipe" },
-      { agent: "dead-lead-revival", title: "Dead Lead Revival", body: "Wins back old quotes sitting in your CRM.", widget: "Days since quote" },
+      { agent: "dead-lead-revival", title: "Dead Lead Revival", body: "Wins back old quotes.", widget: "Days since quote" },
     ],
   },
 

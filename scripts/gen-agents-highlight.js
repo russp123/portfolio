@@ -109,7 +109,7 @@ const opsTeam = {
     const a = agentById(id);
     return a.short || (id === "speed-to-lead" ? "Speed-to-Lead" : a.name);
   }),
-  events: dayEvents.map((e) => ({ time: e.timeLabel, lanes: e.steps.map((s) => OPS_TEAM.indexOf(s.agent)) })),
+  events: dayEvents.map((e) => ({ time: e.timeLabel.replace(":00", ""), lanes: e.steps.map((s) => OPS_TEAM.indexOf(s.agent)) })),
   stats: { events: OPS_DAY.events.length, agents: OPS_TEAM.length, runs: dayEvents.reduce((n, e) => n + e.steps.length, 0) },
 };
 

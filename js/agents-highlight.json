@@ -48,7 +48,7 @@
         ]
       },
       {
-        "time": "12:00pm",
+        "time": "12pm",
         "lanes": [
           5
         ]
@@ -66,7 +66,7 @@
         ]
       },
       {
-        "time": "3:00pm",
+        "time": "3pm",
         "lanes": [
           6,
           2
@@ -114,7 +114,7 @@
         "label": "New lead"
       },
       {
-        "label": "Qualify lead"
+        "label": "Read the lead"
       },
       {
         "label": "Emergency?"
@@ -130,7 +130,7 @@
         "label": "Suggest booking"
       },
       {
-        "label": "CRM card"
+        "label": "Your owner card"
       }
     ]
   },

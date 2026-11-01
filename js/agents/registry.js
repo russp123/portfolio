@@ -20,8 +20,6 @@
    - skip(result): optional. When true the node is reached but has
      nothing to produce on this run (an output with no output), so it
      shows as skipped, never done. skippedView(run) fills its panel.
-   - preview: what the landing card shows, a static sketch of the
-     agent's output ("phone", "chat", "review", "table").
    - liveStatus(values): the short lines shown on the canvas while a
      live call runs, in order (chat agents get the message text).
 
@@ -40,8 +38,6 @@
      The trigger node opens the Chat tab; `chat` holds the greeting,
      which node reveals the reply in the thread (replyNode), and any
      system notes (notes(result), each revealed when its node finishes).
-     summarizeConversation(turns) labels a whole conversation in the
-     execution logs.
    No em dashes in any visible copy here.
    ============================================================ */
 
@@ -79,8 +75,8 @@ const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 // Dead Lead Revival: join each sorted row back to its input row (by id)
 // and order the campaign: re-engage, nurture, don't contact, newest first.
 const GROUPS = {
-  "re-engage": { label: "Re-engage", tone: "accent" },
-  nurture: { label: "Nurture", tone: "strong" },
+  "re-engage": { label: "Contact now", tone: "accent" },
+  nurture: { label: "Check in later", tone: "strong" },
   "dont-contact": { label: "Don't contact", tone: "muted" },
 };
 const GROUP_ORDER = ["re-engage", "nurture", "dont-contact"];
@@ -123,7 +119,6 @@ function makeReviewGuardian(c) {
     business: c.business,
     problem: "Replies to every review and flags the ones the owner must see.",
     icon: "star",
-    preview: "review",
     trigger: {
       payload: "fields",
       fields: [
@@ -136,19 +131,16 @@ function makeReviewGuardian(c) {
           label: "Internal job note (optional)",
           maxLength: 600,
           rows: 3,
-          placeholder: `What the ${c.recordsWord} records say. Used for the owner alert only, never shown publicly.`,
+          placeholder: `What the ${c.recordsWord} records say. Only the owner sees this, never the public.`,
         },
       ],
       hints: {
-        sample: "This sample replays a recorded run, no live call. Edit any field to run it live.",
-        custom: "Custom input runs the agent live.",
-        empty: "Pick a sample or write your own review.",
+        sample: "This example is saved, so it plays straight away. Change anything to try it for real.",
+        custom: "Your own words go to the real AI.",
+        empty: "Pick an example or write your own review.",
       },
-      emptyError: "Pick a sample, or add a star rating, a first name and the review.",
+      emptyError: "Pick an example, or add a star rating, a first name and the review.",
       caption: (v) => (v && Number(v.rating) ? `${v.rating} star${Number(v.rating) === 1 ? "" : "s"}` : ""),
-    },
-    summarize(r) {
-      return [`${r.rating} star${r.rating === 1 ? "" : "s"}`, cap(r.sentiment), r.isNegative ? "Owner alerted" : ""].filter(Boolean).join(" · ");
     },
     liveStatus: (v) => ["Reading the review…", v && v.jobNote ? "Checking it against the job note…" : "Checking what the review is about…", `Drafting ${c.owner}'s reply…`],
 
@@ -160,7 +152,7 @@ function makeReviewGuardian(c) {
         row: 0,
         label: "New review",
         icon: "star",
-        about: `A new review lands on the ${c.place}'s Google profile. Pick a sample or write your own, then run the agent.`,
+        about: `A new review lands on the ${c.place}'s Google profile. Pick an example or write your own, then run the agent.`,
       },
       {
         id: "read",
@@ -214,7 +206,7 @@ function makeReviewGuardian(c) {
             { type: "quote", title: "What went wrong", body: a.summary },
             { type: "quote", title: "Against the job note", body: a.jobNoteMatch },
             { type: "quote", title: "Suggested action", body: a.suggestedAction },
-            { type: "note", body: "A mock alert. Nothing is sent." },
+            { type: "note", body: "A demo only. Nothing is sent." },
           ];
         },
       },
@@ -250,7 +242,7 @@ function makeReviewGuardian(c) {
         row: 0,
         label: "Review card",
         icon: "card",
-        about: "The deliverable: the review with the owner's response under it, plus the private follow-up.",
+        about: "The result: the review with the owner's response under it, plus the private follow-up.",
         caption: () => "Ready to post",
         view: (run) => {
           const r = run.result;
@@ -258,7 +250,7 @@ function makeReviewGuardian(c) {
           return [
             { type: "review", title: "Google review", name: f.name, rating: r.rating, text: f.review, reply: r.publicReply },
             { type: "quote", title: "Private follow-up", body: r.followUp.message },
-            { type: "note", body: "A visual mock. Nothing is posted or sent." },
+            { type: "note", body: "A demo only. Nothing is posted or sent." },
           ];
         },
       },
@@ -283,9 +275,8 @@ function makeDeadLeadRevival(c) {
     status: "live",
     name: "Dead Lead Revival",
     business: c.business,
-    problem: "Wins back old quotes sitting in your CRM.",
+    problem: "Wins back old quotes.",
     icon: "revive",
-    preview: "table",
     // Phone: lanes read Re-engage, Nurture, Don't contact left to right.
     layout: { vRow: 132, vMirror: true },
     trigger: {
@@ -307,21 +298,17 @@ function makeDeadLeadRevival(c) {
             { id: "job", label: "Job", type: "text", maxLength: 40, required: true, placeholder: c.examples.job },
             { id: "quoteDate", label: "Quote date", type: "date", required: true },
             { id: "amount", label: "Quote amount", type: "text", maxLength: 16, required: true, placeholder: c.examples.amount },
-            { id: "note", label: "Last note", type: "text", maxLength: 200, required: true, placeholder: "What the CRM says", wide: true },
+            { id: "note", label: "Last note", type: "text", maxLength: 200, required: true, placeholder: "What the notes say", wide: true },
           ],
         },
       ],
       hints: {
-        sample: "This sample replays a recorded run, no live call. Edit any cell to run it live.",
-        custom: "Custom lists run the agent live.",
-        empty: "Pick a sample list or fill in your own.",
+        sample: "This example is saved, so it plays straight away. Change anything to try it for real.",
+        custom: "Your own list goes to the real AI.",
+        empty: "Pick an example list or fill in your own.",
       },
-      emptyError: "Pick a sample, or fill in every cell for 5 to 8 old quotes.",
+      emptyError: "Pick an example, or fill in every cell for 5 to 8 old quotes.",
       caption: (v) => (v && Array.isArray(v.leads) ? `${v.leads.length} old quotes` : ""),
-    },
-    summarize(r) {
-      const s = r.summary;
-      return `${s.reEngage} re-engage · ${s.nurture} nurture · ${s.dontContact} don't contact`;
     },
     liveStatus: (v) => {
       const n = v && Array.isArray(v.leads) ? v.leads.length : 0;
@@ -336,7 +323,7 @@ function makeDeadLeadRevival(c) {
         row: 0,
         label: "Load list",
         icon: "inbox",
-        about: "Old quotes exported from the CRM, 5 to 8 at a time. Pick a sample list or edit your own, then run the agent.",
+        about: "Old quotes from the customer list, 5 to 8 at a time. Pick an example list or edit your own, then run the agent.",
       },
       {
         id: "check",
@@ -381,7 +368,7 @@ function makeDeadLeadRevival(c) {
         icon: "split",
         about: "Puts every lead in exactly one group, with a one-line reason.",
         caption: (r) => `${r.leads.length} sorted`,
-        view: (run) => [{ type: "table", title: "Every lead, one group each", rows: campaignRows(run), compact: true }],
+        view: (run) => [{ type: "table", title: "Every customer, one group each", rows: campaignRows(run), compact: true }],
       },
       groupNode("reengage", "re-engage", -1, "revive", "Leads with a real chance now. Each gets a personal message and a follow-up step."),
       groupNode("nurture", "nurture", 0, "sprout", "Interested but not now. A gentle check-in, never a discount."),
@@ -391,13 +378,13 @@ function makeDeadLeadRevival(c) {
         type: "output",
         col: 4,
         row: 0,
-        label: "Campaign preview",
+        label: "Message list",
         icon: "table",
-        about: "The deliverable: every lead sorted, with its message, reason and next action. Tap a row to open it.",
+        about: "The result: every lead sorted, with its message, reason and next action. Tap a row to open it.",
         caption: (r) => `${r.leads.filter((l) => l.message).length} messages`,
         view: (run) => [
-          { type: "table", title: "Campaign preview", rows: campaignRows(run) },
-          { type: "note", body: "A visual mock. Nothing is sent." },
+          { type: "table", title: "Message list", rows: campaignRows(run) },
+          { type: "note", body: "A demo only. Nothing is sent." },
         ],
       },
     ],
@@ -424,7 +411,6 @@ const AGENTS = [
     business: "Harbourline Plumbing",
     problem: "Replies to new leads in seconds, not hours.",
     icon: "bolt",
-    preview: "phone",
     // Trigger form: fields render in order (app.js builds the panel).
     // Field ids "input" and "receivedAt" go to the API as they always
     // have; agents with payload: "fields" send { fields: {...} } instead.
@@ -443,15 +429,12 @@ const AGENTS = [
         },
       ],
       hints: {
-        sample: "This sample replays a recorded run, no live call. Edit the text or time to run it live.",
-        custom: "Custom input runs the agent live.",
-        empty: "Pick a sample or write your own lead.",
+        sample: "This example is saved, so it plays straight away. Change the text or time to try it for real.",
+        custom: "Your own words go to the real AI.",
+        empty: "Pick an example or write your own lead.",
       },
-      emptyError: "Pick a sample or type a lead message first.",
-      customCaption: "Custom message",
-    },
-    summarize(r) {
-      return `${cap(r.score)} lead${r.emergency ? " · Emergency" : ""}`;
+      emptyError: "Pick an example or type a lead message first.",
+      customCaption: "Your message",
     },
     liveStatus: () => ["Reading the lead…", "Checking the hours and call-out fees…", "Thinking about the reply…"],
 
@@ -463,14 +446,14 @@ const AGENTS = [
         row: 0,
         label: "New lead",
         icon: "inbox",
-        about: "A new lead arrives by web form, text or missed-call voicemail. Pick a sample or write your own, then run the agent.",
+        about: "A new lead arrives by web form, text or missed-call voicemail. Pick an example or write your own, then run the agent.",
       },
       {
         id: "qualify",
         type: "ai",
         col: 1,
         row: 0,
-        label: "Qualify lead",
+        label: "Read the lead",
         icon: "gauge",
         about: "Pulls out who, where and what, then scores the lead hot, warm or cold.",
         caption: (r) => cap(r.score),
@@ -521,7 +504,7 @@ const AGENTS = [
         caption: () => "Alert drafted",
         view: (run) => [
           { type: "quote", title: "Internal alert", body: run.result.onCallAlert },
-          { type: "note", body: "A mock alert. Nothing is sent." },
+          { type: "note", body: "A demo only. Nothing is sent." },
         ],
       },
       {
@@ -554,9 +537,9 @@ const AGENTS = [
         type: "output",
         col: 6,
         row: 0,
-        label: "CRM card",
+        label: "Your owner card",
         icon: "card",
-        about: "The deliverable: the text thread and a ready-to-work CRM contact card.",
+        about: "The result: the text thread and a ready-to-use customer card.",
         caption: (r) => r.crm.stage,
         view: (run) => {
           const r = run.result;
@@ -564,7 +547,7 @@ const AGENTS = [
             { type: "thread", title: "Text thread", channel: run.channel || "New lead", incoming: run.input, outgoing: r.textReply, from: r.lead.name || "New lead", business: "Harbourline Plumbing" },
             {
               type: "crm",
-              title: "CRM contact",
+              title: "Your owner record",
               name: r.lead.name,
               rows: [
                 ["Contact", r.lead.contact],
@@ -576,7 +559,7 @@ const AGENTS = [
               tags: r.crm.tags,
               nextAction: r.crm.nextAction,
             },
-            { type: "note", body: "A visual mock. Nothing is sent or saved to a real CRM." },
+            { type: "note", body: "A demo only. Nothing is sent or saved." },
           ];
         },
       },
@@ -602,27 +585,15 @@ const AGENTS = [
     business: "Brightwater Dental",
     problem: "Answers patient questions around the clock, and knows when to hand off.",
     icon: "chat",
-    preview: "chat",
     chat: {
       greeting: "Hi, you've reached Brightwater Dental. I can help with prices, opening hours, health funds and booking requests. What can I help with today?",
       placeholder: "Message Brightwater Dental",
       roles: { user: "Patient", assistant: "Front desk" },
       replyNode: "reply",
       notes: (r) =>
-        r.clinical ? [{ node: "handoff", tone: r.urgent ? "urgent" : "handoff", text: r.urgent ? "Handed to dentist · urgent advice given" : "Handed to dentist" }] : [],
-    },
-    summarize(r) {
-      return [cap(r.intent), r.urgent ? "Urgent" : r.clinical ? "Handed to dentist" : "", r.bookingReady ? "Booking request" : ""].filter(Boolean).join(" · ");
+        r.clinical ? [{ node: "handoff", tone: r.urgent ? "urgent" : "handoff", text: r.urgent ? "Passed to the dentist, urgent advice given" : "Passed to the dentist" }] : [],
     },
     liveStatus: () => ["Reading the message…", "Checking the clinic's fact sheet…", "Thinking about the reply…"],
-    summarizeConversation(turns) {
-      const rs = turns.map((t) => t.result);
-      const flags = [
-        rs.some((r) => r.urgent) ? "Urgent" : rs.some((r) => r.clinical) ? "Handed to dentist" : "",
-        rs.some((r) => r.bookingReady) ? "Booking request" : "",
-      ].filter(Boolean);
-      return [`${turns.length} turn${turns.length === 1 ? "" : "s"}`, ...flags].join(" · ");
-    },
 
     nodes: [
       {
@@ -632,8 +603,8 @@ const AGENTS = [
         row: 0,
         label: "Patient message",
         icon: "chat",
-        about: "Each message the patient sends starts one run through the flow.",
-        view: (run) => [{ type: "quote", title: `Turn ${run.turn}`, body: run.input }],
+        about: "Each message the patient sends goes through these steps.",
+        view: (run) => [{ type: "quote", title: `Message ${run.turn}`, body: run.input }],
       },
       {
         id: "understand",
@@ -668,7 +639,7 @@ const AGENTS = [
               body: r.urgent
                 ? "A red flag came up, so the reply sends them to 000 or the nearest emergency department first."
                 : r.clinical
-                ? "This needs the dentist, so the front desk doesn't advise. It hands off and offers an appointment."
+                ? "This needs the dentist, so the front desk doesn't advise. It passes this on and offers an appointment."
                 : "Nothing clinical here. The front desk answers from the fact sheet.",
             },
           ];
@@ -679,7 +650,7 @@ const AGENTS = [
         type: "action",
         col: 3,
         row: -1,
-        label: "Hand off to dentist",
+        label: "Pass to the dentist",
         icon: "stethoscope",
         about: "On the clinical path only: writes a note for the dentist instead of answering.",
         caption: (r) => (r.urgent ? "000 advice given" : "Note sent"),
@@ -687,7 +658,7 @@ const AGENTS = [
           const r = run.result;
           const blocks = [{ type: "quote", title: "Note to the dentist", body: r.handoffNote }];
           if (r.urgent) blocks.push({ type: "quote", title: "Red-flag advice given", body: "Call 000 or go to the nearest emergency department now." });
-          blocks.push({ type: "note", body: "A mock hand-off. Nothing is sent." });
+          blocks.push({ type: "note", body: "A demo only. Nothing is sent." });
           return blocks;
         },
       },
@@ -758,7 +729,7 @@ const AGENTS = [
         // No request on this turn: the node shows as skipped, not done.
         skip: (r) => !r.bookingReady,
         skippedView: (run) => [
-          { type: "text", body: "No booking request on this turn. It's created once the name, mobile, patient type, reason and preferred time are all in." },
+          { type: "text", body: "No booking request for this message. It's created once the name, mobile, patient type, reason and preferred time are all in." },
           { type: "list", title: "Still needed", items: run.result.missing, empty: "The patient hasn't asked to book." },
         ],
         view: (run) => {
@@ -778,7 +749,7 @@ const AGENTS = [
               ],
               summary: r.booking.summary,
             },
-            { type: "note", body: "A visual mock. Nothing is sent and no time is confirmed." },
+            { type: "note", body: "A demo only. Nothing is sent and no time is confirmed." },
           ];
         },
       },

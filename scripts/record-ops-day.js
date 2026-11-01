@@ -103,7 +103,7 @@ const EVENTS = [
       {
         id: "e01-slot",
         agent: "scheduler",
-        label: `Burst pipe jumps the queue, ${dana.first}`,
+        label: `Burst pipe goes first, ${dana.first}`,
         channel: "From Speed-to-Lead",
         handoffTo: "job-wrap-up",
         why: "Picked up again when the job is finished",
@@ -207,7 +207,7 @@ const EVENTS = [
       {
         id: "e05-slot",
         agent: "scheduler",
-        label: `Gas leak jumps the queue, ${grace.first}`,
+        label: `Gas leak goes first, ${grace.first}`,
         channel: "From Speed-to-Lead",
         fields: (c) => ({ customer: grace.name, mobile: c["e05-lead"].result.lead.contact, suburb: c["e05-lead"].result.lead.suburb, jobType: "gas", details: c["e05-lead"].result.lead.job, preferred: "" }),
       },

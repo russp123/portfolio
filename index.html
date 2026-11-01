@@ -543,7 +543,7 @@
             <p class="ah-sub">${esc(AH.sub)}</p>
             <a class="hero-email ah-cta" href="${esc(AH.cta.url)}">${esc(AH.cta.label)}<sup>↗</sup></a>
           </div>
-          <a class="ah-ops" href="/agents#${esc(AH.ops.agent)}" aria-label="${esc(AH.ops.title)}: ${esc(AH.ops.body)}">
+          <a class="ah-ops" href="${esc(AH.ops.url)}" aria-label="${esc(AH.ops.title)}: ${esc(AH.ops.body)}">
             <div class="ah-ops-text">
               <p class="ah-ops-tag">${esc(AH.ops.title)} · ${esc(AH.ops.business)}</p>
               <p class="ah-ops-body">${esc(AH.ops.body)}</p>
@@ -586,7 +586,7 @@
                 .map((name, r) => `<em>${esc(name)}</em>${d.events.map((e) => `<i class="${e.lanes.includes(r) ? "is-on" : ""}"></i>`).join("")}`)
                 .join("")}
             </div>
-            <p class="ah-ops-stats">${d.stats.events} events · ${d.stats.agents} agents · ${d.stats.runs} agent runs, recorded from real runs</p>`,
+            <p class="ah-ops-stats">${d.stats.events} customer moments, ${d.stats.agents} agents</p>`,
           "front-desk": (d) =>
             `<div class="ah-chat">${d.messages.map((m) => `<p class="ah-bubble ${m.from === "patient" ? "is-in" : "is-out"}">${esc(m.text)}</p>`).join("")}</div>`,
           "speed-to-lead": (d) => `<div class="ah-lead">
@@ -596,13 +596,13 @@
               </div>
               <div class="ah-score">
                 <span class="ah-score-val">${esc(d.score.charAt(0).toUpperCase() + d.score.slice(1))}</span>
-                ${d.emergency ? '<span class="ah-tag">Emergency path</span>' : ""}
+                ${d.emergency ? '<span class="ah-tag">Emergency</span>' : ""}
               </div>
             </div>`,
           "dead-lead-revival": (d) => {
             const max = Math.max(...d.leads.map((l) => l.days));
             return `<div class="ah-revive">
-              <span class="ah-legend ah-mini">Re-engage</span>
+              <span class="ah-legend ah-mini">Contact now</span>
               <div class="ah-plot">${d.leads
                 .map((l) => `<span class="ah-bar${l.group === "re-engage" ? " is-on" : ""}" style="--h:${((l.days / max) * 100).toFixed(1)}%"><b>${l.days}</b></span>`)
                 .join("")}</div>

@@ -65,7 +65,7 @@ const OPS_DAY = {
     {
      "id": "e01-slot",
      "agent": "scheduler",
-     "label": "Burst pipe jumps the queue, Dana",
+     "label": "Burst pipe goes first, Dana",
      "channel": "From Speed-to-Lead",
      "receivedAt": "2026-11-04T07:05",
      "recordedOn": "2026-10-31",
@@ -744,7 +744,7 @@ const OPS_DAY = {
     {
      "id": "e05-slot",
      "agent": "scheduler",
-     "label": "Gas leak jumps the queue, Grace",
+     "label": "Gas leak goes first, Grace",
      "channel": "From Speed-to-Lead",
      "receivedAt": "2026-11-04T11:10",
      "recordedOn": "2026-10-31",
