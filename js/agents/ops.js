@@ -16,7 +16,7 @@ const AgentOps = (function () {
 
   /* ---------------- Team examples ---------------- */
   // Every team agent's examples are its own runs from the saved day
-  // (Speed-to-Lead keeps its own list).
+  // (New Lead Reply keeps its own list).
   function loadSamples() {
     if (typeof OPS_DAY === "undefined") return;
     for (const ev of OPS_DAY.events) {
@@ -162,7 +162,7 @@ const AgentOps = (function () {
   const laneAgents = () => OPS_TEAM.map((id) => hooks.byId(id)).filter(Boolean);
   const shortName = (id) => {
     const a = hooks.byId(id);
-    return id === "speed-to-lead" ? "Speed-to-Lead" : a ? a.short || a.name : id;
+    return id === "speed-to-lead" ? "New Lead Reply" : a ? a.short || a.name : id;
   };
   const OWNER = () => HARBOURLINE.owner.first;
   const resultOf = (step) => (step.turns ? step.turns[step.turns.length - 1].recorded.result : step.recorded.result);

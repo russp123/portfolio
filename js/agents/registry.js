@@ -66,13 +66,13 @@ const AGENT_ICONS = {
 };
 
 function agentIcon(name, size = 24) {
-  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AGENT_ICONS[name] || ""}</svg>`;
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AGENT_ICONS[name] || ""}</svg>`;
 }
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 
 
-// Dead Lead Revival: join each sorted row back to its input row (by id)
+// Old Quote Follow-up: join each sorted row back to its input row (by id)
 // and order the campaign: re-engage, nurture, don't contact, newest first.
 const GROUPS = {
   "re-engage": { label: "Contact now", tone: "accent" },
@@ -109,7 +109,7 @@ function groupNode(id, group, row, icon, about) {
   };
 }
 
-// Review Guardian and Dead Lead Revival are one engine each; everything
+// Review Guardian and Old Quote Follow-up are one engine each; everything
 // specific to a business comes from c, so the Ops Team can run its own.
 function makeReviewGuardian(c) {
   return {
@@ -273,7 +273,7 @@ function makeDeadLeadRevival(c) {
   return {
     id: c.id,
     status: "live",
-    name: "Dead Lead Revival",
+    name: "Old Quote Follow-up",
     business: c.business,
     problem: "Wins back old quotes.",
     icon: "revive",
@@ -407,7 +407,7 @@ const AGENTS = [
   {
     id: "speed-to-lead",
     status: "live",
-    name: "Speed-to-Lead Responder",
+    name: "New Lead Reply",
     business: "Harbourline Plumbing",
     problem: "Replies to new leads in seconds, not hours.",
     icon: "bolt",
@@ -537,7 +537,7 @@ const AGENTS = [
         type: "output",
         col: 6,
         row: 0,
-        label: "Your owner card",
+        label: "Customer card",
         icon: "card",
         about: "The result: the text thread and a ready-to-use customer card.",
         caption: (r) => r.crm.stage,
@@ -547,7 +547,7 @@ const AGENTS = [
             { type: "thread", title: "Text thread", channel: run.channel || "New lead", incoming: run.input, outgoing: r.textReply, from: r.lead.name || "New lead", business: "Harbourline Plumbing" },
             {
               type: "crm",
-              title: "Your owner record",
+              title: "Customer record",
               name: r.lead.name,
               rows: [
                 ["Contact", r.lead.contact],

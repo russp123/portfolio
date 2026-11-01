@@ -9,6 +9,14 @@
    Identical Gemini requests are answered from the cache file, so a
    re-run only pays for what changed. Reads GEMINI_AGENTS_API_KEY from
    .env and never prints it. Prints the number of real calls.
+
+   To re-record some runs and keep the rest word for word, list their ids:
+
+     OPS_RECORD_ONLY=e01-slot,e03-lead node scripts/record-ops-day.js
+
+   Every other step replays from the current ops-day.js. The run stops if
+   a kept step's input no longer matches what it was recorded with, so
+   nothing saved ever answers a question it wasn't asked.
    ============================================================ */
 const fs = require("fs");
 const os = require("os");
@@ -25,6 +33,17 @@ for (const line of fs.readFileSync(path.join(ROOT, ".env"), "utf8").split("\n"))
   if (m) process.env.GEMINI_AGENTS_API_KEY = m[1];
 }
 if (!process.env.GEMINI_AGENTS_API_KEY) throw new Error("GEMINI_AGENTS_API_KEY is not set");
+
+const ONLY = process.env.OPS_RECORD_ONLY ? new Set(process.env.OPS_RECORD_ONLY.split(",")) : null;
+const SAVED = ONLY ? new Function(`${fs.readFileSync(OUT, "utf8")}; return OPS_DAY;`)() : null;
+const savedStep = (id) => {
+  for (const ev of SAVED.events) for (const s of ev.steps) if (s.id === id) return s;
+  throw new Error(`${id}: not in the saved day`);
+};
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// The agent names in the log are labels the recorder adds, not model input
+// that changes what the brief says, so a rename alone keeps the brief.
+const rowsNoAgent = (rows) => rows.map(({ agent, ...rest }) => rest);
 
 /* ---------------- Gemini calls: cached and counted ---------------- */
 const cache = fs.existsSync(CACHE) ? JSON.parse(fs.readFileSync(CACHE, "utf8")) : { calls: {}, spent: 0 };
@@ -104,7 +123,7 @@ const EVENTS = [
         id: "e01-slot",
         agent: "scheduler",
         label: `Burst pipe goes first, ${dana.first}`,
-        channel: "From Speed-to-Lead",
+        channel: "From New Lead Reply",
         handoffTo: "job-wrap-up",
         why: "Picked up again when the job is finished",
         fields: (c) => ({ customer: dana.name, mobile: c["e01-lead"].result.lead.contact, suburb: c["e01-lead"].result.lead.suburb, jobType: "burst-pipe", details: c["e01-lead"].result.lead.job, preferred: c["e01-lead"].result.lead.timing || "" }),
@@ -152,7 +171,7 @@ const EVENTS = [
         id: "e03-quote",
         agent: "quote-builder",
         label: `Heat pump quote, ${luke.first}`,
-        channel: "From Speed-to-Lead",
+        channel: "From New Lead Reply",
         handoffTo: "scheduler",
         why: "Goes on the board once Luke accepts",
         fields: (c, ev) => ({ name: luke.name, mobile: c["e03-lead"].result.lead.contact, suburb: c["e03-lead"].result.lead.suburb, details: ev.incoming }),
@@ -208,7 +227,7 @@ const EVENTS = [
         id: "e05-slot",
         agent: "scheduler",
         label: `Gas leak goes first, ${grace.first}`,
-        channel: "From Speed-to-Lead",
+        channel: "From New Lead Reply",
         fields: (c) => ({ customer: grace.name, mobile: c["e05-lead"].result.lead.contact, suburb: c["e05-lead"].result.lead.suburb, jobType: "gas", details: c["e05-lead"].result.lead.job, preferred: "" }),
       },
     ],
@@ -296,7 +315,7 @@ const EVENTS = [
         id: "e09-quote",
         agent: "quote-builder",
         label: `Hot water replacement, ${ben.first}`,
-        channel: "From Dead Lead Revival",
+        channel: "From Old Quote Follow-up",
         fields: () => ({ name: ben.name, mobile: ben.mobile, suburb: ben.suburb, details: "Replied yes to the follow-up text: still keen to replace the 12-year-old electric hot water tank, like for like. Asked for an up-to-date written quote." }),
       },
     ],
@@ -325,7 +344,7 @@ const clock12 = (t) => {
   const [hh, mm] = t.split(":").map(Number);
   return `${hh % 12 || 12}:${String(mm).padStart(2, "0")}${hh < 12 ? "am" : "pm"}`;
 };
-const AGENT_NAMES = { "speed-to-lead": "Speed-to-Lead", "hb-front-desk": "Front Desk", "quote-builder": "Quote Builder", scheduler: "Scheduler", "job-wrap-up": "Job Wrap-up", "hb-review-guardian": "Review Guardian", "hb-dead-lead-revival": "Dead Lead Revival" };
+const AGENT_NAMES = { "speed-to-lead": "New Lead Reply", "hb-front-desk": "Front Desk", "quote-builder": "Quote Builder", scheduler: "Scheduler", "job-wrap-up": "After-Job Check-in", "hb-review-guardian": "Review Guardian", "hb-dead-lead-revival": "Old Quote Follow-up" };
 function logRow(step, ev, r) {
   const at = clock12(ev.time);
   const row = (what, kind, extra = {}) => ({ time: at, agent: AGENT_NAMES[step.agent], what, kind, flag: "", who: "", amount: "", ...extra });
@@ -360,10 +379,15 @@ function logRow(step, ev, r) {
     const steps = [];
     const receivedAt = stamp(ev.time);
     for (const def of ev.steps) {
-      const base = { id: def.id, agent: def.agent, label: def.label, channel: def.channel || ev.source, receivedAt, recordedOn: today };
+      const keep = ONLY && !ONLY.has(def.id) ? savedStep(def.id) : null;
+      const base = { id: def.id, agent: def.agent, label: def.label, channel: def.channel || ev.source, receivedAt, recordedOn: keep ? keep.recordedOn : today };
       if (def.handoffTo) Object.assign(base, { handoffTo: def.handoffTo, why: def.why });
       let step;
-      if (def.turns) {
+      if (keep && def.turns) {
+        if (!same(keep.turns.map((t) => t.user), def.turns)) throw new Error(`${def.id}: the messages changed, so it must be re-recorded`);
+        ctx[def.id] = { last: keep.turns[keep.turns.length - 1].recorded.result };
+        step = Object.assign(base, { turns: keep.turns });
+      } else if (def.turns) {
         const messages = [];
         const turns = [];
         let last = null;
@@ -389,7 +413,8 @@ function logRow(step, ev, r) {
         }
         if (payload.fields && def.agent !== "hb-dead-lead-revival" && def.agent !== "hb-review-guardian") payload.fields.receivedAt = receivedAt;
         if (def.agent === "scheduler") payload.fields.bookedToday = JSON.stringify(changes);
-        const r = await callOk(Object.assign({ agent: def.agent, receivedAt }, payload), def.id);
+        if (keep && !same(payload.input === undefined ? payload.fields : payload.input, keep.input === undefined ? keep.fields : keep.input)) throw new Error(`${def.id}: its input changed, so it must be re-recorded`);
+        const r = keep ? { recorded: keep.recorded } : await callOk(Object.assign({ agent: def.agent, receivedAt }, payload), def.id);
         if (!r) { console.log(`skip ${def.id}: ${def.agent} is not built yet`); continue; }
         ctx[def.id] = r.recorded;
         step = Object.assign(base, payload, { recorded: r.recorded });
@@ -407,9 +432,15 @@ function logRow(step, ev, r) {
   // The owner's brief, from the log the team wrote.
   const briefAt = stamp("17:05");
   const rows = log.map((r, i) => Object.assign({ id: `r${i + 1}` }, r));
-  const brief = await callOk({ agent: "daily-brief", receivedAt: briefAt, fields: { rows, receivedAt: briefAt } }, "brief");
+  const keepBrief = ONLY && !ONLY.has("brief") ? SAVED.brief : null;
+  if (keepBrief && !same(rowsNoAgent(keepBrief.fields.rows), rowsNoAgent(rows))) {
+    const old = rowsNoAgent(keepBrief.fields.rows);
+    rowsNoAgent(rows).forEach((r, i) => { if (!same(r, old[i])) console.log(`  was: ${old[i] && old[i].what}\n  now: ${r.what}`); });
+    throw new Error("brief: the day's log changed, so it must be re-recorded");
+  }
+  const brief = keepBrief ? { recorded: keepBrief.recorded } : await callOk({ agent: "daily-brief", receivedAt: briefAt, fields: { rows, receivedAt: briefAt } }, "brief");
   const briefStep = brief
-    ? { id: "brief", agent: "daily-brief", label: "Wednesday's brief", channel: "End of day", receivedAt: briefAt, recordedOn: today, fields: { rows, receivedAt: briefAt }, recorded: brief.recorded }
+    ? { id: "brief", agent: "daily-brief", label: "Wednesday's brief", channel: "End of day", receivedAt: briefAt, recordedOn: keepBrief ? keepBrief.recordedOn : today, fields: { rows, receivedAt: briefAt }, recorded: brief.recorded }
     : null;
 
   const data = { date: DAY, dateLabel: H.dayLabel(DAY), events: out, brief: briefStep };

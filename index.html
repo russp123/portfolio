@@ -76,8 +76,8 @@
   </div>
 
   <button class="russellm-toggle" id="russellm-toggle" aria-label="Chat with RUSSELLM" aria-expanded="false" aria-controls="russellm-drawer">
-    <svg class="russellm-icon-chat" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5h-.5v2.5L12.5 18.5H7A3.5 3.5 0 0 1 3.5 15V7A3.5 3.5 0 0 1 7 3.5z"/></svg>
-    <svg class="russellm-icon-close" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    <svg class="russellm-icon-chat" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5h-.5v2.5L12.5 18.5H7A3.5 3.5 0 0 1 3.5 15V7A3.5 3.5 0 0 1 7 3.5z"/></svg>
+    <svg class="russellm-icon-close" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
     <span class="russellm-badge" id="russellm-badge" aria-hidden="true">1</span>
   </button>
   <div class="russellm-overlay" id="russellm-overlay"></div>
@@ -89,7 +89,7 @@
     <div class="russellm-log" id="russellm-log"></div>
     <form class="russellm-input-row" id="russellm-form">
       <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
-      <button type="submit" class="russellm-send" id="russellm-send" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m6 11 6-6 6 6"/></svg></button>
+      <button type="submit" class="russellm-send" id="russellm-send" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m6 11 6-6 6 6"/></svg></button>
     </form>
   </aside>
 
@@ -145,11 +145,10 @@
         <div class="wid-list" id="wid-list"></div>
       </section>
 
-      <!-- AI agents [2]: the Ops Team, then three cards from PORTFOLIO.agentsHighlight, each
-           opening /agents. Text renders right away; each card's small
-           widget fills in from js/agents-highlight.json (real /agents
-           recordings), fetched only when the section nears the viewport.
-           Rendered by the script below. -->
+      <!-- AI agents [2]: the Ops Team, from PORTFOLIO.agentsHighlight, opening
+           /agents. Text renders right away; the board fills in from
+           js/agents-highlight.json (the real recording), fetched only when
+           the section nears the viewport. Rendered by the script below. -->
       <section class="agents-hl" id="agents-hl" aria-labelledby="ah-title"></section>
 
       <!-- Projects — same section-label pattern as "What I do" above,
@@ -523,10 +522,10 @@
       }
 
       // ---- AI agents [2] ----------------------------------------------
-      // Copy comes from PORTFOLIO.agentsHighlight. Each widget's values
-      // come from js/agents-highlight.json, which scripts/gen-agents-highlight.js
-      // builds from the real /agents recordings, so nothing here is made
-      // up. The JSON (about 1.5KB) loads only when the section is near.
+      // Copy comes from PORTFOLIO.agentsHighlight. The board's values come
+      // from js/agents-highlight.json, which scripts/gen-agents-highlight.js
+      // builds from the real recording, so nothing here is made up. The
+      // JSON loads only when the section is near.
       const agentsHl = document.getElementById("agents-hl");
       const AH = PORTFOLIO.agentsHighlight;
       const heroNew = document.getElementById("hero-new");
@@ -535,7 +534,6 @@
         const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
         const svg = (body, cls) => `<svg viewBox="0 0 24 24"${cls ? ` class="${cls}"` : ""} aria-hidden="true">${body}</svg>`;
         const ARROW = '<path d="M7.5 16.5 16.5 7.5M9 7.5h7.5V15"/>';
-        const DOTS = '<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>';
         agentsHl.innerHTML = `
           <div class="section-label ah-eyebrow"><span class="section-num">[2]</span></div>
           <h2 class="ah-title" id="ah-title"><span class="ah-dim">${esc(AH.headlineDim)}</span> ${esc(AH.headline)}</h2>
@@ -550,32 +548,7 @@
               <span class="ah-ops-cta">${esc(AH.ops.cta)}<i>${svg(ARROW)}</i></span>
             </div>
             <div class="ah-ops-board" data-widget="${esc(AH.ops.agent)}" aria-hidden="true"></div>
-          </a>
-          <h3 class="ah-also">${esc(AH.alsoLabel)}</h3>
-          <div class="ah-cards">
-            ${AH.cards
-              .map(
-                (c) => `<a class="ah-card${c.featured ? " is-featured" : ""}" href="/agents#${esc(c.agent)}" aria-label="${esc(c.title)}: ${esc(c.body)} Try it.">
-                  <div class="ah-card-in">
-                    <div class="ah-top">
-                      <span class="ah-icon" aria-hidden="true">${svg(ARROW)}</span>
-                      <div>
-                        <h3 class="ah-card-title">${esc(c.title)}</h3>
-                        <p class="ah-card-body">${esc(c.body)}</p>
-                      </div>
-                    </div>
-                    <div class="ah-widget" aria-hidden="true">
-                      <div class="ah-w-head">
-                        <span class="ah-w-title">${esc(c.widget)}</span>
-                        <span class="ah-w-btns"><i>${svg(DOTS, "is-dots")}</i><i>${svg(ARROW)}</i></span>
-                      </div>
-                      <div class="ah-w-body" data-widget="${esc(c.agent)}"></div>
-                    </div>
-                  </div>
-                </a>`
-              )
-              .join("")}
-          </div>`;
+          </a>`;
 
         const WIDGETS = {
           // The recorded day: one column per event, one row per agent.
@@ -587,27 +560,6 @@
                 .join("")}
             </div>
             <p class="ah-ops-stats">${d.stats.events} customer moments, ${d.stats.agents} agents</p>`,
-          "front-desk": (d) =>
-            `<div class="ah-chat">${d.messages.map((m) => `<p class="ah-bubble ${m.from === "patient" ? "is-in" : "is-out"}">${esc(m.text)}</p>`).join("")}</div>`,
-          "speed-to-lead": (d) => `<div class="ah-lead">
-              <div class="ah-steps">
-                <span class="ah-steps-bars">${d.steps.map((s) => `<i${s.emergency ? ' class="is-hot"' : ""}></i>`).join("")}</span>
-                <span class="ah-mini">${d.steps.length} steps</span>
-              </div>
-              <div class="ah-score">
-                <span class="ah-score-val">${esc(d.score.charAt(0).toUpperCase() + d.score.slice(1))}</span>
-                ${d.emergency ? '<span class="ah-tag">Emergency</span>' : ""}
-              </div>
-            </div>`,
-          "dead-lead-revival": (d) => {
-            const max = Math.max(...d.leads.map((l) => l.days));
-            return `<div class="ah-revive">
-              <span class="ah-legend ah-mini">Contact now</span>
-              <div class="ah-plot">${d.leads
-                .map((l) => `<span class="ah-bar${l.group === "re-engage" ? " is-on" : ""}" style="--h:${((l.days / max) * 100).toFixed(1)}%"><b>${l.days}</b></span>`)
-                .join("")}</div>
-            </div>`;
-          },
         };
         const fillWidgets = (data) => {
           agentsHl.querySelectorAll("[data-widget]").forEach((el) => {

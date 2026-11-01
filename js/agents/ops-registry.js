@@ -54,7 +54,7 @@ const OPS_AGENTS = [
     chat: {
       greeting: `Hi, you've reached ${OPS_BUSINESS}. I can help with prices, hours, booking requests and emergencies. What's going on?`,
       placeholder: `Message ${OPS_BUSINESS}`,
-      roles: { user: "Your owner", assistant: "Front desk" },
+      roles: { user: "Customer", assistant: "Front desk" },
       replyNode: "reply",
       notes: (r) =>
         r.emergency
@@ -71,7 +71,7 @@ const OPS_AGENTS = [
         type: "trigger",
         col: 0,
         row: 0,
-        label: "Your owner message",
+        label: "Customer message",
         icon: "chat",
         about: "Each message the customer sends goes through these steps.",
         view: (run) => [{ type: "quote", title: `Message ${run.turn}`, body: run.input }],
@@ -115,7 +115,7 @@ const OPS_AGENTS = [
         row: -1,
         label: "Tell the on-call plumber",
         icon: "bell",
-        about: "On the emergency path only: writes the note for the on-call plumber and passes the job to Speed-to-Lead.",
+        about: "On the emergency path only: writes the note for the on-call plumber and passes the job to New Lead Reply.",
         caption: () => "Plumber alerted",
         view: (run) => [
           { type: "quote", title: "Note to the on-call plumber", body: run.result.handoffNote },
@@ -237,7 +237,7 @@ const OPS_AGENTS = [
       payload: "fields",
       fields: [
         { id: "receivedAt", type: "hidden" },
-        { id: "name", type: "text", label: "Your owner name", maxLength: 60, required: true, placeholder: "e.g. Luke Brennan" },
+        { id: "name", type: "text", label: "Customer name", maxLength: 60, required: true, placeholder: "e.g. Luke Brennan" },
         { id: "mobile", type: "text", label: "Mobile (optional)", maxLength: 24, placeholder: "e.g. 0491 570 158" },
         { id: "suburb", type: "text", label: "Suburb", maxLength: 40, required: true, placeholder: "e.g. Annandale" },
         { id: "details", type: "textarea", label: "Job details", maxLength: 900, rows: 6, required: true, primary: true, placeholder: "What needs doing, in the customer's words." },
@@ -260,7 +260,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "Job details",
         icon: "inbox",
-        about: "The job as the customer described it, usually passed on by Speed-to-Lead. Pick an example or write your own, then run the agent.",
+        about: "The job as the customer described it, usually passed on by New Lead Reply. Pick an example or write your own, then run the agent.",
       },
       {
         id: "match",
@@ -315,7 +315,7 @@ const OPS_AGENTS = [
         type: "ai",
         col: 4,
         row: 0,
-        label: "Your owner note",
+        label: "Customer note",
         icon: "message",
         about: "The text that goes with the quote. The AI writes the words, and the system adds the figures.",
         caption: (r) => `${r.customerMessage.length} chars`,
@@ -359,7 +359,7 @@ const OPS_AGENTS = [
       fields: [
         { id: "receivedAt", type: "hidden" },
         { id: "bookedToday", type: "hidden" },
-        { id: "customer", type: "text", label: "Your owner", maxLength: 60, required: true, placeholder: "e.g. Hannah Cole" },
+        { id: "customer", type: "text", label: "Customer", maxLength: 60, required: true, placeholder: "e.g. Hannah Cole" },
         { id: "mobile", type: "text", label: "Mobile (optional)", maxLength: 24, placeholder: "e.g. 0491 570 157" },
         { id: "suburb", type: "select", label: "Suburb", options: Object.keys(HARBOURLINE.suburbs).map((v) => ({ value: v, label: v })) },
         { id: "jobType", type: "select", label: "Job type", options: HARBOURLINE.jobTypes.map((j) => ({ value: j.id, label: j.label })) },
@@ -384,7 +384,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "New job",
         icon: "inbox",
-        about: "A job passed on by Speed-to-Lead, Front Desk or Quote Builder. Pick an example or write your own, then run the agent.",
+        about: "A job passed on by New Lead Reply, Front Desk or Quote Builder. Pick an example or write your own, then run the agent.",
       },
       {
         id: "read",
@@ -399,7 +399,7 @@ const OPS_AGENTS = [
           const r = run.result;
           return [
             { type: "badge", label: r.jobLabel, tone: "strong" },
-            { type: "kv", rows: [["Your owner", r.customer], ["Suburb", r.suburb], ["Reads as", r.read], ["Kind of work", r.planned ? "Planned, booked at least a week out" : "Repair"]] },
+            { type: "kv", rows: [["Customer", r.customer], ["Suburb", r.suburb], ["Reads as", r.read], ["Kind of work", r.planned ? "Planned, booked at least a week out" : "Repair"]] },
           ];
         },
       },
@@ -432,7 +432,7 @@ const OPS_AGENTS = [
           return [
             { type: "kv", title: "Takes", rows: [["Technician", r.slot.techName], ["Day", r.slot.dayLabel], ["Window", `${r.slot.window}, ${r.slot.range}`], ["Travel allowance", `About ${r.slot.travelMinutes} minutes`]] },
             r.bump
-              ? { type: "kv", title: "Moves", rows: [["Your owner", r.bump.who], ["Job", r.bump.jobLabel], ["New window", r.bump.label]] }
+              ? { type: "kv", title: "Moves", rows: [["Customer", r.bump.who], ["Job", r.bump.jobLabel], ["New window", r.bump.label]] }
               : { type: "text", body: "That window was free, so nobody had to move." },
             ...(r.bump ? [{ type: "note", body: `${r.bump.who} needs a call about the new window. It's on the owner's brief.` }] : []),
           ];
@@ -461,7 +461,7 @@ const OPS_AGENTS = [
         type: "ai",
         col: 4,
         row: 0,
-        label: "Your owner text",
+        label: "Customer text",
         icon: "message",
         about: "The text to the customer: a window, never an exact time, and never a named technician.",
         caption: (r) => `${r.customerMessage.length} chars`,
@@ -500,13 +500,13 @@ const OPS_AGENTS = [
     ],
   },
 
-  /* ---------------- Job Wrap-up ---------------- */
+  /* ---------------- After-Job Check-in ---------------- */
   {
     id: "job-wrap-up",
     team: "ops-team",
     status: "live",
-    name: "Job Wrap-up",
-    short: "Job Wrap-up",
+    name: "After-Job Check-in",
+    short: "After-Job Check-in",
     role: "After each job, writes the payment reminder and the review request, and tells the owner if something went wrong.",
     business: OPS_BUSINESS,
     problem: "After a job: a payment reminder, a review request, and a flag if it went badly.",
@@ -515,7 +515,7 @@ const OPS_AGENTS = [
       payload: "fields",
       fields: [
         { id: "receivedAt", type: "hidden" },
-        { id: "customer", type: "text", label: "Your owner", maxLength: 60, required: true, placeholder: "e.g. Dana Moretti" },
+        { id: "customer", type: "text", label: "Customer", maxLength: 60, required: true, placeholder: "e.g. Dana Moretti" },
         { id: "mobile", type: "text", label: "Mobile (optional)", maxLength: 24, placeholder: "e.g. 0491 570 156" },
         { id: "suburb", type: "text", label: "Suburb", maxLength: 40, required: true, placeholder: "e.g. Marrickville" },
         { id: "job", type: "text", label: "Job", maxLength: 80, required: true, placeholder: "e.g. Burst pipe repair" },
@@ -611,7 +611,7 @@ const OPS_AGENTS = [
         type: "output",
         col: 6,
         row: 0,
-        label: "Wrap-up card",
+        label: "Check-in card",
         icon: "card",
         about: "The result: both texts and the state of the job, ready for the office.",
         caption: (r) => (r.problem ? "Owner calls first" : "Ready to send"),
@@ -646,7 +646,7 @@ const OPS_AGENTS = [
     ],
   },
 
-  /* ---------------- Review Guardian and Dead Lead Revival, same engines ---------------- */
+  /* ---------------- Review Guardian and Old Quote Follow-up, same engines ---------------- */
   Object.assign(makeReviewGuardian({ id: "hb-review-guardian", business: OPS_BUSINESS, owner: HARBOURLINE.owner.first, place: "business", recordsWord: "job" }), {
     team: "ops-team",
     short: "Review Guardian",
@@ -664,7 +664,7 @@ const OPS_AGENTS = [
     }),
     {
       team: "ops-team",
-      short: "Dead Lead Revival",
+      short: "Old Quote Follow-up",
       role: "Sweeps old quotes, leaves opted-out customers alone and writes to the rest.",
       problem: "Wins back old quotes.",
     }
@@ -774,6 +774,6 @@ const OPS_AGENTS = [
 
 AGENTS.push(...OPS_AGENTS);
 
-// The eight on the board, in lane order. Speed-to-Lead is the existing
+// The eight on the board, in lane order. New Lead Reply is the existing
 // agent, unchanged.
 const OPS_TEAM = ["hb-front-desk", "speed-to-lead", "quote-builder", "scheduler", "job-wrap-up", "hb-review-guardian", "hb-dead-lead-revival", "daily-brief"];

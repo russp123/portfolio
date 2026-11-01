@@ -365,7 +365,7 @@ ${fields.details}
   const schedulerText = (fields, slot, emergency) => {
     const first = fields.customer.split(/\s+/)[0];
     if (!slot) return `Hi ${first}, thanks for that. The office will call you to find a time. ${H.name}`;
-    if (emergency) return `Hi ${first}, you're at the front of the queue and our plumber will call you shortly. ${H.name}`;
+    if (emergency) return `Hi ${first}, our plumber has your details and will call you shortly. ${H.name}`;
     return `Hi ${first}, we've pencilled you in for ${H.dayLabel(slot.date)}, ${slot.window.toLowerCase()} (${slot.range}). The office will confirm the time with you. ${H.name}`;
   };
   function schedulerIssue(message, slot, emergency) {
@@ -404,7 +404,7 @@ ${fields.details}
     },
 
     system() {
-      return `You are the Scheduler for ${H.name}. A job has come in and you place it on the technicians' calendar. The system has already worked out which slots are free, the travel between suburbs, and what happens if the job has to jump the queue. You read the job, decide whether it is an emergency, choose a slot from the list, and write the text to the customer. Return JSON that matches the schema.
+      return `You are the Scheduler for ${H.name}. A job has come in and you place it on the technicians' calendar. The system has already worked out which slots are free, the travel between suburbs, and what happens if the job has to go first. You read the job, decide whether it is an emergency, choose a slot from the list, and write the text to the customer. Return JSON that matches the schema.
 
 ${H.factSheet()}
 
@@ -422,7 +422,7 @@ CHOOSING A SLOT (not an emergency)
 THE TEXT TO THE CUSTOMER (customerMessage)
 - Under 300 characters. Start with "Hi" and their first name. End with the sign-off "${H.name}".
 - Not an emergency: say you've pencilled them in, with the day and the part of the day, and that the office will confirm the time. You may give the window hours exactly as listed, and nothing more exact.
-- Emergency: say they're at the front of the queue and our plumber will call them shortly. Never give an arrival time or say how long it will take.
+- Emergency: say our plumber has their details and will call them shortly. Never give an arrival time or say how long it will take.
 - Never name the technician, never mention travel, other customers or prices.
 
 FIELD RULES
@@ -519,7 +519,7 @@ If this is an emergency it takes: ${H.dayLabel(e.date)}, ${H.windows[e.win].labe
     },
   };
 
-  /* ---------------- Job Wrap-up ---------------- */
+  /* ---------------- After-Job Check-in ---------------- */
   const WU_SENDER = H.sender;
   const WU_OPTOUT = /Reply STOP to opt out\.?\s*$/i;
   const WU_PERKS = /\b(refund\w*|discount\w*|voucher\w*|gift\w*|credit|complimentary|for free|in exchange|reward\w*)\b/i;
@@ -564,7 +564,7 @@ If this is an emergency it takes: ${H.dayLabel(e.date)}, ${H.windows[e.win].labe
     },
 
     system() {
-      return `You are Job Wrap-up for ${H.name}. A technician has just finished a job. You read their note, flag anything the owner should know, and write two text messages to the customer. Return JSON that matches the schema.
+      return `You are the After-Job Check-in agent for ${H.name}. A technician has just finished a job. You read their note, flag anything the owner should know, and write two text messages to the customer. Return JSON that matches the schema.
 
 ${H.factSheet()}
 
@@ -650,7 +650,7 @@ ${fields.jobNote}
     },
   };
 
-  /* ---------------- Review Guardian and Dead Lead Revival, same engines ---------------- */
+  /* ---------------- Review Guardian and Old Quote Follow-up, same engines ---------------- */
   const noteWords = new Set([...NOTE_STOP].filter((w) => !["car", "cars", "workshop"].includes(w)).concat("plumber plumbers kitchen water pipe pipes floor sink".split(" ")));
   const hbReviewGuardian = makeReviewGuardian({
     business: H.name,

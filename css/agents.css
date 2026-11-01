@@ -834,7 +834,7 @@ html[data-theme="dark"] .agents-app {
 .agents-app .ag-next span { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ag-text-3); }
 .agents-app .ag-next p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; }
 
-/* Table field (Dead Lead Revival input): one card per row, 2 columns. */
+/* Table field (Old Quote Follow-up input): one card per row, 2 columns. */
 .agents-app .ag-rowlist { display: flex; flex-direction: column; gap: 10px; }
 .agents-app .ag-rowcard {
   position: relative;
@@ -857,7 +857,7 @@ html[data-theme="dark"] .agents-app {
 .agents-app .ag-cell .ag-input { min-width: 0; padding: 8px 10px; border-radius: 10px; font-size: 14px; }
 .agents-app .ag-addrow { align-self: flex-start; margin-top: 2px; }
 
-/* Campaign table (Dead Lead Revival output): tap a row to open it. */
+/* Campaign table (Old Quote Follow-up output): tap a row to open it. */
 .agents-app .ag-trows { display: flex; flex-direction: column; overflow: hidden; border-radius: 12px; border: 1px solid var(--ag-border); }
 .agents-app .ag-trows-head {
   display: flex;
@@ -1004,24 +1004,8 @@ html[data-theme="dark"] .agents-app {
 .agents-app .ag-star.is-on,
 .agents-app .ag-star.is-on:hover { color: var(--ag-accent); }
 .agents-app .ag-star.is-on svg { fill: currentColor; }
-.agents-app .ag-chips { display: flex; flex-direction: column; gap: 6px; }
-.agents-app .ag-chip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--ag-border);
-  background: var(--ag-surface);
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-.agents-app .ag-chip strong { font-size: 13.5px; font-weight: 600; }
-.agents-app .ag-chip span { font-size: 12px; color: var(--ag-text-2); white-space: nowrap; }
-.agents-app .ag-chip:hover { border-color: var(--ag-border-strong); }
-.agents-app .ag-chip.is-active { border-color: var(--ag-accent); background: var(--ag-accent-soft); }
+.agents-app .ag-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.agents-app .ag-pills .ag-pill-chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .agents-app .ag-hint { margin: -6px 0 0; font-size: 12.5px; color: var(--ag-text-2); }
 .agents-app .ag-error { margin: -6px 0 0; font-size: 13px; color: var(--ag-danger); }
 .agents-app .ag-run {

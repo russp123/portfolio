@@ -79,21 +79,19 @@ const AGENT_SAMPLES = {
             "name": "Priya Nair",
             "contact": "priya.nair@example.com",
             "suburb": "Leichhardt",
-            "job": "swap 15-year-old electric hot water system for a heat pump",
-            "timing": "sometime next month"
+            "job": "Electric hot water system replacement with a heat pump",
+            "timing": "Sometime next month"
           },
           "score": "warm",
-          "scoreReason": "Customer has requested a quote for a heat pump replacement next month with no immediate urgency.",
+          "scoreReason": "Clear intent for a heat pump replacement with flexible timing.",
           "emergency": false,
-          "emergencyReason": "This is a planned hot water replacement with no active leak or emergency reported.",
-          "missing": [
-            "photo of existing hot water system and installation area"
-          ],
-          "textReply": "Hi Priya, thanks for reaching out. We can certainly help with replacing your hot water system with a heat pump. Could you send through a photo of your existing system and installation area? Our call-out fee is $120 during business hours. Harbourline Plumbing",
+          "emergencyReason": "Planned replacement of an old hot water system with no active leak or emergency.",
+          "missing": [],
+          "textReply": "Hi Priya, thanks for reaching out. We can assist with quoting a heat pump system to replace your electric setup. Our call-out fee during business hours is $120. Would a time next month suit for us to assess the site? Harbourline Plumbing",
           "onCallAlert": null,
           "booking": {
             "window": "Weekdays from Monday 2 November 2026, 7am to 5pm",
-            "reason": "Matches customer preference for next month during standard business hours."
+            "reason": "Customer requested non-urgent service sometime next month during business hours."
           },
           "crm": {
             "stage": "Quote requested",
@@ -103,7 +101,7 @@ const AGENT_SAMPLES = {
               "leichhardt",
               "quote"
             ],
-            "nextAction": "Review photo of existing setup once provided and send quote options for heat pump replacement."
+            "nextAction": "Send initial heat pump quote information and arrange a site visit next month."
           }
         },
         "received": {
@@ -112,7 +110,7 @@ const AGENT_SAMPLES = {
           "inHours": true,
           "nextOpen": "now, 11am on Tuesday 27 October 2026 (open until 5pm today)"
         },
-        "ms": 2872
+        "ms": 5289
       }
     },
     {

@@ -6,7 +6,7 @@
    for content changes.
 
    Rerun scripts/gen-sitemap.js after adding or renaming a project, and
-   scripts/gen-agents-highlight.js after re-recording /agents samples.
+   scripts/gen-agents-highlight.js after re-recording the Ops Team's day.
    ============================================================ */
 
 const PORTFOLIO = {
@@ -85,14 +85,10 @@ const PORTFOLIO = {
   ],
 
   // ---- Home page: AI agents section [2] (between What I do and Projects) ----
-  // The Ops Team leads the section, then three cards that open
-  // /agents#<agent>. `title` and `body` repeat each agent's name and
-  // problem line from the registry (keep them in sync;
-  // scripts/gen-agents-highlight.js fails if they drift).
-  // `widget` is the small panel's header. Its values come from real
-  // recordings via js/agents-highlight.json: rerun that script after
-  // re-recording /agents samples. The featured card sits in the middle
-  // on desktop and first on phones.
+  // The Ops Team block. `title` and `body` repeat the registry's name and
+  // problem line (keep them in sync; scripts/gen-agents-highlight.js fails
+  // if they drift). The board's values come from the real recording via
+  // js/agents-highlight.json: rerun that script after re-recording the day.
   agentsHighlight: {
     headlineDim: "Most chatbots answer one question.",
     headline: "This team runs the whole day.",
@@ -100,12 +96,6 @@ const PORTFOLIO = {
     cta: { label: "See the team", url: "/agents" },
     heroPill: "New: the AI Ops Team",
     ops: { agent: "ops-team", title: "Ops Team", business: "Harbourline Plumbing", body: "Eight agents run a plumber's whole day, handing work to each other.", cta: "Run the day", url: "/agents?play=1#ops-team" },
-    alsoLabel: "Or try one agent on its own",
-    cards: [
-      { agent: "front-desk", title: "AI Front Desk", body: "Answers patient questions around the clock, and knows when to hand off.", widget: "Brightwater Dental · Chat" },
-      { agent: "speed-to-lead", featured: true, title: "Speed-to-Lead Responder", body: "Replies to new leads in seconds, not hours.", widget: "New lead · Burst pipe" },
-      { agent: "dead-lead-revival", title: "Dead Lead Revival", body: "Wins back old quotes.", widget: "Days since quote" },
-    ],
   },
 
   // ---- Home page: Niche filter bar (above the project grid) ----
@@ -212,7 +202,7 @@ const PORTFOLIO = {
     {
       id: "agents",
       niche: "automation",
-      llm: "AI Business Agents (russelpineda.com/agents): an interactive showcase of small AI agents built for service-business problems, each working only from a fictional business's fact sheet. All four are live. The Speed-to-Lead Responder for Harbourline Plumbing, a fictional Sydney Inner West plumber, qualifies a new lead as hot, warm or cold, decides whether the job is an emergency and, if so, drafts an alert for the on-call plumber, writes a text reply under 320 characters that asks only for what is missing and quotes the correct call-out fee, suggests a booking window, and fills a CRM card. The AI Front Desk for Brightwater Dental, a fictional Brisbane northside clinic, is a website chatbot: it answers questions from the clinic's fact sheet, collects booking details one at a time and sends a booking request, and hands anything clinical to the dentist instead of answering, telling patients with red-flag symptoms to call 000 or go to an emergency department. Review Guardian for Torque & Co Auto Service, a fictional Melbourne mechanic, reads a new Google review, alerts the owner on 1 and 2 star reviews with a check against the internal job note, drafts a calm public reply under 80 words that never argues or reveals private job details, and writes a private follow-up to the customer. Dead Lead Revival for Stonebridge Bathrooms, a fictional Perth renovator, takes 5 to 8 old quotes from a CRM and in one call sorts every lead into re-engage, nurture or don't contact, works out quote age and expiry on the server, never messages anyone who opted out or went elsewhere, and drafts compliant texts with the sender's name and an opt-out line, with no discounts or urgency tricks. The Ops Team is a fifth entry: eight agents running a day at Harbourline Plumbing, handing work to each other and sharing one fact sheet, customer list and technician calendar. It adds a Quote Builder with a one-page quote that prints to PDF, a Scheduler where emergencies jump the queue and customers only ever get a window, a Job Wrap-up that writes the payment reminder and review request, Harbourline versions of the Front Desk, Review Guardian and Dead Lead Revival, and an Owner's Daily Brief. Its Run a day board replays ten events from recordings of real runs, at no API cost to visitors. Each step is a node on a pannable workflow canvas that lights up in order after a single Gemini 3.6 Flash call with structured JSON output, and server-side checks enforce the fee, price, length, clinical-safety, review-reply and messaging-compliance rules. Sample inputs replay recorded runs; custom input runs live. Built in plain HTML, CSS and JavaScript with one Vercel serverless function.",
+      llm: "AI Business Agents (russelpineda.com/agents): an interactive showcase of small AI agents built for service-business problems, each working only from a fictional business's fact sheet. All four are live. The New Lead Reply for Harbourline Plumbing, a fictional Sydney Inner West plumber, qualifies a new lead as hot, warm or cold, decides whether the job is an emergency and, if so, drafts an alert for the on-call plumber, writes a text reply under 320 characters that asks only for what is missing and quotes the correct call-out fee, suggests a booking window, and fills a CRM card. The AI Front Desk for Brightwater Dental, a fictional Brisbane northside clinic, is a website chatbot: it answers questions from the clinic's fact sheet, collects booking details one at a time and sends a booking request, and hands anything clinical to the dentist instead of answering, telling patients with red-flag symptoms to call 000 or go to an emergency department. Review Guardian for Torque & Co Auto Service, a fictional Melbourne mechanic, reads a new Google review, alerts the owner on 1 and 2 star reviews with a check against the internal job note, drafts a calm public reply under 80 words that never argues or reveals private job details, and writes a private follow-up to the customer. Old Quote Follow-up for Stonebridge Bathrooms, a fictional Perth renovator, takes 5 to 8 old quotes from a CRM and in one call sorts every lead into re-engage, nurture or don't contact, works out quote age and expiry on the server, never messages anyone who opted out or went elsewhere, and drafts compliant texts with the sender's name and an opt-out line, with no discounts or urgency tricks. The Ops Team is a fifth entry: eight agents running a day at Harbourline Plumbing, handing work to each other and sharing one fact sheet, customer list and technician calendar. It adds a Quote Builder with a one-page quote that prints to PDF, a Scheduler where emergencies go first and customers only ever get a window, an After-Job Check-in that writes the payment reminder and review request, Harbourline versions of the Front Desk, Review Guardian and Old Quote Follow-up, and an Owner's Daily Brief. Its Run a day board replays ten events from recordings of real runs, at no API cost to visitors. Each step is a node on a pannable workflow canvas that lights up in order after a single Gemini 3.6 Flash call with structured JSON output, and server-side checks enforce the fee, price, length, clinical-safety, review-reply and messaging-compliance rules. Sample inputs replay recorded runs; custom input runs live. Built in plain HTML, CSS and JavaScript with one Vercel serverless function.",
       title: "AI Ops Team & Agents",
       tag: "AI Agents Demo",
       size: "wide",

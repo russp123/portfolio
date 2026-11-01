@@ -785,7 +785,7 @@
   const fieldsOf = (agent) => (agent.trigger && agent.trigger.fields) || [];
   const primaryField = (agent) => fieldsOf(agent).find((f) => f.primary) || fieldsOf(agent).find((f) => f.type === "textarea") || fieldsOf(agent)[0];
   // A sample's value for a field: in sample.fields, or at the top level
-  // (Speed-to-Lead's samples keep input and receivedAt there).
+  // (New Lead Reply's samples keep input and receivedAt there).
   const sampleValue = (s, f) => (s.fields && f.id in s.fields ? s.fields[f.id] : s[f.id]);
   let rowSeq = 0;
   const newRowId = () => `r${Date.now().toString(36).slice(-5)}${(rowSeq++).toString(36)}`;
@@ -885,15 +885,14 @@
     const active = matchSample(agent, d);
     const chips = samplesFor(agent)
       .map(
-        (s) => `<button type="button" class="ag-chip${active && active.id === s.id ? " is-active" : ""}" data-sample="${s.id}" aria-pressed="${active && active.id === s.id}">
-          <strong>${esc(s.label)}</strong><span>${esc(s.channel || "")}</span></button>`
+        (s) => `<button type="button" class="ag-pill-chip${active && active.id === s.id ? " is-active" : ""}" data-sample="${s.id}" aria-pressed="${active && active.id === s.id}"${s.channel ? ` title="${esc(s.channel)}"` : ""}>${esc(s.label)}</button>`
       )
       .join("");
     const body = `
       <p class="ag-about">${esc(def.about)}</p>
       <div class="ag-field">
         <span class="ag-label">Examples</span>
-        <div class="ag-chips">${chips}</div>
+        <div class="ag-pills">${chips}</div>
       </div>
       ${fieldsOf(agent).map((f) => fieldHtml(f, d[f.id])).join("\n")}
       <p class="ag-hint" id="ag-hint"></p>
@@ -924,7 +923,7 @@
     );
     const sync = () => {
       const active = matchSample(agent, d);
-      els.panel.querySelectorAll(".ag-chip").forEach((c) => {
+      els.panel.querySelectorAll(".ag-pills .ag-pill-chip").forEach((c) => {
         const on = !!active && c.dataset.sample === active.id;
         c.classList.toggle("is-active", on);
         c.setAttribute("aria-pressed", String(on));
@@ -1015,7 +1014,7 @@
         });
       }
     }
-    els.panel.querySelectorAll(".ag-chip").forEach((chip) =>
+    els.panel.querySelectorAll(".ag-pills .ag-pill-chip").forEach((chip) =>
       chip.addEventListener("click", () => {
         const s = samplesFor(agent).find((x) => x.id === chip.dataset.sample);
         if (!s) return;
@@ -1032,7 +1031,7 @@
         }
         if (rebuild) {
           renderPanel();
-          const again = els.panel.querySelector(`.ag-chip[data-sample="${s.id}"]`);
+          const again = els.panel.querySelector(`.ag-pill-chip[data-sample="${s.id}"]`);
           if (again) again.focus();
           return;
         }
@@ -1161,7 +1160,7 @@
     const t = agent.trigger || {};
     const primary = primaryField(agent);
     const input = primary ? fieldText(primary, d[primary.id]) : "";
-    // Speed-to-Lead's API body stays { input, receivedAt }; agents with
+    // New Lead Reply's API body stays { input, receivedAt }; agents with
     // payload "fields" send every field.
     const values = {};
     for (const f of fieldsOf(agent)) values[f.id] = cleanValue(f, d[f.id]);
