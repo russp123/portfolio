@@ -143,7 +143,7 @@ const PORTFOLIO = {
     {
       id: "configurator",
       niche: "web",
-      llm: "Interactive Shop Experience (the Kingdomes product configurator) — a live product configurator on kingdomes.com.au: a 7-step guided flow (range, size, colours, upgrades, chimney, specs, quote) across two dome ranges and seven sizes, real-time multi-currency pricing (AUD/USD/NZD), and quote submissions posted straight into GoHighLevel as structured CRM leads. Built as a single self-contained HTML file with zero dependencies.",
+      llm: "Interactive Shop Experience (the Kingdomes product configurator) — a live product configurator on kingdomes.com.au: a 7-step guided flow (range, size, colours, upgrades, chimney, specs, quote) for two ranges, seven models across five sizes, real-time multi-currency pricing (AUD/USD/NZD), and quote submissions posted straight into GoHighLevel as structured CRM leads. Built as a single self-contained HTML file with zero dependencies.",
       title: "Interactive Shop Experience",
       tag: "Interactive Web App",
       badge: "Live",
@@ -486,6 +486,8 @@ const PORTFOLIO = {
   ],
 
   cta: "Open to hearing what you're working on.",
+  // What RUSSELLM says about price, and all it says. Read by api/_bio.js.
+  pricing: "Projects are quoted individually after a short chat. Email rsslpnd@gmail.com with what you need.",
   cv: { label: "Download my CV", url: "assets/russel-pineda-cv.pdf" },
 };
 

@@ -25,6 +25,11 @@ const plain = (s) =>
     .replace(/<[^>]*>/g, "")
     .replace(/\u2060/g, "")
     .replace(/\u00A0/g, " ")
+    // The model copies the style of what it reads, so it reads no dashes.
+    // Replies get the same treatment in api/chat.js as a safety net.
+    .replace(/\s*[\u2012-\u2015]\s*(?=(?:\d|Now\b|Present\b))/g, " to ")
+    .replace(/(\w)\u2013(?=\w)/g, "$1 to ")
+    .replace(/\s*[\u2012-\u2015]\s*/g, ", ")
     .trim();
 
 module.exports = {
@@ -33,12 +38,14 @@ module.exports = {
   location: plain(P.location),
   email: plain(P.email),
   about: plain(P.bio),
+  pricing: plain(P.pricing),
   experience: P.experience.map(
     (e) => `${plain(e.name)}, ${plain(e.year)}${e.roles && e.roles.length ? ` (${e.roles.map(plain).join(", ")})` : ""}`
   ),
   skills: P.skills.map((s) => `${plain(s.category)}: ${plain(s.items)}`),
   // Only projects that carry an `llm` summary are exposed to the bot.
-  projects: P.projects.map((p) => plain(p.llm)).filter(Boolean),
+  // Each one names its case study page, so the bot can point to it.
+  projects: P.projects.filter((p) => p.llm).map((p) => `${plain(p.llm)}${p.page ? ` Case study page: russelpineda.com${p.page}` : ""}`),
   links: P.links.map((l) => `${plain(l.label)}: ${plain(l.url)}`),
   cta: plain(P.cta),
 };
