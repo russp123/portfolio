@@ -86,6 +86,7 @@
     panel: null, // { kind: "node", id } | { kind: "chat", tab, id }
     panelOpener: null,
     drafts: {}, // per agent, in memory only: { input, receivedAt }
+    dateSet: {}, // per agent: the visitor changed the date field themselves
     landingScroll: 0,
     status: null,
     // Chat mode, in memory only: one conversation per chat agent.
@@ -826,6 +827,20 @@
     }
     return state.drafts[agent.id];
   }
+  // Examples keep the date they were recorded on. Anything the visitor writes
+  // runs on the current date and time in the agent's own time zone, unless
+  // they set the date themselves.
+  const isRunTime = (f) => f.id === "receivedAt";
+  function settleRunTime(agent, d) {
+    if (state.dateSet[agent.id]) return;
+    const fields = fieldsOf(agent);
+    const example = samplesFor(agent).find((s) => fields.every((f) => isRunTime(f) || norm(f, sampleValue(s, f)) === norm(f, d[f.id])));
+    for (const f of fields.filter(isRunTime)) {
+      d[f.id] = example ? sampleValue(example, f) ?? emptyValue(f) : zonedNowLocal(f.timeZone);
+      const el = els.panel.querySelector(`[data-field="${f.id}"]`);
+      if (el) el.value = d[f.id];
+    }
+  }
   const matchSample = (agent, d) =>
     samplesFor(agent).find((s) => fieldsOf(agent).every((f) => norm(f, sampleValue(s, f)) === norm(f, d[f.id]))) || null;
 
@@ -922,6 +937,7 @@
       t.hints || {}
     );
     const sync = () => {
+      settleRunTime(agent, d);
       const active = matchSample(agent, d);
       els.panel.querySelectorAll(".ag-pills .ag-pill-chip").forEach((c) => {
         const on = !!active && c.dataset.sample === active.id;
@@ -999,10 +1015,12 @@
       if (!el) continue;
       el.addEventListener("input", () => {
         d[f.id] = f.maxLength ? el.value.slice(0, f.maxLength) : el.value;
+        if (isRunTime(f)) state.dateSet[agent.id] = true;
         sync();
       });
       el.addEventListener("change", () => {
         d[f.id] = el.value;
+        if (isRunTime(f)) state.dateSet[agent.id] = true;
         sync();
       });
       if (f.type === "textarea") {
@@ -1018,6 +1036,7 @@
       chip.addEventListener("click", () => {
         const s = samplesFor(agent).find((x) => x.id === chip.dataset.sample);
         if (!s) return;
+        delete state.dateSet[agent.id];
         let rebuild = false;
         for (const f of fieldsOf(agent)) {
           const v = sampleValue(s, f);
@@ -1155,6 +1174,14 @@
     const agent = state.agent;
     if (!agent || state.busy) return;
     const d = draftFor(agent);
+    settleRunTime(agent, d);
+    // A live run never starts in the past, so it can't offer a past slot.
+    if (!matchSample(agent, d)) {
+      for (const f of fieldsOf(agent).filter(isRunTime)) {
+        const now = zonedNowLocal(f.timeZone);
+        if (!d[f.id] || d[f.id] < now) d[f.id] = now;
+      }
+    }
     const invalid = validateFields(agent, d);
     if (invalid) return formError(invalid);
     const t = agent.trigger || {};

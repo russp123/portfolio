@@ -11,7 +11,7 @@
 const H = require("../js/agents/harbourline.js");
 
 module.exports = (h) => {
-  const { SHARED_RULES, stripEmDashes, promisedTime, nullableString, WEEKDAYS_7_TO_5, MAX_MESSAGE_LENGTH, MONTH_NAMES, makeReviewGuardian, makeDeadLeadRevival, NAME_OK, NOTE_STOP } = h;
+  const { SHARED_RULES, stripEmDashes, promisedTime, pastDate, nullableString, WEEKDAYS_7_TO_5, MAX_MESSAGE_LENGTH, MONTH_NAMES, makeReviewGuardian, makeDeadLeadRevival, NAME_OK, NOTE_STOP } = h;
   const clock = { timeZone: H.timeZone, hours: WEEKDAYS_7_TO_5 };
   const FACT_IDS = H.facts.map((f) => f.id);
   const money = (n) => `$${Number(n).toLocaleString("en-AU")}`;
@@ -358,15 +358,15 @@ ${fields.details}
     const now = H.boardNow(received.stamp);
     return { jobs, now, candidates: H.candidates(jobs, fields.jobType, fields.suburb, now), emergency: H.emergencySlot(jobs, fields.jobType, fields.suburb, now) };
   }
-  const slotOut = (c) => {
+  const slotOut = (c, now) => {
     const w = H.windows[c.win];
-    return { tech: c.tech, techName: c.techName, date: c.date, win: c.win, dayLabel: H.dayLabel(c.date), window: w.label, range: w.range, travelFrom: c.travelFrom, travelMinutes: c.travelMinutes };
+    return { tech: c.tech, techName: c.techName, date: c.date, win: c.win, dayLabel: H.boardLabel(c.date, now), window: w.label, range: w.range, travelFrom: c.travelFrom, travelMinutes: c.travelMinutes };
   };
   const schedulerText = (fields, slot, emergency) => {
     const first = fields.customer.split(/\s+/)[0];
     if (!slot) return `Hi ${first}, thanks for that. The office will call you to find a time. ${H.name}`;
     if (emergency) return `Hi ${first}, our plumber has your details and will call you shortly. ${H.name}`;
-    return `Hi ${first}, we've pencilled you in for ${H.dayLabel(slot.date)}, ${slot.window.toLowerCase()} (${slot.range}). The office will confirm the time with you. ${H.name}`;
+    return `Hi ${first}, we've pencilled you in for ${slot.dayLabel}, ${slot.window.toLowerCase()} (${slot.range}). The office will confirm the time with you. ${H.name}`;
   };
   function schedulerIssue(message, slot, emergency) {
     const msg = String(message || "").trim();
@@ -384,7 +384,7 @@ ${fields.details}
       if (!/\bplumber\b/i.test(msg) || !/\bcall\b/i.test(msg)) return "This is an emergency, so say our plumber will call them shortly.";
       if (promisedTime(msg)) return "This is an emergency: never commit to an arrival time.";
     } else if (slot) {
-      if (!msg.includes(H.dayLabel(slot.date).split(" ")[0]) || !new RegExp(slot.window, "i").test(msg)) return `customerMessage must name the day and part of the day: ${H.dayLabel(slot.date)}, ${slot.window.toLowerCase()}.`;
+      if (!msg.includes(slot.dayLabel.split(" ")[0]) || !new RegExp(slot.window, "i").test(msg)) return `customerMessage must name the day and part of the day: ${slot.dayLabel}, ${slot.window.toLowerCase()}.`;
       if (!/\bconfirm\b/i.test(msg)) return "customerMessage must say the office will confirm the time.";
     }
     return null;
@@ -432,7 +432,7 @@ FIELD RULES
     user(fields, received) {
       const plan = boardPlan(fields, received);
       const type = H.jobType(fields.jobType);
-      const slots = plan.candidates.map((c) => `- ${c.slot}: ${H.dayLabel(c.date)}, ${H.windows[c.win].label.toLowerCase()} (${H.windows[c.win].range}), ${c.techName}, about ${c.travelMinutes} minutes' travel`).join("\n");
+      const slots = plan.candidates.map((c) => `- ${c.slot}: ${H.boardLabel(c.date, plan.now)}, ${H.windows[c.win].label.toLowerCase()} (${H.windows[c.win].range}), ${c.techName}, about ${c.travelMinutes} minutes' travel`).join("\n");
       const e = plan.emergency;
       return `Job received: ${received.label}, Sydney time.
 Customer: ${fields.customer}. Suburb: ${fields.suburb}. Job type: ${type ? type.label : fields.jobType}${type && type.planned ? " (planned work, booked at least a week out)" : ""}.
@@ -446,7 +446,7 @@ Preferred: ${fields.preferred || "not given"}
 Free slots, soonest first:
 ${slots || "- none"}
 
-If this is an emergency it takes: ${H.dayLabel(e.date)}, ${H.windows[e.win].label.toLowerCase()}, ${e.techName}${e.bump ? `, which moves ${e.bump.who}'s ${e.bump.jobLabel} to ${e.bump.label}` : ""}.`;
+If this is an emergency it takes: ${H.boardLabel(e.date, plan.now)}, ${H.windows[e.win].label.toLowerCase()}, ${e.techName}${e.bump ? `, which moves ${e.bump.who}'s ${e.bump.jobLabel} to ${e.bump.label}` : ""}.`;
     },
 
     schema: {
@@ -470,8 +470,10 @@ If this is an emergency it takes: ${H.dayLabel(e.date)}, ${H.windows[e.win].labe
       if (emergency && !r.emergency) problems.push("The job details describe an emergency, so emergency must be true.");
       if (!r.emergency && plan.candidates.length && !plan.candidates.some((c) => c.slot === r.slot)) problems.push(`slot must be one of: ${plan.candidates.map((c) => c.slot).join(", ")}.`);
       const slot = r.emergency || emergency ? plan.emergency : plan.candidates.find((c) => c.slot === r.slot);
-      const issue = schedulerIssue(r.customerMessage, slot ? slotOut(slot) : null, !!(r.emergency || emergency));
+      const issue = schedulerIssue(r.customerMessage, slot ? slotOut(slot, plan.now) : null, !!(r.emergency || emergency));
       if (issue) problems.push(issue);
+      const past = pastDate(r.customerMessage, received);
+      if (past) problems.push(`customerMessage offers ${past}, which has already passed. Use a day from the list.`);
       return problems;
     },
 
@@ -480,7 +482,7 @@ If this is an emergency it takes: ${H.dayLabel(e.date)}, ${H.windows[e.win].labe
       const plan = boardPlan(fields, received);
       const emergency = !!out.emergency || FD_EMERGENCY_WORDS.test(fields.details);
       const chosen = emergency ? plan.emergency : plan.candidates.find((c) => c.slot === out.slot) || plan.candidates[0] || null;
-      const slot = chosen ? slotOut(chosen) : null;
+      const slot = chosen ? slotOut(chosen, plan.now) : null;
       const type = H.jobType(fields.jobType);
       const jobLabel = type ? type.label : fields.jobType;
       const hhmm = received.stamp.slice(11, 16).replace(":", "");
@@ -490,7 +492,7 @@ If this is an emergency it takes: ${H.dayLabel(e.date)}, ${H.windows[e.win].labe
         changes.push({ add: addedId, tech: slot.tech, date: slot.date, win: slot.win, who: fields.customer, suburb: fields.suburb, job: jobLabel, emergency });
         if (emergency && chosen.bump) changes.push({ move: chosen.bump.job, tech: chosen.bump.tech, date: chosen.bump.date, win: chosen.bump.win });
       }
-      const message = schedulerIssue(out.customerMessage, slot, emergency) ? schedulerText(fields, slot, emergency) : String(out.customerMessage).trim();
+      const message = schedulerIssue(out.customerMessage, slot, emergency) || pastDate(out.customerMessage, received) ? schedulerText(fields, slot, emergency) : String(out.customerMessage).trim();
       return {
         read: clean(out.read) || jobLabel,
         customer: fields.customer,
@@ -510,10 +512,12 @@ If this is an emergency it takes: ${H.dayLabel(e.date)}, ${H.windows[e.win].labe
           ? []
           : plan.candidates
               .filter((c, i, all) => (chosen && c.slot === chosen.slot) || i < 3 || (i === 3 && (!chosen || all.slice(0, 3).some((x) => x.slot === chosen.slot))))
-              .map((c) => ({ label: `${H.dayLabel(c.date)}, ${H.windows[c.win].label.toLowerCase()}`, tech: c.techName, travelMinutes: c.travelMinutes, chosen: !!chosen && c.slot === chosen.slot })),
+              .map((c) => ({ label: c.label, tech: c.techName, travelMinutes: c.travelMinutes, chosen: !!chosen && c.slot === chosen.slot })),
         customerMessage: message,
         addedId,
         changes,
+        weekShift: plan.now.shift,
+        boardToday: plan.now.date,
         handoff: slot ? { to: "job-wrap-up", why: "Picked up again when the job is finished" } : null,
       };
     },

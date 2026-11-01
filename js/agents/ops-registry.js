@@ -482,7 +482,7 @@ const OPS_AGENTS = [
           try { before = JSON.parse((run.fields && run.fields.bookedToday) || "[]"); } catch (e) { before = []; }
           return [
             ...(r.slot ? [{ type: "kv", title: "This job", rows: [["Technician", r.slot.techName], ["Day", r.slot.dayLabel], ["Window", `${r.slot.window}, ${r.slot.range}`], ["Travel allowance", `About ${r.slot.travelMinutes} minutes`]] }] : []),
-            { type: "calendar", title: "The board after this job", changes: before.concat(r.changes), focus: r.addedId, moved: r.bump ? r.bump.job : null, week: r.slot ? r.slot.date : HARBOURLINE.dayOfTheDemo },
+            { type: "calendar", title: "The board after this job", changes: before.concat(r.changes), focus: r.addedId, moved: r.bump ? r.bump.job : null, week: r.slot ? r.slot.date : HARBOURLINE.dayOfTheDemo, shift: r.weekShift, today: r.boardToday },
             { type: "note", body: "A made-up calendar. Nothing is booked or sent." },
           ];
         },

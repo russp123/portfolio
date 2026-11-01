@@ -167,20 +167,31 @@ HARBOURLINE.travelFor = (jobs, tech, date, win, suburb) => {
   return other ? { from: other.suburb, minutes: HARBOURLINE.travelMinutes(other.suburb, suburb) } : { from: null, minutes: 20 };
 };
 
-// Where "now" sits on the fictional two weeks. A time outside them is
-// treated as the start of the demo day, so a live run always has a board.
+// Where "now" sits on the fictional two weeks. Evenings and weekends count
+// as the next working morning. The board moves by whole weeks so that week
+// is its first week, which keeps every slot ahead of the real date. `shift`
+// is that move in days: jobs stay on the board's own dates, and boardLabel
+// gives the date to show. A time on the first week doesn't move it, so the
+// recorded day is untouched.
 HARBOURLINE.boardNow = (stamp) => {
   const date = String(stamp || "").slice(0, 10);
   const hh = Number(String(stamp || "").slice(11, 13));
   const mm = Number(String(stamp || "").slice(14, 16));
-  if (!HARBOURLINE.calendarDays.includes(date) || !Number.isFinite(hh)) return { date: HARBOURLINE.dayOfTheDemo, win: "am", minutes: 420, clamped: true };
-  const minutes = hh * 60 + (Number.isFinite(mm) ? mm : 0);
-  if (minutes >= 1020) {
-    const next = HARBOURLINE.calendarDays[HARBOURLINE.calendarDays.indexOf(date) + 1];
-    return { date: next || date, win: "am", minutes: 420, afterHours: true };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(hh)) return { date: HARBOURLINE.dayOfTheDemo, win: "am", minutes: 420, shift: 0 };
+  const utc = (iso) => Date.UTC(...iso.split("-").map((n, i) => Number(n) - (i === 1 ? 1 : 0)));
+  const weekend = (iso) => [0, 6].includes(new Date(utc(iso)).getUTCDay());
+  let day = date;
+  let minutes = hh * 60 + (Number.isFinite(mm) ? mm : 0);
+  const closed = minutes >= 1020 || weekend(day);
+  if (closed) {
+    do day = HARBOURLINE.addDays(day, 1);
+    while (weekend(day));
+    minutes = 420;
   }
-  return { date, win: minutes >= 720 ? "pm" : "am", minutes };
+  const shift = Math.floor((utc(day) - utc(HARBOURLINE.calendarDays[0])) / (7 * 86400000)) * 7;
+  return Object.assign({ date: HARBOURLINE.addDays(day, -shift), win: minutes >= 720 ? "pm" : "am", minutes, shift }, closed ? { afterHours: true } : {});
 };
+HARBOURLINE.boardLabel = (date, now) => HARBOURLINE.dayLabel(HARBOURLINE.addDays(date, (now && now.shift) || 0));
 
 // Free slots for a normal job, soonest first: never today, and planned
 // work starts a week out. The model picks from these and nothing else.
@@ -196,7 +207,7 @@ HARBOURLINE.candidates = (jobs, jobTypeId, suburb, now, limit = 6) => {
     for (const t of techs) {
       if (hlTaken(jobs, t.id, s.date, s.win)) continue;
       const travel = HARBOURLINE.travelFor(jobs, t.id, s.date, s.win, suburb);
-      out.push({ slot: `${t.id}|${s.date}|${s.win}`, tech: t.id, techName: t.name, date: s.date, win: s.win, label: `${HARBOURLINE.dayLabel(s.date)}, ${HARBOURLINE.windows[s.win].label.toLowerCase()} (${HARBOURLINE.windows[s.win].range})`, travelFrom: travel.from, travelMinutes: travel.minutes });
+      out.push({ slot: `${t.id}|${s.date}|${s.win}`, tech: t.id, techName: t.name, date: s.date, win: s.win, label: `${HARBOURLINE.boardLabel(s.date, now)}, ${HARBOURLINE.windows[s.win].label.toLowerCase()} (${HARBOURLINE.windows[s.win].range})`, travelFrom: travel.from, travelMinutes: travel.minutes });
     }
   }
   // Soonest first; within a window, the shorter drive.
@@ -217,10 +228,10 @@ HARBOURLINE.emergencySlot = (jobs, jobTypeId, suburb, now) => {
   let bump = null;
   if (occupant) {
     const next = hlSlots(now.date, now.win).find((s) => !(s.date === now.date && s.win === now.win) && !hlTaken(jobs, tech.id, s.date, s.win));
-    if (next) bump = { job: occupant.id, who: occupant.who, jobLabel: occupant.job, suburb: occupant.suburb, tech: tech.id, date: next.date, win: next.win, label: `${HARBOURLINE.dayLabel(next.date)}, ${HARBOURLINE.windows[next.win].label.toLowerCase()}` };
+    if (next) bump = { job: occupant.id, who: occupant.who, jobLabel: occupant.job, suburb: occupant.suburb, tech: tech.id, date: next.date, win: next.win, label: `${HARBOURLINE.boardLabel(next.date, now)}, ${HARBOURLINE.windows[next.win].label.toLowerCase()}` };
   }
   const travel = HARBOURLINE.travelFor(jobs, tech.id, now.date, now.win, suburb);
-  return { slot: `${tech.id}|${now.date}|${now.win}`, tech: tech.id, techName: tech.name, date: now.date, win: now.win, label: `${HARBOURLINE.dayLabel(now.date)}, ${HARBOURLINE.windows[now.win].label.toLowerCase()}`, travelFrom: travel.from, travelMinutes: travel.minutes, bump };
+  return { slot: `${tech.id}|${now.date}|${now.win}`, tech: tech.id, techName: tech.name, date: now.date, win: now.win, label: `${HARBOURLINE.boardLabel(now.date, now)}, ${HARBOURLINE.windows[now.win].label.toLowerCase()}`, travelFrom: travel.from, travelMinutes: travel.minutes, bump };
 };
 
 if (typeof module !== "undefined" && module.exports) module.exports = HARBOURLINE;

@@ -1,11 +1,11 @@
-/* Regenerates js/agents-highlight.json for the homepage agents section [2].
+/* Writes the board for the homepage agents section [2] into index.html.
    Run after re-recording the Ops Team's day or changing the team:
      node scripts/gen-agents-highlight.js
 
    Every value comes from the real recording in js/agents/ops-day.js (house
-   rule: no invented numbers). The homepage fetches the JSON only when the
-   section nears the viewport, so it never loads the much bigger /agents
-   scripts.
+   rule: no invented numbers). It lives in the page rather than a file the
+   page fetches, so the board always fills with the page, and the homepage
+   still never loads the much bigger /agents scripts.
 
    It also checks that the copy in js/data.js (agentsHighlight.ops) still
    matches the agent's name and problem line in the registry, and fails if
@@ -16,7 +16,7 @@ const vm = require("vm");
 const PORTFOLIO = require("../js/data.js");
 
 const ROOT = path.join(__dirname, "..");
-const OUT = path.join(ROOT, "js", "agents-highlight.json");
+const OUT = path.join(ROOT, "index.html");
 
 // The /agents scripts are plain browser scripts; run them in one context
 // so their top-level consts see each other, like on the page.
@@ -52,9 +52,8 @@ const opsTeam = {
   stats: { events: OPS_DAY.events.length, agents: OPS_TEAM.length, runs: dayEvents.reduce((n, e) => n + e.steps.length, 0) },
 };
 
-const data = {
-  _generated: "By scripts/gen-agents-highlight.js from js/agents/registry.js and ops-day.js. Don't edit by hand.",
-  "ops-team": opsTeam,
-};
-fs.writeFileSync(OUT, JSON.stringify(data, null, 2) + "\n");
-console.log(`Wrote ${path.relative(ROOT, OUT)} (${fs.statSync(OUT).size} bytes)`);
+const page = fs.readFileSync(OUT, "utf8");
+const marked = /(\/\* gen:agents-highlight \*\/\n)[\s\S]*?(\n\s*\/\* end:agents-highlight \*\/)/;
+if (!marked.test(page)) throw new Error("index.html has lost its gen:agents-highlight markers");
+fs.writeFileSync(OUT, page.replace(marked, (_, open, close) => `${open}      const AH_BOARD = ${JSON.stringify(opsTeam)};${close}`));
+console.log(`Wrote the board into ${path.relative(ROOT, OUT)} (${JSON.stringify(opsTeam).length} bytes)`);

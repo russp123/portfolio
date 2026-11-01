@@ -177,6 +177,22 @@ function promisedTime(text) {
     .find((x) => !/\?\s*$/.test(x) && WHEN_WORDS.test(x) && PROMISE_WORDS.test(x));
 }
 
+// A date in an answer that's already gone by when the job came in ("26 October").
+// Without a year, one far behind is taken as next year's (a December lead
+// offering "4 January").
+const DATE_WORDS = new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(${MONTH_NAMES.join("|")})(?:\\s+(\\d{4}))?\\b`, "gi");
+function pastDate(text, received) {
+  const [y, m, d] = received.stamp.slice(0, 10).split("-").map(Number);
+  const today = Date.UTC(y, m - 1, d);
+  for (const hit of String(text || "").matchAll(DATE_WORDS)) {
+    const month = MONTH_NAMES.findIndex((n) => n.toLowerCase() === hit[2].toLowerCase());
+    const when = Date.UTC(hit[3] ? Number(hit[3]) : y, month, Number(hit[1]));
+    const farBehind = !hit[3] && today - when > 180 * 86400000;
+    if (when < today && !farBehind) return hit[0];
+  }
+  return null;
+}
+
 // New Lead Reply replies go out by text, so the lead's number is known.
 const ASKS_FOR_NUMBER = /\b(phone|mobile|contact|best)\s+(number|no\.?|details)\b|\byour\s+(phone|mobile|number)\b/i;
 const NOT_MISSING = /\b(name|phone|mobile|email|contact)\b/i;
@@ -819,6 +835,8 @@ ${input}
       const promised = promisedTime(reply);
       if (promised)
         problems.push(`textReply confirms or promises a time, day or arrival ("${promised}"). You may offer a window as a question, but never confirm one; the team confirms the booking.`);
+      const past = pastDate(reply, received) || pastDate(r.booking && r.booking.window, received);
+      if (past) problems.push(`The answer offers ${past}, which has already passed. The next opening is ${received.nextOpen}; never offer anything before it.`);
       if (ASKS_FOR_NUMBER.test(reply))
         problems.push("textReply asks for a phone or contact number. It is sent as a text message, so the number is already known; never ask for it.");
       if (r.lead && r.lead.suburb && (r.missing || []).some((m) => /suburb/i.test(m)))
@@ -846,6 +864,9 @@ ${input}
       out.lead = { name: lead.name ?? null, contact: lead.contact ?? null, suburb: lead.suburb ?? null, job: lead.job ?? null, timing: lead.timing ?? null };
       if (!out.emergency) out.onCallAlert = null;
       if (out.emergency) out.booking = { ...out.booking, window: "ASAP" };
+      // Safety net if the retry still offered a day that has gone.
+      if (pastDate(out.booking && out.booking.window, received)) out.booking = { ...out.booking, window: `From ${received.nextOpen.replace(/^now, \S+ on /, "").replace(/ \(.*$/, "")}` };
+      if (pastDate(out.textReply, received)) out.textReply = String(out.textReply).split(/(?<=[.!?])\s+/).filter((x) => !pastDate(x, received)).join(" ");
       out.missing = (Array.isArray(out.missing) ? out.missing : []).filter((m) => !NOT_MISSING.test(m) && !(out.lead.suburb && /suburb/i.test(m)));
       out.crm = { ...out.crm, tags: (out.crm?.tags || []).slice(0, 4) };
 
@@ -1090,7 +1111,7 @@ ${latest}
 // and run through exactly the same pipeline as the agents above.
 Object.assign(
   AGENTS,
-  require("./_ops-agents.js")({ SHARED_RULES, stripEmDashes, promisedTime, nullableString, WEEKDAYS_7_TO_5, MAX_MESSAGE_LENGTH, MONTH_NAMES, makeReviewGuardian, makeDeadLeadRevival, NAME_OK, NOTE_STOP })
+  require("./_ops-agents.js")({ SHARED_RULES, stripEmDashes, promisedTime, pastDate, nullableString, WEEKDAYS_7_TO_5, MAX_MESSAGE_LENGTH, MONTH_NAMES, makeReviewGuardian, makeDeadLeadRevival, NAME_OK, NOTE_STOP })
 );
 
 /* ---------------- Gemini call (structured JSON) ---------------- */

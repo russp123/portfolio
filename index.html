@@ -146,9 +146,7 @@
       </section>
 
       <!-- AI agents [2]: the Ops Team, from PORTFOLIO.agentsHighlight, opening
-           /agents. Text renders right away; the board fills in from
-           js/agents-highlight.json (the real recording), fetched only when
-           the section nears the viewport. Rendered by the script below. -->
+           /agents. Rendered by the script below, board included. -->
       <section class="agents-hl" id="agents-hl" aria-labelledby="ah-title"></section>
 
       <!-- Projects — same section-label pattern as "What I do" above,
@@ -522,10 +520,13 @@
       }
 
       // ---- AI agents [2] ----------------------------------------------
-      // Copy comes from PORTFOLIO.agentsHighlight. The board's values come
-      // from js/agents-highlight.json, which scripts/gen-agents-highlight.js
-      // builds from the real recording, so nothing here is made up. The
-      // JSON loads only when the section is near.
+      // Copy comes from PORTFOLIO.agentsHighlight. The board's values are
+      // written in here by scripts/gen-agents-highlight.js from the real
+      // recording, so nothing is made up and it fills with the page, with no
+      // fetch to wait for or lose.
+      /* gen:agents-highlight */
+      const AH_BOARD = {"lanes":["Front Desk","New Lead Reply","Quote Builder","Scheduler","After-Job Check-in","Review Guardian","Old Quote Follow-up","Daily Brief"],"events":[{"time":"7:05am","lanes":[1,3]},{"time":"8:20am","lanes":[0,3]},{"time":"9:30am","lanes":[1,2]},{"time":"10:40am","lanes":[4]},{"time":"11:10am","lanes":[0,1,3]},{"time":"12pm","lanes":[5]},{"time":"1:20pm","lanes":[3]},{"time":"2:30pm","lanes":[4]},{"time":"3pm","lanes":[6,2]},{"time":"4:45pm","lanes":[5]},{"time":"5:05pm","lanes":[7]}],"stats":{"events":10,"agents":8,"runs":17}};
+      /* end:agents-highlight */
       const agentsHl = document.getElementById("agents-hl");
       const AH = PORTFOLIO.agentsHighlight;
       const heroNew = document.getElementById("hero-new");
@@ -547,42 +548,16 @@
               <p class="ah-ops-body">${esc(AH.ops.body)}</p>
               <span class="ah-ops-cta">${esc(AH.ops.cta)}<i>${svg(ARROW)}</i></span>
             </div>
-            <div class="ah-ops-board" data-widget="${esc(AH.ops.agent)}" aria-hidden="true"></div>
-          </a>`;
-
-        const WIDGETS = {
-          // The recorded day: one column per event, one row per agent.
-          "ops-team": (d) => `
-            <div class="ah-grid" style="--cols:${d.events.length}">
-              <span></span>${d.events.map((e, i) => `<b class="${i === 0 ? "is-first" : i === d.events.length - 1 ? "is-last" : i % 5 === 0 ? "" : "is-minor"}">${esc(e.time)}</b>`).join("")}
-              ${d.lanes
-                .map((name, r) => `<em>${esc(name)}</em>${d.events.map((e) => `<i class="${e.lanes.includes(r) ? "is-on" : ""}"></i>`).join("")}`)
-                .join("")}
+            <div class="ah-ops-board" aria-hidden="true">
+              <div class="ah-grid" style="--cols:${AH_BOARD.events.length}">
+                <span></span>${AH_BOARD.events.map((e, i) => `<b class="${i === 0 ? "is-first" : i === AH_BOARD.events.length - 1 ? "is-last" : i % 5 === 0 ? "" : "is-minor"}">${esc(e.time)}</b>`).join("")}
+                ${AH_BOARD.lanes
+                  .map((name, r) => `<em>${esc(name)}</em>${AH_BOARD.events.map((e) => `<i class="${e.lanes.includes(r) ? "is-on" : ""}"></i>`).join("")}`)
+                  .join("")}
+              </div>
+              <p class="ah-ops-stats">${AH_BOARD.stats.events} customer moments, ${AH_BOARD.stats.agents} agents</p>
             </div>
-            <p class="ah-ops-stats">${d.stats.events} customer moments, ${d.stats.agents} agents</p>`,
-        };
-        const fillWidgets = (data) => {
-          agentsHl.querySelectorAll("[data-widget]").forEach((el) => {
-            const make = WIDGETS[el.dataset.widget];
-            if (make && data[el.dataset.widget]) el.innerHTML = make(data[el.dataset.widget]);
-          });
-        };
-        const loadWidgets = () =>
-          fetch("/js/agents-highlight.json")
-            .then((r) => (r.ok ? r.json() : null))
-            .then((data) => data && fillWidgets(data))
-            .catch(() => {});
-        if ("IntersectionObserver" in window) {
-          const io = new IntersectionObserver(
-            (entries) => {
-              if (!entries.some((e) => e.isIntersecting)) return;
-              io.disconnect();
-              loadWidgets();
-            },
-            { rootMargin: "400px 0px" }
-          );
-          io.observe(agentsHl);
-        } else loadWidgets();
+          </a>`;
       }
 
       document.getElementById("projects-grid").innerHTML = PORTFOLIO.projects

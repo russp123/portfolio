@@ -87,6 +87,8 @@ const AgentOps = (function () {
       return `<section class="ag-cal-day"><h4>${esc(b.title)}</h4>${slot("am")}${slot("pm")}</section>`;
     }
     const weeks = [H.calendarDays.slice(0, 5), H.calendarDays.slice(5)];
+    // A live run's board can sit on a later week than the recorded one.
+    const dateOf = (d) => H.boardLabel(d, { shift: b.shift });
     const shown = weeks.findIndex((w) => w.includes(b.week)) === 1 ? 1 : 0;
     const win = (date, w) => {
       const list = jobs.filter((j) => j.date === date && j.win === w).sort((x, y) => H.technicians.findIndex((t) => t.id === x.tech) - H.technicians.findIndex((t) => t.id === y.tech));
@@ -98,14 +100,14 @@ const AgentOps = (function () {
       ${days
         .filter((d) => i !== shown || !fromDay || d >= fromDay)
         .map((d) => {
-          const [name, num, month] = H.dayLabel(d).split(" ");
-          return `<section class="ag-cal-day${d === H.dayOfTheDemo ? " is-today" : ""}"><h4>${name.slice(0, 3)} ${num} ${month.slice(0, 3)}</h4>${win(d, "am")}${win(d, "pm")}</section>`;
+          const [name, num, month] = dateOf(d).split(" ");
+          return `<section class="ag-cal-day${d === (b.today || H.dayOfTheDemo) ? " is-today" : ""}"><h4>${name.slice(0, 3)} ${num} ${month.slice(0, 3)}</h4>${win(d, "am")}${win(d, "pm")}</section>`;
         })
         .join("")}
     </div>`;
     return `${title(b.title)}<div class="ag-cal${b.wide ? " is-wide" : ""}">
       <div class="ag-cal-tabs" role="group" aria-label="Week">
-        ${["Week of 2 Nov", "Week of 9 Nov"].map((l, i) => `<button type="button" data-cal-week="${i}" aria-pressed="${i === shown}">${l}</button>`).join("")}
+        ${weeks.map((w, i) => { const [, num, month] = dateOf(w[0]).split(" "); return `<button type="button" data-cal-week="${i}" aria-pressed="${i === shown}">Week of ${num} ${month.slice(0, 3)}</button>`; }).join("")}
       </div>
       ${weeks.map(week).join("")}
     </div>`;
