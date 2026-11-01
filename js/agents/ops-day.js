@@ -65,10 +65,10 @@ const OPS_DAY = {
     {
      "id": "e01-slot",
      "agent": "scheduler",
-     "label": "Burst pipe jumps the queue, Dana",
-     "channel": "From Speed-to-Lead",
+     "label": "Burst pipe goes first, Dana",
+     "channel": "From New Lead Reply",
      "receivedAt": "2026-11-04T07:05",
-     "recordedOn": "2026-10-31",
+     "recordedOn": "2026-11-01",
      "handoffTo": "job-wrap-up",
      "why": "Picked up again when the job is finished",
      "fields": {
@@ -84,7 +84,7 @@ const OPS_DAY = {
      "recorded": {
       "agent": "scheduler",
       "result": {
-       "read": "Burst pipe under kitchen sink flooding floor",
+       "read": "Burst pipe repair under kitchen sink",
        "customer": "Dana Moretti",
        "mobile": "0491 570 156",
        "suburb": "Marrickville",
@@ -92,7 +92,7 @@ const OPS_DAY = {
        "jobLabel": "Burst pipe repair",
        "planned": false,
        "emergency": true,
-       "emergencyReason": "Burst pipe under kitchen sink actively flooding floor",
+       "emergencyReason": "Active water escaping from a burst pipe flooding the floor",
        "placed": true,
        "slot": {
         "tech": "mick",
@@ -117,7 +117,7 @@ const OPS_DAY = {
         "label": "Wednesday 4 November, afternoon"
        },
        "considered": [],
-       "customerMessage": "Hi Dana, you are at the front of the queue and our plumber will call you shortly. Harbourline Plumbing",
+       "customerMessage": "Hi Dana. Our plumber has your details and will call you shortly. Harbourline Plumbing",
        "addedId": "n0705",
        "changes": [
         {
@@ -148,7 +148,7 @@ const OPS_DAY = {
        "inHours": true,
        "nextOpen": "now, 7:05am on Wednesday 4 November 2026 (open until 5pm today)"
       },
-      "ms": 2331
+      "ms": 1748
      }
     }
    ]
@@ -168,7 +168,7 @@ const OPS_DAY = {
      "label": "Blocked drain booking, Hannah",
      "channel": "Website chat",
      "receivedAt": "2026-11-04T08:20",
-     "recordedOn": "2026-10-31",
+     "recordedOn": "2026-11-01",
      "handoffTo": "scheduler",
      "why": "All five booking details are in",
      "turns": [
@@ -178,19 +178,19 @@ const OPS_DAY = {
         "agent": "hb-front-desk",
         "result": {
          "intent": "booking",
-         "topic": "booking a drain inspection",
+         "topic": "blocked drain booking",
          "emergency": false,
          "emergencyType": null,
          "handoffNote": null,
          "factsUsed": [
           "Services: Leaks and burst pipes; blocked drains; hot water repair and replacement, including heat pumps; toilets and taps; gas fitting."
          ],
-         "reply": "G'day! We can definitely help clear that blocked laundry drain for you. Could I please get your name to start the booking?",
+         "reply": "G'day! We can help with your blocked laundry drain. Could I please get your full name to start the booking request?",
          "captured": {
           "name": null,
           "mobile": null,
           "suburb": null,
-          "job": "blocked laundry drain",
+          "job": "laundry drain backing up",
           "preferredTime": null
          },
          "missing": [
@@ -211,7 +211,7 @@ const OPS_DAY = {
          "inHours": true,
          "nextOpen": "now, 8:20am on Wednesday 4 November 2026 (open until 5pm today)"
         },
-        "ms": 1797
+        "ms": 3984
        }
       },
       {
@@ -220,14 +220,12 @@ const OPS_DAY = {
         "agent": "hb-front-desk",
         "result": {
          "intent": "booking",
-         "topic": "booking contact details",
+         "topic": "blocked drain booking",
          "emergency": false,
          "emergencyType": null,
          "handoffNote": null,
-         "factsUsed": [
-          "Services: Leaks and burst pipes; blocked drains; hot water repair and replacement, including heat pumps; toilets and taps; gas fitting."
-         ],
-         "reply": "Thanks Hannah. Which suburb are you located in?",
+         "factsUsed": [],
+         "reply": "Thanks, Hannah. Which suburb is the job located in?",
          "captured": {
           "name": "Hannah Cole",
           "mobile": "0491 570 157",
@@ -251,7 +249,7 @@ const OPS_DAY = {
          "inHours": true,
          "nextOpen": "now, 8:20am on Wednesday 4 November 2026 (open until 5pm today)"
         },
-        "ms": 1639
+        "ms": 1672
        }
       },
       {
@@ -260,23 +258,23 @@ const OPS_DAY = {
         "agent": "hb-front-desk",
         "result": {
          "intent": "booking",
-         "topic": "booking details preferred time",
+         "topic": "booking drain inspection",
          "emergency": false,
          "emergencyType": null,
          "handoffNote": null,
          "factsUsed": [],
-         "reply": "Thanks Hannah. We have sent your booking request for the blocked laundry drain to the team, and they will confirm a time with you shortly.",
+         "reply": "Thanks, Hannah. I have noted Petersham and that you prefer any morning next week. I've sent the booking request to the team, who will confirm a time with you.",
          "captured": {
           "name": "Hannah Cole",
           "mobile": "0491 570 157",
           "suburb": "Petersham",
           "job": "blocked laundry drain",
-          "preferredTime": "Any morning next week"
+          "preferredTime": "any morning next week"
          },
          "missing": [],
          "bookingReady": true,
          "booking": {
-          "summary": "blocked laundry drain, Petersham, for Hannah Cole, Any morning next week, mobile 0491 570 157"
+          "summary": "blocked laundry drain, Petersham, for Hannah Cole, any morning next week, mobile 0491 570 157"
          },
          "handoff": {
           "to": "scheduler",
@@ -289,7 +287,7 @@ const OPS_DAY = {
          "inHours": true,
          "nextOpen": "now, 8:20am on Wednesday 4 November 2026 (open until 5pm today)"
         },
-        "ms": 4390
+        "ms": 1768
        }
       }
      ]
@@ -300,14 +298,14 @@ const OPS_DAY = {
      "label": "Blocked drain placed, Hannah",
      "channel": "From Front Desk",
      "receivedAt": "2026-11-04T08:20",
-     "recordedOn": "2026-10-31",
+     "recordedOn": "2026-11-01",
      "fields": {
       "customer": "Hannah Cole",
       "mobile": "0491 570 157",
       "suburb": "Petersham",
       "jobType": "blocked-drain",
       "details": "blocked laundry drain",
-      "preferred": "Any morning next week",
+      "preferred": "any morning next week",
       "receivedAt": "2026-11-04T08:20",
       "bookedToday": "[{\"add\":\"n0705\",\"tech\":\"mick\",\"date\":\"2026-11-04\",\"win\":\"am\",\"who\":\"Dana Moretti\",\"suburb\":\"Marrickville\",\"job\":\"Burst pipe repair\",\"emergency\":true},{\"move\":\"j07\",\"tech\":\"mick\",\"date\":\"2026-11-04\",\"win\":\"pm\"}]"
      },
@@ -335,7 +333,7 @@ const OPS_DAY = {
         "travelFrom": null,
         "travelMinutes": 20
        },
-       "slotReason": "Matches customer preference for next week morning with shortest travel time",
+       "slotReason": "Matches customer preference for next week morning slot.",
        "bump": null,
        "considered": [
         {
@@ -363,7 +361,7 @@ const OPS_DAY = {
          "chosen": true
         }
        ],
-       "customerMessage": "Hi Hannah, we have pencilled you in for Monday 9 November in the morning (7am to 12pm). The office will confirm the exact time shortly. Harbourline Plumbing",
+       "customerMessage": "Hi Hannah, we have pencilled you in for Monday morning (7am to 12pm). The office will confirm the time with you shortly. Harbourline Plumbing",
        "addedId": "n0820",
        "changes": [
         {
@@ -388,7 +386,7 @@ const OPS_DAY = {
        "inHours": true,
        "nextOpen": "now, 8:20am on Wednesday 4 November 2026 (open until 5pm today)"
       },
-      "ms": 1816
+      "ms": 2062
      }
     }
    ]
@@ -408,7 +406,7 @@ const OPS_DAY = {
      "label": "Hot water enquiry, Luke",
      "channel": "Web form",
      "receivedAt": "2026-11-04T09:30",
-     "recordedOn": "2026-10-31",
+     "recordedOn": "2026-11-01",
      "handoffTo": "quote-builder",
      "why": "Asked for a written quote",
      "input": "Hi, Luke Brennan from Annandale here. Our electric hot water tank is about 15 years old and has started leaking at the base. I'd like a quote to replace it, ideally with a heat pump. Mobile is 0491 570 158.",
@@ -419,21 +417,21 @@ const OPS_DAY = {
         "name": "Luke Brennan",
         "contact": "0491 570 158",
         "suburb": "Annandale",
-        "job": "replace electric hot water tank with a heat pump",
+        "job": "Replace leaking electric hot water tank with a heat pump",
         "timing": null
        },
-       "score": "hot",
-       "scoreReason": "Customer has an active water leak from a hot water tank and is ready for a replacement quote.",
+       "score": "warm",
+       "scoreReason": "Customer wants a quote for a planned hot water system replacement.",
        "emergency": false,
-       "emergencyReason": "A leaking hot water tank base requires prompt attention but is not flooding, a burst pipe, or gas leak.",
+       "emergencyReason": "A leaking old water tank being evaluated for a quote is planned replacement work rather than an active emergency.",
        "missing": [
         "photo of the existing hot water system"
        ],
-       "textReply": "Hi Luke, thanks for reaching out. We can definitely help with a quote to replace your hot water tank with a heat pump. Our standard business hours call-out fee is $120. Could you send through a quick photo of your existing setup? Would Wednesday afternoon suit for a visit? Harbourline Plumbing",
+       "textReply": "Hi Luke, thanks for reaching out. We can quote on replacing your hot water system with a heat pump. Could you send through a photo of your current setup? Our standard call-out fee during business hours is $120. Would Wednesday morning suit for an inspection? Harbourline Plumbing",
        "onCallAlert": null,
        "booking": {
-        "window": "Wednesday 4 November, 10:00am to 2:00pm",
-        "reason": "Inside business hours and fits the immediate need to inspect the leaking hot water tank."
+        "window": "Wednesday 4 November, 10am to 2pm",
+        "reason": "Next available business hours window following customer inquiry."
        },
        "crm": {
         "stage": "Quote requested",
@@ -441,9 +439,9 @@ const OPS_DAY = {
          "hot water",
          "heat pump",
          "annandale",
-         "leaking tank"
+         "quote"
         ],
-        "nextAction": "Follow up for a photo of the existing system and confirm a quote visit window with the customer."
+        "nextAction": "Follow up for photos of current hot water setup to finalize quote or book inspection."
        }
       },
       "received": {
@@ -452,14 +450,14 @@ const OPS_DAY = {
        "inHours": true,
        "nextOpen": "now, 9:30am on Wednesday 4 November 2026 (open until 5pm today)"
       },
-      "ms": 3003
+      "ms": 3212
      }
     },
     {
      "id": "e03-quote",
      "agent": "quote-builder",
      "label": "Heat pump quote, Luke",
-     "channel": "From Speed-to-Lead",
+     "channel": "From New Lead Reply",
      "receivedAt": "2026-11-04T09:30",
      "recordedOn": "2026-10-31",
      "handoffTo": "scheduler",
@@ -744,10 +742,10 @@ const OPS_DAY = {
     {
      "id": "e05-slot",
      "agent": "scheduler",
-     "label": "Gas leak jumps the queue, Grace",
-     "channel": "From Speed-to-Lead",
+     "label": "Gas leak goes first, Grace",
+     "channel": "From New Lead Reply",
      "receivedAt": "2026-11-04T11:10",
-     "recordedOn": "2026-10-31",
+     "recordedOn": "2026-11-01",
      "fields": {
       "customer": "Grace Liu",
       "mobile": "0491 570 159",
@@ -794,7 +792,7 @@ const OPS_DAY = {
         "label": "Thursday 5 November, morning"
        },
        "considered": [],
-       "customerMessage": "Hi Grace, you are at the front of the queue for your gas leak. Our plumber will call you shortly to confirm. Harbourline Plumbing",
+       "customerMessage": "Hi Grace. Our plumber has your details and will call you shortly. Harbourline Plumbing",
        "addedId": "n1110",
        "changes": [
         {
@@ -825,7 +823,7 @@ const OPS_DAY = {
        "inHours": true,
        "nextOpen": "now, 11:10am on Wednesday 4 November 2026 (open until 5pm today)"
       },
-      "ms": 1989
+      "ms": 1566
      }
     }
    ]
@@ -1203,7 +1201,7 @@ const OPS_DAY = {
      "id": "e09-quote",
      "agent": "quote-builder",
      "label": "Hot water replacement, Ben",
-     "channel": "From Dead Lead Revival",
+     "channel": "From Old Quote Follow-up",
      "receivedAt": "2026-11-04T15:00",
      "recordedOn": "2026-10-31",
      "fields": {
@@ -1338,13 +1336,13 @@ const OPS_DAY = {
   "label": "Wednesday's brief",
   "channel": "End of day",
   "receivedAt": "2026-11-04T17:05",
-  "recordedOn": "2026-10-31",
+  "recordedOn": "2026-11-01",
   "fields": {
    "rows": [
     {
      "id": "r1",
      "time": "7:05am",
-     "agent": "Speed-to-Lead",
+     "agent": "New Lead Reply",
      "what": "Dana Moretti, Marrickville: pipe under kitchen sink has burst with water all over the floor. Scored hot, emergency, on-call plumber alerted. Text reply drafted.",
      "kind": "lead",
      "flag": "",
@@ -1384,8 +1382,8 @@ const OPS_DAY = {
     {
      "id": "r5",
      "time": "9:30am",
-     "agent": "Speed-to-Lead",
-     "what": "Luke Brennan, Annandale: replace electric hot water tank with a heat pump. Scored hot. Text reply drafted.",
+     "agent": "New Lead Reply",
+     "what": "Luke Brennan, Annandale: Replace leaking electric hot water tank with a heat pump. Scored warm. Text reply drafted.",
      "kind": "lead",
      "flag": "",
      "who": "",
@@ -1404,7 +1402,7 @@ const OPS_DAY = {
     {
      "id": "r7",
      "time": "10:40am",
-     "agent": "Job Wrap-up",
+     "agent": "After-Job Check-in",
      "what": "Dana Moretti: Burst pipe repair finished, $400 invoiced, due Wednesday 11 November. Review request drafted.",
      "kind": "job",
      "flag": "",
@@ -1424,7 +1422,7 @@ const OPS_DAY = {
     {
      "id": "r9",
      "time": "11:10am",
-     "agent": "Speed-to-Lead",
+     "agent": "New Lead Reply",
      "what": "Grace Liu, Leichhardt: gas smell near cooktop. Scored hot, emergency, on-call plumber alerted. Text reply drafted.",
      "kind": "lead",
      "flag": "",
@@ -1464,7 +1462,7 @@ const OPS_DAY = {
     {
      "id": "r13",
      "time": "2:30pm",
-     "agent": "Job Wrap-up",
+     "agent": "After-Job Check-in",
      "what": "Omar Haddad: Dripping tap repair finished, $295 invoiced, due Wednesday 11 November. Problem on the job: Omar was unhappy because water was left under the kitchen sink and he had to ask Sam to clean it up. Review request waits until the owner has called.",
      "kind": "job",
      "flag": "yes",
@@ -1474,7 +1472,7 @@ const OPS_DAY = {
     {
      "id": "r14",
      "time": "3:00pm",
-     "agent": "Dead Lead Revival",
+     "agent": "Old Quote Follow-up",
      "what": "Old quotes sweep: 3 to re-engage, 1 to nurture, 2 not to contact. 4 messages drafted.",
      "kind": "campaign",
      "flag": "",
@@ -1508,7 +1506,7 @@ const OPS_DAY = {
    "agent": "daily-brief",
    "result": {
     "day": "Wednesday 4 November 2026",
-    "headline": "The team managed urgent callouts and standard jobs steadily throughout the day.",
+    "headline": "The team managed urgent jobs, bookings and quote requests today.",
     "counts": [
      {
       "label": "Leads answered",
@@ -1543,34 +1541,33 @@ const OPS_DAY = {
     "needsYou": [
      {
       "who": "Jo Kim",
-      "what": "Jo was moved to Wednesday 4 November afternoon to fit in an emergency burst pipe job.",
-      "action": "Notify Jo Kim about the schedule change to Wednesday afternoon."
+      "what": "Job was moved to Wednesday 4 November afternoon to accommodate an emergency burst pipe.",
+      "action": "Notify Jo Kim about the rescheduled job time."
      },
      {
       "who": "Alan Yip",
-      "what": "Alan was moved to Thursday 5 November morning to accommodate an emergency gas leak job.",
-      "action": "Notify Alan Yip about the schedule change to Thursday morning."
+      "what": "Job was moved to Thursday 5 November morning due to an emergency gas leak job.",
+      "action": "Notify Alan Yip about the rescheduled job time."
      },
      {
       "who": "Greg",
-      "what": "Greg left a 1 star review after waiting most of the morning without a call about a late plumber.",
-      "action": "Review the drafted reply and contact Greg regarding the delayed service."
+      "what": "Left a 1-star review after waiting most of the morning with no update on a late plumber.",
+      "action": "Review the drafted response and contact Greg."
      },
      {
       "who": "Omar Haddad",
-      "what": "Omar was unhappy that water was left under his kitchen sink after a dripping tap repair.",
-      "action": "Call Omar Haddad before releasing his review request."
+      "what": "Unhappy that water was left under the kitchen sink after a dripping tap repair.",
+      "action": "Call Omar Haddad before sending the review request."
      }
     ],
     "done": [
-     "Responded to leads and website chats for emergency and standard plumbing requests.",
-     "Booked jobs for burst pipes, gas leaks, blocked drains, and hot water installs.",
-     "Drafted quotes for hot water replacements and completed quote sweeps for old leads.",
-     "Wrapped up jobs for a burst pipe and a dripping tap, invoicing $695 in total.",
-     "Drafted replies for customer reviews including a 5 star review from Dana."
+     "Responded to 3 new leads, handled 2 website chats, and drafted 4 old quote follow-up messages.",
+     "Dispatched emergency jobs for a burst pipe in Marrickville and a gas leak in Leichhardt.",
+     "Completed 2 jobs, invoiced $695, and built quotes for 2 hot water projects.",
+     "Booked jobs for Hannah Cole, Luke Brennan, and drafted a reply to a 5-star review from Dana."
     ],
     "tomorrow": [
-     "Alan Yip is rescheduled for Thursday 5 November morning with Tess Romano."
+     "Alan Yip job rescheduled for Thursday 5 November, morning with Tess Romano."
     ]
    },
    "received": {
@@ -1579,7 +1576,7 @@ const OPS_DAY = {
     "inHours": false,
     "nextOpen": "Thursday 5 November 2026, 7am"
    },
-   "ms": 3699
+   "ms": 3478
   }
  }
 };

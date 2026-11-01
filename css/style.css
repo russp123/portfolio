@@ -1922,7 +1922,9 @@ html, body { overflow-x: clip; }
 .hero-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .hero-email.hero-new { background: #2860f0; border-color: #2860f0; color: #fff; font-family: inherit; font-weight: 600; }
 .hero-email.hero-new:hover { border-color: #2860f0; filter: brightness(1.08); }
-.hero-email.hero-new sup { color: rgba(255, 255, 255, 0.85); }
+.hero-email.hero-new sup { color: inherit; opacity: 0.85; }
+html[data-theme="dark"] .hero-email.hero-new,
+html[data-theme="dark"] .hero-email.hero-new:hover { background: #6b97ff; border-color: #6b97ff; color: #0b1530; }
 .hero-email sup { font-size: 9px; margin-left: 1px; color: var(--text-tertiary); }
 
 /* Full-bleed 3D stage for the cylinder. `perspective` is set inline
@@ -2164,50 +2166,20 @@ html, body { overflow-x: clip; }
 }
 
 /* ============================================================
-   AI AGENTS [2] (.agents-hl): three cards between What I do and
-   Projects, each opening /agents. Proportions follow Russel's
-   reference: left-aligned header with a pill on the subtext row,
-   cards with the icon beside the title, and a small widget panel
-   that runs off the card's bottom edge, which fades out.
-   Card internals are sized in container units (cqw = 1% of the
-   card's width), so they keep those proportions at every width.
+   AI AGENTS [2] (.agents-hl): the Ops Team between What I do and
+   Projects, opening /agents. Left-aligned header with a pill on the
+   subtext row, then the block with the recorded day.
    Blue here matches /agents (css/agents.css); the rest of the site
    keeps its gold. Everything is scoped to .agents-hl.
    ============================================================ */
 .agents-hl {
   --ah-blue: #6b97ff;           /* /agents dark accent */
   --ah-on-blue: #0b1530;
-  --ah-icon: #2a5be0;           /* side-card icon circle */
-  --ah-card: #141416;
-  --ah-panel: #1c1c1f;
-  --ah-inset: #232327;
-  --ah-bar: #3a3b41;
-  --ah-bubble: #2a2a2f;
-  --ah-feat: linear-gradient(180deg, #1f4fd8 0%, #2459e6 34%, #2d63ef 56%, #3f6fe6 100%);
-  /* Deep navy panel in the dark theme: a light one would fade into the
-     dark page as a gray band at the card's bottom edge. */
-  --ah-feat-panel: #0f1830;
-  --ah-feat-text: #f1f3f8;
-  --ah-feat-muted: #9aa3b8;
-  --ah-feat-inset: #172341;
-  --ah-feat-bar: #2c3b63;
   margin: 40px 0 112px;
 }
 html[data-theme="light"] .agents-hl {
   --ah-blue: #2860f0;           /* /agents light accent */
   --ah-on-blue: #ffffff;
-  --ah-icon: #1f48b8;
-  --ah-card: #f1f1f2;
-  --ah-panel: #ffffff;
-  --ah-inset: #f5f5f6;
-  --ah-bar: #e1e2e7;
-  --ah-bubble: #ededf0;
-  --ah-feat: linear-gradient(180deg, #2257e3 0%, #2860f0 36%, #3a6ef5 58%, #8fb0ff 100%);
-  --ah-feat-panel: #ffffff;
-  --ah-feat-text: #141518;
-  --ah-feat-muted: #5c5f67;
-  --ah-feat-inset: #f5f6f8;
-  --ah-feat-bar: #e1e2e7;
 }
 
 /* Header: [2], headline, then the subtext row with the pill on the right. */
@@ -2216,7 +2188,7 @@ html[data-theme="light"] .agents-hl {
   font-size: clamp(30px, 3.9vw, 56px);
   font-weight: 700;
   line-height: 1.16;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   color: var(--text-primary);
   max-width: 980px;
   margin: 0 0 30px;
@@ -2244,182 +2216,35 @@ html[data-theme="light"] .agents-hl {
   transition: transform 200ms ease;
 }
 .ah-ops:hover { transform: translateY(-2px); }
-.ah-ops:focus-visible { outline: 2px solid #2860f0; outline-offset: 4px; }
+.ah-ops:focus-visible { outline: 2px solid var(--ah-blue); outline-offset: 4px; }
 .ah-ops-tag { margin: 0 0 14px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; color: #b4b8c2; }
 .ah-ops-body { margin: 0; font-size: clamp(22px, 2.3vw, 32px); font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; }
-.ah-ops-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; padding: 11px 18px; border-radius: 12px; background: #2860f0; color: #fff; font-size: 14.5px; font-weight: 600; }
+.ah-ops-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; height: 48px; padding: 0 24px; border-radius: 12px; background: var(--ah-blue); color: var(--ah-on-blue); font-size: 15.5px; font-weight: 600; }
 .ah-ops-cta i { display: inline-grid; width: 16px; height: 16px; }
-.ah-ops-cta svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ah-ops-cta svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .ah-ops-board { min-height: 240px; min-width: 0; }
-.ah-grid { display: grid; grid-template-columns: 112px repeat(var(--cols), minmax(0, 1fr)); gap: 5px; align-items: center; }
+.ah-grid { display: grid; grid-template-columns: 124px repeat(var(--cols), minmax(0, 1fr)); gap: 5px; align-items: center; }
 .ah-grid b { font-size: 10.5px; font-weight: 500; color: #b4b8c2; text-align: center; white-space: nowrap; }
 .ah-grid b.is-minor { visibility: hidden; }
 .ah-grid b.is-first { justify-self: start; }
 .ah-grid b.is-last { justify-self: end; }
 .ah-grid em { font-style: normal; font-size: 12px; color: #c6c9d1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ah-grid i { height: 18px; border-radius: 5px; background: rgba(255, 255, 255, 0.07); }
-.ah-grid i.is-on { background: #2860f0; }
+.ah-grid i.is-on { background: var(--ah-blue); }
 .ah-ops-stats { margin: 14px 0 0; font-size: 12.5px; color: #b4b8c2; }
 .ah-also { margin: 64px 0 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary); }
 @media (max-width: 900px) {
   .ah-ops { grid-template-columns: minmax(0, 1fr); padding: 26px 20px; gap: 26px; margin-top: 36px; }
-  .ah-grid { grid-template-columns: 92px repeat(var(--cols), minmax(0, 1fr)); gap: 3px; }
+  .ah-grid { grid-template-columns: 110px repeat(var(--cols), minmax(0, 1fr)); gap: 3px; }
   .ah-grid b { font-size: 9.5px; }
-  .ah-grid em { font-size: 11px; }
+  .ah-grid em { font-size: 10.5px; }
   .ah-grid i { height: 15px; border-radius: 4px; }
 }
 
-/* Cards: the featured middle one is a touch wider and taller, like the
-   reference, so it rises a few px above its neighbours. */
-.ah-cards {
-  display: grid;
-  grid-template-columns: 1fr 1.03fr 1fr;
-  gap: 28px;
-  align-items: end;
-  margin-top: 28px;
-}
-.ah-card { display: block; container-type: inline-size; border-radius: 26px; color: inherit; text-decoration: none; transition: transform 200ms ease; }
-.ah-card:focus-visible { outline: 2px solid var(--ah-blue); outline-offset: 4px; }
-.ah-card-in {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  aspect-ratio: 177 / 148;
-  overflow: hidden;
-  padding: 7.8cqw 6.2cqw 0;
-  border-radius: clamp(18px, 7cqw, 30px);
-  background: var(--ah-card);
-  /* The bottom fades out, so the widget reads as cropped by the edge. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 11cqw), transparent);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 11cqw), transparent);
-}
-.ah-card.is-featured .ah-card-in { aspect-ratio: 182 / 151; padding-top: 9.3cqw; background: var(--ah-feat); }
-
-/* min-height lines the widgets up across the cards; longer text (narrow
-   cards) pushes its widget down instead of running into it. */
-.ah-top { display: grid; grid-template-columns: 10cqw 1fr; column-gap: 10.3cqw; align-items: start; min-height: 23cqw; }
-.ah-card.is-featured .ah-top { min-height: 21.5cqw; }
-.ah-icon {
-  display: grid;
-  place-items: center;
-  width: 10cqw;
-  min-width: 30px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--ah-icon);
-  color: #fff;
-}
-.ah-icon svg { width: 52%; height: 52%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.ah-card.is-featured .ah-icon { background: #fff; color: #1f48b8; }
-.ah-card-title {
-  font-size: clamp(16px, 5.2cqw, 22px);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-  margin: 0.15em 0 3.2cqw;
-}
-.ah-card-body { font-size: clamp(13.5px, 3.5cqw, 15px); line-height: 1.5; color: var(--text-secondary); margin: 0; }
-.ah-card.is-featured .ah-card-title { color: #fff; }
-/* Solid white: 5.2:1 on the blue behind the text (88% white fell under AA). */
-.ah-card.is-featured .ah-card-body { color: #fff; }
-
-/* Widget panel: starts at the same height in every card and runs past
-   the bottom edge. Static and decorative (aria-hidden). */
-.ah-widget {
-  align-self: start;
-  height: 56cqw;
-  margin-top: 6cqw;
-  padding: 5.4cqw 5cqw 0;
-  border-radius: 5.5cqw;
-  background: var(--ah-panel);
-  box-shadow: 0 1px 2px rgba(17, 18, 22, 0.05), 0 6px 18px rgba(17, 18, 22, 0.05);
-  color: var(--text-primary);
-  font-size: clamp(11px, 3cqw, 13px);
-}
-.ah-card.is-featured .ah-widget { background: var(--ah-feat-panel); color: var(--ah-feat-text); }
-.ah-w-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4.4cqw; }
-.ah-w-title { font-size: clamp(12px, 3.6cqw, 15px); font-weight: 600; letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ah-w-btns { display: flex; gap: 2cqw; flex: none; }
-.ah-w-btns i {
-  display: grid;
-  place-items: center;
-  width: 7cqw;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--ah-inset);
-  color: var(--text-secondary);
-}
-.ah-card.is-featured .ah-w-btns i { background: var(--ah-feat-inset); color: var(--ah-feat-muted); }
-.ah-w-btns svg { width: 56%; height: 56%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.ah-w-btns svg.is-dots { fill: currentColor; stroke: none; }
-.ah-w-body { height: 34cqw; border-radius: 3.5cqw; background: var(--ah-inset); padding: 3.6cqw 4cqw; }
-.ah-card.is-featured .ah-w-body { background: var(--ah-feat-inset); }
-.ah-mini {
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: clamp(10px, 2.6cqw, 11.5px);
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
-}
-.ah-card.is-featured .ah-mini { color: var(--ah-feat-muted); }
-
-/* AI Front Desk: the opening exchange of a recorded conversation. */
-.ah-chat { display: flex; flex-direction: column; gap: 2.4cqw; }
-.ah-bubble { max-width: 92%; margin: 0; padding: 2cqw 3cqw; border-radius: 3.4cqw; line-height: 1.4; }
-.ah-bubble.is-in { align-self: flex-start; background: var(--ah-panel); color: var(--text-primary); border-bottom-left-radius: 1cqw; }
-.ah-bubble.is-out { align-self: flex-end; background: var(--ah-blue); color: var(--ah-on-blue); border-bottom-right-radius: 1cqw; }
-
-/* Speed-to-Lead: the run's steps as ticks (the emergency step in blue),
-   then the score. */
-.ah-lead { display: flex; align-items: center; justify-content: space-between; gap: 4cqw; padding-top: 1cqw; }
-.ah-steps { display: flex; flex-direction: column; gap: 2.4cqw; }
-.ah-steps-bars { display: flex; align-items: flex-end; gap: 2.6cqw; height: 12cqw; }
-.ah-steps-bars i { width: 1.6cqw; min-width: 4px; height: 70%; border-radius: 99px; background: var(--ah-feat-bar); }
-.ah-steps-bars i.is-hot { height: 100%; background: var(--ah-blue); }
-.ah-score { display: flex; align-items: center; gap: 2.4cqw; }
-.ah-score-val { font-size: clamp(20px, 6.2cqw, 28px); font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
-.ah-tag {
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: clamp(9.5px, 2.5cqw, 11px);
-  letter-spacing: 0.03em;
-  padding: 0.9cqw 2.2cqw;
-  border-radius: 99px;
-  background: var(--ah-blue);
-  color: var(--ah-on-blue);
-  white-space: nowrap;
-}
-
-/* Dead Lead Revival: days since each quote, re-engage bars in blue. */
-.ah-revive { display: flex; flex-direction: column; }
-.ah-legend { display: flex; align-items: center; gap: 1.4cqw; }
-.ah-legend::before { content: ""; width: 2cqw; aspect-ratio: 1; border-radius: 50%; background: var(--ah-blue); }
-.ah-plot { display: flex; align-items: flex-end; gap: 2.6cqw; height: 15cqw; margin-top: 5cqw; }
-.ah-bar { position: relative; flex: 1; height: var(--h); min-height: 3cqw; border-radius: 2.2cqw 2.2cqw 0 0; background: var(--ah-bar); }
-.ah-bar.is-on { background: var(--ah-blue); }
-.ah-bar b {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translate(-50%, -1cqw);
-  font: 500 clamp(9.5px, 2.5cqw, 11px)/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  color: var(--text-secondary);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .ah-card:hover { transform: translateY(-3px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ah-card { transition: none; }
-  .ah-card:hover { transform: none; }
-}
-
-/* Phones: header stacks with the pill under the subtext; cards stack,
-   featured first. */
+/* Phones: header stacks with the pill under the subtext. */
 @media (max-width: 700px) {
   .agents-hl { margin: 24px 0 72px; }
   .agents-hl .ah-eyebrow { margin-bottom: 40px; }
   .ah-title { margin-bottom: 18px; }
   .ah-subrow { flex-direction: column; align-items: flex-start; gap: 18px; }
-  .ah-cards { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
-  .ah-card.is-featured { order: -1; }
 }

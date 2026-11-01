@@ -5,6 +5,10 @@
    the end of this file).
    ============================================================ */
 
+/* One blue for the chat, matching /agents in each theme. */
+:root { --rl-blue: #2860f0; --rl-on-blue: #fff; }
+html[data-theme="dark"] { --rl-blue: #6b97ff; --rl-on-blue: #0b1530; }
+
 /* The launcher: a round button fixed bottom-right with a red unread
    badge, and a one-line preview card above it. The chat itself opens as
    a panel above the launcher, or full screen on a phone. */
@@ -19,8 +23,8 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: #2860f0;
-  color: #fff;
+  background: var(--rl-blue);
+  color: var(--rl-on-blue);
   box-shadow: 0 8px 24px rgba(40, 96, 240, 0.35), 0 2px 6px rgba(0, 0, 0, 0.16);
   cursor: pointer;
   z-index: 110;
@@ -172,8 +176,8 @@
 }
 .russellm-msg.user {
   align-self: flex-end;
-  background: #2860f0;
-  color: #fff;
+  background: var(--rl-blue);
+  color: var(--rl-on-blue);
 }
 .russellm-msg.ai {
   align-self: flex-start;
@@ -194,7 +198,7 @@
   border-radius: 100px;
   cursor: pointer;
 }
-.russellm-chip:hover { border-color: #2860f0; }
+.russellm-chip:hover { border-color: var(--rl-blue); }
 
 .russellm-input-row {
   display: flex;
@@ -222,9 +226,9 @@
   display: grid;
   place-items: center;
   padding: 0;
-  color: #fff;
+  color: var(--rl-on-blue);
   border: 0;
-  background: #2860f0;
+  background: var(--rl-blue);
   border-radius: 50%;
   cursor: pointer;
 }

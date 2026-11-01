@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <!-- Keep iOS from turning the demo phone numbers into tap-to-call links. -->
 <meta name="format-detection" content="telephone=no" />
-<meta name="description" content="Four small AI agents and a full AI operations team, built for real service-business problems. Run a lead through the Speed-to-Lead Responder, chat with the AI Front Desk, let Review Guardian answer a review, revive old quotes with Dead Lead Revival, or run a plumber's whole day with the Ops Team, and watch every step. A demo by Russel Pineda." />
+<meta name="description" content="One AI team that runs a plumber's whole day: new customers, quotes, the calendar, invoices and reviews. Press play and watch. A demo by Russel Pineda." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Russel A. Pineda" />
 <meta property="og:title" content="AI Business Agents | Russel Pineda" />
-<meta property="og:description" content="Four small AI agents and a full AI operations team, built for real service-business problems. Run a lead through the Speed-to-Lead Responder, chat with the AI Front Desk, let Review Guardian answer a review, revive old quotes with Dead Lead Revival, or run a plumber's whole day with the Ops Team, and watch every step. A demo by Russel Pineda." />
+<meta property="og:description" content="One AI team that runs a plumber's whole day: new customers, quotes, the calendar, invoices and reviews. Press play and watch. A demo by Russel Pineda." />
 <meta property="og:url" content="https://russelpineda.com/agents" />
 <meta property="og:image" content="https://russelpineda.com/assets/agents-share.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="AI Business Agents | Russel Pineda" />
-<meta name="twitter:description" content="Four small AI agents and a full AI operations team, built for real service-business problems. Run a lead through the Speed-to-Lead Responder, chat with the AI Front Desk, let Review Guardian answer a review, revive old quotes with Dead Lead Revival, or run a plumber's whole day with the Ops Team, and watch every step. A demo by Russel Pineda." />
+<meta name="twitter:description" content="One AI team that runs a plumber's whole day: new customers, quotes, the calendar, invoices and reviews. Press play and watch. A demo by Russel Pineda." />
 <meta name="twitter:image" content="https://russelpineda.com/assets/agents-share.jpg" />
 <title>AI Business Agents | Russel Pineda</title>
 <link rel="canonical" href="https://russelpineda.com/agents" />
@@ -28,9 +28,6 @@
     document.documentElement.setAttribute("data-theme", "light");
   }
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/agents.css" />
 <link rel="stylesheet" href="css/russellm.css" />
 <link rel="icon" href="assets/portfolio-logo.jpg" />
@@ -42,8 +39,8 @@
     <a class="ag-homelink" href="/">← russelpineda.com</a>
 
     <header class="ag-hero">
-      <h1 class="ag-headline">Agents that do the busywork.</h1>
-      <p class="ag-dek">One AI team that runs a plumber's whole day, and four small tools you can try on their own. Pick one, run it, and watch every step.</p>
+      <h1 class="ag-headline"><em>Agents that do</em> the busywork.</h1>
+      <p class="ag-dek">One AI team that runs a plumber's whole day. Press play and watch.</p>
     </header>
 
     <div class="ag-cards" id="ag-cards"></div>
@@ -53,47 +50,43 @@
       <h2 class="ag-section-title" id="ag-how-title">How it works</h2>
       <ol class="ag-steps">
         <li>
-          <h3>Pick an agent</h3>
-          <p>Each one does a single job for a single business, working only from that business's fact sheet.</p>
+          <h3>Press play</h3>
+          <p>Follow one working day at a plumber, one customer moment at a time.</p>
         </li>
         <li>
-          <h3>Give it something to handle</h3>
-          <p>Use a sample or write your own. Samples replay a recorded run. Anything you write runs live.</p>
+          <h3>See who did what</h3>
+          <p>Agents are AI assistants that each handle one job. Tap any step to see exactly what that agent did.</p>
         </li>
         <li>
-          <h3>Watch every step</h3>
-          <p>Each step lights up as it finishes. Click one to see exactly what it decided and why.</p>
+          <h3>Try one yourself</h3>
+          <p>Open any agent and use an example, or type your own message and watch each step light up.</p>
         </li>
       </ol>
-      <p class="ag-fine">Demo only, so don't paste anything private. Your message is processed by Google's Gemini; this site doesn't save it, and your run history stays on this device.</p>
+      <p class="ag-fine">Demo only, so don't paste anything private. Your message is processed by Google's Gemini, and this site doesn't save it.</p>
     </section>
 
     <section class="ag-cta" aria-labelledby="ag-cta-title">
       <div>
         <h2 id="ag-cta-title">Want one built for your business?</h2>
-        <p>Built around your own facts, prices and hours, and wired into the tools you already use.</p>
+        <p>Built around your own facts, prices and hours, and connected to the tools you already use.</p>
       </div>
       <a class="ag-pill" id="ag-mail" href="mailto:rsslpnd@gmail.com">Get in touch</a>
     </section>
   </div>
 </main>
 
-<section class="ag-workspace" id="ag-workspace" aria-label="Agent workspace" hidden>
-  <header class="ag-topbar">
-    <button type="button" class="ag-icon-btn ag-back" id="ag-back" aria-label="Back to all agents" data-icon="back"></button>
-    <div class="ag-title">
-      <h1 class="ag-title-name" id="ag-title-name"></h1>
-      <span class="ag-title-biz" id="ag-title-biz"></span>
-    </div>
-    <button type="button" class="ag-btn ag-logs-btn" id="ag-logs-btn" aria-expanded="false" aria-controls="ag-panel" data-icon="logs" data-size="18">
-      <span class="ag-logs-long">Execution logs</span><span class="ag-logs-short">Logs</span>
-      <span class="ag-logs-count" id="ag-logs-count" hidden></span>
-    </button>
-  </header>
+<header class="ag-topbar" id="ag-topbar" hidden>
+  <button type="button" class="ag-icon-btn ag-back" id="ag-back" aria-label="Back to the agents home" data-icon="back"></button>
+  <div class="ag-title">
+    <h1 class="ag-title-name" id="ag-title-name"></h1>
+    <span class="ag-title-biz" id="ag-title-biz"></span>
+  </div>
+</header>
 
+<section class="ag-workspace" id="ag-workspace" aria-label="Agent workspace" hidden>
   <div class="ag-canvas" id="ag-canvas">
     <div class="ag-status" id="ag-status" role="status" aria-live="polite" hidden></div>
-    <div class="ag-canvas-ui ag-zoom" role="group" aria-label="Canvas view">
+    <div class="ag-canvas-ui ag-zoom" role="group" aria-label="View controls">
       <button type="button" class="ag-icon-btn" id="ag-zoom-in" aria-label="Zoom in" data-icon="plus" data-size="18"></button>
       <button type="button" class="ag-icon-btn" id="ag-zoom-out" aria-label="Zoom out" data-icon="minus" data-size="18"></button>
       <button type="button" class="ag-icon-btn" id="ag-zoom-fit" aria-label="Fit to screen" data-icon="fit" data-size="18"></button>
@@ -111,8 +104,8 @@
 <div class="ag-toast" id="ag-toast" role="status" aria-live="polite"></div>
 
   <button class="russellm-toggle" id="russellm-toggle" aria-label="Chat with RUSSELLM" aria-expanded="false" aria-controls="russellm-drawer">
-    <svg class="russellm-icon-chat" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5h-.5v2.5L12.5 18.5H7A3.5 3.5 0 0 1 3.5 15V7A3.5 3.5 0 0 1 7 3.5z"/></svg>
-    <svg class="russellm-icon-close" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    <svg class="russellm-icon-chat" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5h-.5v2.5L12.5 18.5H7A3.5 3.5 0 0 1 3.5 15V7A3.5 3.5 0 0 1 7 3.5z"/></svg>
+    <svg class="russellm-icon-close" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
     <span class="russellm-badge" id="russellm-badge" aria-hidden="true">1</span>
   </button>
   <div class="russellm-overlay" id="russellm-overlay"></div>
@@ -124,7 +117,7 @@
     <div class="russellm-log" id="russellm-log"></div>
     <form class="russellm-input-row" id="russellm-form">
       <input type="text" id="russellm-input" placeholder="Ask a question…" autocomplete="off" maxlength="500" />
-      <button type="submit" class="russellm-send" id="russellm-send" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m6 11 6-6 6 6"/></svg></button>
+      <button type="submit" class="russellm-send" id="russellm-send" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m6 11 6-6 6 6"/></svg></button>
     </form>
   </aside>
 

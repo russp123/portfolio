@@ -1,7 +1,7 @@
 /* ============================================================
-   /agents app shell: theme, dock, hash routing, landing cards,
-   top bar, side panel (node details, trigger form, execution
-   logs), run flow and the recorded-run fallback.
+   /agents app shell: theme, dock, hash routing, the home page's
+   feature, top bar, side panel (step details, trigger form), run
+   flow and the saved-run fallback.
 
    Two agent modes share everything here:
    - single run: the trigger form starts one run; the output panel
@@ -14,9 +14,8 @@
    js/agents/samples.js; the graph is drawn by js/agents/canvas.js.
    Adding an agent never touches this file.
 
-   Storage: only localStorage.theme (shared with the portfolio) and
-   the visitor's own run history (LOG_KEY). Every access is wrapped
-   so the page still works with storage blocked.
+   Storage: only localStorage.theme (shared with the portfolio). Every
+   access is wrapped so the page still works with storage blocked.
    ============================================================ */
 (function () {
   "use strict";
@@ -27,8 +26,6 @@
   const samplesFor = (agent) => SAMPLES[agent.id] || [];
   const EMAIL = (typeof PORTFOLIO !== "undefined" && PORTFOLIO.email) || "rsslpnd@gmail.com";
 
-  const LOG_KEY = "agents.logs.v1";
-  const LOG_MAX = 20;
   const STEP_MS = 500;
   const LIVE_TIMEOUT_MS = 30000;
   // Chat mode. Limits mirror api/agent.js so the visitor is told before
@@ -38,7 +35,7 @@
   const MAX_CHAT_MSG = 500;
   const MAX_CHAT_TOTAL = 4000;
   const isChat = (agent) => !!agent && agent.mode === "chat";
-  const FALLBACK_NOTE = "Live demo is resting. Here's a recorded run.";
+  const FALLBACK_NOTE = "The AI is resting right now, so here's a saved example.";
   const BASE_TITLE = "AI Business Agents | Russel Pineda";
 
   const mqMobile = matchMedia("(max-width: 699px)");
@@ -46,7 +43,6 @@
 
   const UI = {
     back: '<path d="M19 12H5"/><path d="m11 18-6-6 6-6"/>',
-    logs: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     minus: '<path d="M5 12h14"/>',
     fit: '<path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/>',
@@ -62,7 +58,7 @@
   };
   Object.assign(AGENT_ICONS, UI);
 
-  const KIND = { trigger: "Trigger", ai: "AI step", branch: "Decision", action: "Action", output: "Output" };
+  const KIND = { trigger: "Start here", ai: "AI step", branch: "Decision", action: "Action", output: "Result" };
 
   const esc = (s) =>
     String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -76,24 +72,7 @@
     set(key, value) {
       try { window.localStorage.setItem(key, value); return true; } catch (e) { return false; }
     },
-    remove(key) {
-      try { window.localStorage.removeItem(key); } catch (e) { /* ignore */ }
-    },
   };
-
-  function loadLogs() {
-    try {
-      const list = JSON.parse(store.get(LOG_KEY) || "[]");
-      const validTurn = (t) => t && typeof t.user === "string" && t.result && typeof t.result.reply === "string";
-      const valid = (l) => l && byId(l.agent) && (l.kind === "chat" ? Array.isArray(l.turns) && l.turns.length > 0 && l.turns.every(validTurn) : !!l.result);
-      return Array.isArray(list) ? list.filter(valid).slice(0, LOG_MAX) : [];
-    } catch (e) {
-      return [];
-    }
-  }
-  function saveLogs() {
-    try { store.set(LOG_KEY, JSON.stringify(state.logs)); } catch (e) { /* in-memory only */ }
-  }
 
   /* ---------------- State ---------------- */
   const state = {
@@ -104,10 +83,9 @@
     busy: false, // waiting on a live call
     runToken: 0,
     started: new Set(), // agents that have run this visit (hides their "Start here")
-    panel: null, // { kind: "node", id } | { kind: "logs" }
+    panel: null, // { kind: "node", id } | { kind: "chat", tab, id }
     panelOpener: null,
     drafts: {}, // per agent, in memory only: { input, receivedAt }
-    logs: loadLogs(),
     landingScroll: 0,
     status: null,
     // Chat mode, in memory only: one conversation per chat agent.
@@ -122,11 +100,10 @@
     landing: $("#ag-landing"),
     cards: $("#ag-cards"),
     workspace: $("#ag-workspace"),
+    topbar: $("#ag-topbar"),
     back: $("#ag-back"),
     titleName: $("#ag-title-name"),
     titleBiz: $("#ag-title-biz"),
-    logsBtn: $("#ag-logs-btn"),
-    logsCount: $("#ag-logs-count"),
     viewport: $("#ag-canvas"),
     status: $("#ag-status"),
     reopen: $("#ag-reopen"),
@@ -180,7 +157,7 @@
       (a) => `<button type="button" class="ag-dock-btn" data-route="${a.id}" data-tip="${esc(a.name)}" aria-label="${esc(a.name)}">${agentIcon(a.icon, 24)}</button>`
     ).join("");
     els.dock.innerHTML = `
-      <button type="button" class="ag-dock-btn" data-route="" data-tip="All agents" aria-label="All agents">${agentIcon("home", 24)}</button>
+      <button type="button" class="ag-dock-btn" data-route="" data-tip="Agents home" aria-label="Agents home">${agentIcon("home", 24)}</button>
       <span class="ag-dock-sep" aria-hidden="true"></span>
       ${agentButtons}
       <span class="ag-dock-sep" aria-hidden="true"></span>
@@ -248,75 +225,25 @@
     els.dock.addEventListener("focusout", hideTip);
   }
 
-  /* ---------------- Landing ---------------- */
-  // Landing thumbnails: a small static sketch of each agent's OUTPUT,
-  // placeholder lines only (no readable copy), grays plus the accent.
-  const line = (w) => `<i class="ag-pv-line" style="width:${w}%"></i>`;
-  const PREVIEWS = {
-    phone: () => `
-      <div class="ag-pv ag-pv-phone">
-        <div class="ag-pv-bubble is-in">${line(92)}${line(64)}</div>
-        <div class="ag-pv-bubble is-reply">${line(94)}${line(88)}${line(52)}</div>
-      </div>`,
-    chat: () => `
-      <div class="ag-pv ag-pv-chat">
-        <div class="ag-pv-bubble is-me">${line(84)}</div>
-        <div class="ag-pv-bubble is-reply">${line(94)}${line(66)}</div>
-        <div class="ag-pv-bubble is-me">${line(58)}</div>
-      </div>`,
-    review: () => `
-      <div class="ag-pv ag-pv-review">
-        <div class="ag-pv-stars">${[1, 2, 3, 4, 5].map((n) => `<span class="${n <= 4 ? "is-on" : ""}">${agentIcon("star", 12)}</span>`).join("")}</div>
-        ${line(94)}${line(70)}
-        <div class="ag-pv-reply">${line(90)}${line(58)}</div>
-      </div>`,
-    table: () => `
-      <div class="ag-pv ag-pv-table">
-        ${["accent", "strong", "muted"].map((tone, i) => `<div class="ag-pv-row">${line([54, 46, 50][i])}<span class="ag-pv-tag" data-tone="${tone}"></span></div>`).join("")}
-      </div>`,
-  };
-  const previewHtml = (agent) => `<div class="ag-pv-wrap" aria-hidden="true">${(PREVIEWS[agent.preview] || PREVIEWS.phone)()}</div>`;
-  function buildCards() {
-    // The flagship gets the whole first row; the rest sit under it.
-    const flagship = AGENTS.find((a) => a.flagship);
-    const feature = flagship
-      ? `<a class="ag-feature" href="#${flagship.id}" data-route="${flagship.id}">
-          <div class="ag-feature-text">
-            <p class="ag-feature-tag">${esc(flagship.name)} · ${esc(flagship.business)}</p>
-            <h2><em>${esc(flagship.pitchDim)}</em>${esc(flagship.pitch)}</h2>
-            <p class="ag-feature-body">${esc(flagship.problem)}</p>
-            <span class="ag-feature-cta">${esc(flagship.cta)} ${agentIcon("arrow", 16)}</span>
-          </div>
-          <figure class="ag-feature-media" aria-hidden="true">${AgentOps.dotMatrix("7:05")}<figcaption>7:05am. A pipe bursts in Marrickville.</figcaption></figure>
-        </a>
-        <h2 class="ag-cards-label">Or try one agent on its own</h2>`
-      : "";
-    els.cards.innerHTML = feature + AGENTS.filter((a) => !a.team && !a.flagship).map((a) => {
-      const live = a.status === "live";
-      const media = live
-        ? `<div class="ag-card-media">${previewHtml(a)}</div>`
-        : `<div class="ag-card-media ag-ph"><span class="ag-ph-text">agent: in training</span></div>`;
-      const meta = `
-        <div class="ag-card-meta">
-          <div class="ag-card-head">
-            <span class="ag-card-icon">${agentIcon(a.icon, 22)}</span>
-            <div>
-              <h3 class="ag-card-name">${esc(a.name)}</h3>
-              <p class="ag-card-biz">${esc(a.business)}</p>
-            </div>
-          </div>
-          <p class="ag-card-problem">${esc(a.problem)}</p>
-          ${live ? `<span class="ag-card-cta">Open agent ${agentIcon("arrow", 16)}</span>` : `<span class="ag-card-state">In training</span>`}
-        </div>`;
-      return live
-        ? `<a class="ag-card is-live" href="#${a.id}" data-route="${a.id}">${media}${meta}</a>`
-        : `<div class="ag-card is-training" aria-disabled="true">${media}${meta}</div>`;
-    }).join("");
+  /* ---------------- Home ---------------- */
+  // The home page features the Ops Team and nothing else.
+  function buildHome() {
+    const a = AGENTS.find((x) => x.flagship);
+    els.cards.innerHTML = `<a class="ag-feature" href="#${a.id}" data-route="${a.id}">
+      <div class="ag-feature-text">
+        <p class="ag-feature-tag">${esc(a.name)} · ${esc(a.business)}</p>
+        <h2><em>${esc(a.pitchDim)}</em>${esc(a.pitch)}</h2>
+        <p class="ag-feature-body">${esc(a.problem)}</p>
+        <span class="ag-st-cta is-lg">${esc(a.cta)}</span>
+      </div>
+      <figure class="ag-feature-media" aria-hidden="true">${AgentOps.dotMatrix("7:05")}<figcaption>7:05am. A pipe bursts in Marrickville.</figcaption></figure>
+    </a>`;
     els.cards.addEventListener("click", (e) => {
       const link = e.target.closest("a[data-route]");
       if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
       e.preventDefault();
       go(link.dataset.route);
+      AgentOps.runDay();
     });
   }
 
@@ -351,7 +278,17 @@
     renderDock();
   }
 
+  // The same top bar for the Ops Team and every agent.
+  function setTopbar(agent) {
+    els.topbar.hidden = !agent;
+    if (!agent) return;
+    els.titleName.textContent = agent.name;
+    els.titleBiz.textContent = agent.business;
+    els.back.setAttribute("aria-label", agent.team ? "Back to the Ops Team" : "Back to the agents home");
+  }
+
   function showLanding() {
+    setTopbar(null);
     els.workspace.hidden = true;
     els.landing.hidden = false;
     document.body.classList.remove("is-workspace");
@@ -366,6 +303,7 @@
     els.workspace.hidden = true;
     document.body.classList.remove("is-workspace");
     document.title = `${agent.name} | AI Business Agents`;
+    setTopbar(agent);
     AgentOps.show();
   }
 
@@ -375,9 +313,7 @@
     els.workspace.hidden = false;
     document.body.classList.add("is-workspace");
     document.title = `${agent.name} | AI Business Agents`;
-    els.titleName.textContent = agent.name;
-    els.titleBiz.textContent = agent.business;
-    els.back.setAttribute("aria-label", agent.team ? "Back to the Ops Team" : "Back to all agents");
+    setTopbar(agent);
     window.scrollTo(0, 0);
     canvas.setVertical(mqMobile.matches);
     if (canvas.agent !== agent) {
@@ -397,7 +333,8 @@
   els.back.addEventListener("click", () => {
     // Back to where the visitor came from: the board, or the landing view.
     const from = history.state && history.state.agFrom;
-    const parent = state.agent && state.agent.team ? state.agent.team : "";
+    const here = byId(state.route);
+    const parent = here && here.team ? here.team : "";
     if (from === parent || from === "ops-team") history.back();
     else go(parent);
   });
@@ -481,7 +418,7 @@
   function startLiveStatus(agent, values) {
     let lines = [];
     try { lines = (agent.liveStatus ? agent.liveStatus(values) : []).filter(Boolean); } catch (e) { lines = []; }
-    if (!lines.length) lines = ["Running live…"];
+    if (!lines.length) lines = ["Working on it…"];
     setStatus({ kind: "pending", text: lines[0] });
     if (mqReduce.matches || lines.length < 2) return;
     let i = 0;
@@ -504,7 +441,6 @@
   function statusFor(run, replay) {
     return run.source === "fallback" && !replay ? { kind: "resting", text: FALLBACK_NOTE } : null;
   }
-  const fmtSecs = (ms) => `${(Math.max(0, ms || 0) / 1000).toFixed(1)}s`;
 
   /* ---------------- Panel ---------------- */
   function positionPanelMode() {
@@ -527,7 +463,6 @@
     requestAnimationFrame(() => els.panel.classList.add("is-open"));
     const selected = p.kind === "node" || (p.kind === "chat" && p.tab === "details") ? p.id || null : null;
     canvas.select(selected);
-    els.logsBtn.setAttribute("aria-expanded", p.kind === "logs" ? "true" : "false");
     updateReopen();
     // Focus the heading when the panel opens or changes kind; switching
     // chat tabs keeps focus on the tabs.
@@ -565,7 +500,6 @@
     const hadFocus = els.panel.contains(document.activeElement);
     state.panel = null;
     canvas.select(null);
-    els.logsBtn.setAttribute("aria-expanded", "false");
     els.panel.classList.remove("is-open");
     els.panel.hidden = true;
     updateReopen();
@@ -601,8 +535,7 @@
     const key = p.kind === "chat" ? `chat:${p.tab}:${p.id || ""}` : `${p.kind}:${p.id || ""}`;
     const keepScroll = scroll && els.panel.dataset.for === key ? scroll.scrollTop : 0;
     els.panel.dataset.for = key;
-    if (p.kind === "logs") els.panel.innerHTML = logsPanel();
-    else if (p.kind === "chat") els.panel.innerHTML = chatPanel(state.agent, p);
+    if (p.kind === "chat") els.panel.innerHTML = chatPanel(state.agent, p);
     else {
       const def = state.agent && state.agent.nodes.find((n) => n.id === p.id);
       if (!def) return closePanel();
@@ -618,11 +551,9 @@
   }
 
   els.panel.addEventListener("click", (e) => {
-    if (e.target.closest(".ag-panel-close")) return dismissPanel();
+    if (e.target.closest(".ag-panel-close")) return closePanel();
     const step = e.target.closest("[data-goto]");
     if (step) return openPanelStep(step.dataset.goto);
-    const log = e.target.closest("[data-log]");
-    if (log) return replayLog(log.dataset.log);
     const tab = e.target.closest("[data-tab]");
     if (tab) return openPanel({ kind: "chat", tab: tab.dataset.tab, id: tab.dataset.tab === "details" ? state.detailId : null });
     if (e.target.closest("#ag-new-chat")) return newConversation();
@@ -634,12 +565,6 @@
     if (bubble) {
       viewTurn(Number(bubble.dataset.turn));
       return openPanel({ kind: "chat", tab: "details", id: state.detailId });
-    }
-    if (e.target.closest("#ag-clear-logs")) {
-      state.logs = [];
-      store.remove(LOG_KEY);
-      updateLogsCount();
-      renderPanel();
     }
   });
   function openPanelStep(id) {
@@ -661,27 +586,13 @@
     openPanel({ kind: "chat", tab: "details", id });
   }
 
-  // x, Esc and the logs toggle: a chat agent goes back to its chat from
-  // the logs; everything else closes.
-  function dismissPanel() {
-    if (state.panel && state.panel.kind === "logs" && isChat(state.agent) && !els.workspace.hidden) {
-      return openPanel({ kind: "chat", tab: "chat", id: null });
-    }
-    closePanel();
-  }
-
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     hideTip();
     if (state.panel) {
       e.preventDefault();
-      dismissPanel();
+      closePanel();
     }
-  });
-
-  els.logsBtn.addEventListener("click", () => {
-    if (state.panel && state.panel.kind === "logs") dismissPanel();
-    else openPanel({ kind: "logs" });
   });
 
   /* ---------------- Node panels ---------------- */
@@ -711,7 +622,7 @@
     let body = `<p class="ag-about">${esc(def.about)}</p>`;
     if (!state.run && !state.busy) {
       body += isChat(agent)
-        ? `<div class="ag-empty"><p>Send a message or play a sample to see what this step does.</p><button type="button" class="ag-btn" data-goto="${trigger.id}">Open chat</button></div>`
+        ? `<div class="ag-empty"><p>Send a message or pick an example to see what this step does.</p><button type="button" class="ag-btn" data-goto="${trigger.id}">Open chat</button></div>`
         : `<div class="ag-empty"><p>Run the agent to see what this step produces.</p><button type="button" class="ag-btn" data-goto="${trigger.id}">Open ${esc(trigger.label)}</button></div>`;
     } else if (nodeState === "error") {
       body += `<div class="ag-empty"><p>This step couldn't finish on this run.</p></div>`;
@@ -874,7 +785,7 @@
   const fieldsOf = (agent) => (agent.trigger && agent.trigger.fields) || [];
   const primaryField = (agent) => fieldsOf(agent).find((f) => f.primary) || fieldsOf(agent).find((f) => f.type === "textarea") || fieldsOf(agent)[0];
   // A sample's value for a field: in sample.fields, or at the top level
-  // (Speed-to-Lead's samples keep input and receivedAt there).
+  // (New Lead Reply's samples keep input and receivedAt there).
   const sampleValue = (s, f) => (s.fields && f.id in s.fields ? s.fields[f.id] : s[f.id]);
   let rowSeq = 0;
   const newRowId = () => `r${Date.now().toString(36).slice(-5)}${(rowSeq++).toString(36)}`;
@@ -974,15 +885,14 @@
     const active = matchSample(agent, d);
     const chips = samplesFor(agent)
       .map(
-        (s) => `<button type="button" class="ag-chip${active && active.id === s.id ? " is-active" : ""}" data-sample="${s.id}" aria-pressed="${active && active.id === s.id}">
-          <strong>${esc(s.label)}</strong><span>${esc(s.channel || "")}</span></button>`
+        (s) => `<button type="button" class="ag-pill-chip${active && active.id === s.id ? " is-active" : ""}" data-sample="${s.id}" aria-pressed="${active && active.id === s.id}"${s.channel ? ` title="${esc(s.channel)}"` : ""}>${esc(s.label)}</button>`
       )
       .join("");
     const body = `
       <p class="ag-about">${esc(def.about)}</p>
       <div class="ag-field">
-        <span class="ag-label">Samples</span>
-        <div class="ag-chips">${chips}</div>
+        <span class="ag-label">Examples</span>
+        <div class="ag-pills">${chips}</div>
       </div>
       ${fieldsOf(agent).map((f) => fieldHtml(f, d[f.id])).join("\n")}
       <p class="ag-hint" id="ag-hint"></p>
@@ -1008,12 +918,12 @@
     const d = draftFor(agent);
     const t = agent.trigger || {};
     const hints = Object.assign(
-      { sample: "This sample replays a recorded run, no live call. Edit any field to run it live.", custom: "Custom input runs the agent live.", empty: "Pick a sample or write your own." },
+      { sample: "This example is saved, so it plays straight away. Change anything to try it for real.", custom: "Your own words go to the real AI.", empty: "Pick an example or write your own." },
       t.hints || {}
     );
     const sync = () => {
       const active = matchSample(agent, d);
-      els.panel.querySelectorAll(".ag-chip").forEach((c) => {
+      els.panel.querySelectorAll(".ag-pills .ag-pill-chip").forEach((c) => {
         const on = !!active && c.dataset.sample === active.id;
         c.classList.toggle("is-active", on);
         c.setAttribute("aria-pressed", String(on));
@@ -1104,7 +1014,7 @@
         });
       }
     }
-    els.panel.querySelectorAll(".ag-chip").forEach((chip) =>
+    els.panel.querySelectorAll(".ag-pills .ag-pill-chip").forEach((chip) =>
       chip.addEventListener("click", () => {
         const s = samplesFor(agent).find((x) => x.id === chip.dataset.sample);
         if (!s) return;
@@ -1121,7 +1031,7 @@
         }
         if (rebuild) {
           renderPanel();
-          const again = els.panel.querySelector(`.ag-chip[data-sample="${s.id}"]`);
+          const again = els.panel.querySelector(`.ag-pill-chip[data-sample="${s.id}"]`);
           if (again) again.focus();
           return;
         }
@@ -1250,7 +1160,7 @@
     const t = agent.trigger || {};
     const primary = primaryField(agent);
     const input = primary ? fieldText(primary, d[primary.id]) : "";
-    // Speed-to-Lead's API body stays { input, receivedAt }; agents with
+    // New Lead Reply's API body stays { input, receivedAt }; agents with
     // payload "fields" send every field.
     const values = {};
     for (const f of fieldsOf(agent)) values[f.id] = cleanValue(f, d[f.id]);
@@ -1261,9 +1171,7 @@
 
     const sample = matchSample(agent, d);
     if (sample) {
-      const run = runFromSample(agent, sample, "sample");
-      addLog(run);
-      playRun(run);
+      playRun(runFromSample(agent, sample, "sample"));
       return;
     }
 
@@ -1299,7 +1207,6 @@
     }
     state.busy = false;
     if (token !== state.runToken) return;
-    addLog(run);
     if (state.route === agent.id) playRun(run);
   }
 
@@ -1328,7 +1235,7 @@
   }
 
   // The ops board opening one recorded step on its agent's canvas. A replay:
-  // no live call and nothing added to the visitor's execution logs.
+  // no live call.
   function openRun(step) {
     const agent = byId(step.agent);
     if (!agent) return;
@@ -1356,7 +1263,6 @@
       busy: false,
       replaying: false,
       viewTurn: -1,
-      logId: null,
     };
   }
   const chatFor = (agent) => state.chats[agent.id] || (state.chats[agent.id] = newChat(agent));
@@ -1374,7 +1280,7 @@
       received: t.received,
       ms: t.ms,
       clientMs: t.clientMs,
-      triggerCaption: `Turn ${i + 1}`,
+      triggerCaption: `Message ${i + 1}`,
     };
   }
 
@@ -1412,7 +1318,7 @@
   function msgHtml(role, label, text, turnIndex) {
     const bubble =
       turnIndex != null
-        ? `<button type="button" class="ag-bubble is-out" data-turn="${turnIndex}" title="See this turn's steps">${esc(text)}</button>`
+        ? `<button type="button" class="ag-bubble is-out" data-turn="${turnIndex}" title="See the steps for this message">${esc(text)}</button>`
         : `<div class="ag-bubble ${role === "user" ? "is-out" : "is-in"}">${esc(text)}</div>`;
     return `<div class="ag-msg" data-role="${role}"><span class="ag-msg-role">${esc(label)}</span>${bubble}</div>`;
   }
@@ -1444,7 +1350,7 @@
       .map((s) => `<button type="button" class="ag-pill-chip" data-chat-sample="${esc(s.id)}" title="${esc(s.turns[0].user)}">${esc(s.label)}</button>`)
       .join("");
     return `
-      <div class="ag-chip-row" role="group" aria-label="Sample conversations"><span class="ag-label">Samples</span>${chips}</div>
+      <div class="ag-chip-row" role="group" aria-label="Example conversations"><span class="ag-label">Examples</span>${chips}</div>
       <div class="ag-compose">
         <textarea class="ag-input ag-compose-input" id="ag-chat-input" rows="1" maxlength="${MAX_CHAT_MSG}" placeholder="${esc(agent.chat.placeholder)}" aria-label="Message"></textarea>
         <button type="button" class="ag-send" id="ag-send" aria-label="Send message">${agentIcon("send", 18)}</button>
@@ -1457,7 +1363,7 @@
     const buttons = chat.turns
       .map((t, i) => `<button type="button" class="ag-turn" data-view-turn="${i}" aria-pressed="${i === chat.viewTurn}"${chat.busy ? " disabled" : ""}>${i + 1}</button>`)
       .join("");
-    return `<div class="ag-turns" role="group" aria-label="Turn"><span class="ag-label">Turn</span>${buttons}</div>`;
+    return `<div class="ag-turns" role="group" aria-label="Message"><span class="ag-label">Message</span>${buttons}</div>`;
   }
 
   function stepList(agent) {
@@ -1475,7 +1381,7 @@
         </button></li>`;
       })
       .join("");
-    const intro = state.run ? "Pick a step to see what it did on this turn." : "Send a message or play a sample, then pick a step to see what it did.";
+    const intro = state.run ? "Pick a step to see what it did with this message." : "Send a message or pick an example, then pick a step to see what it did.";
     return `<p class="ag-about">${intro}</p><ul class="ag-steplist">${items}</ul>`;
   }
 
@@ -1555,7 +1461,7 @@
     });
     const hint = $("#ag-chat-hint", els.panel);
     hint.textContent = chat.replaying
-      ? "Playing a recorded conversation, no live calls."
+      ? "Playing a saved example."
       : chat.busy
       ? "The front desk is replying…"
       : limit
@@ -1678,7 +1584,7 @@
     state.started.add(agent.id);
     canvas.markStart(false);
     canvas.reset();
-    canvas.setNode(triggerOf(agent).id, "running", `Turn ${chat.turns.length + 1}`);
+    canvas.setNode(triggerOf(agent).id, "running", `Message ${chat.turns.length + 1}`);
     startLiveStatus(agent, text);
     refreshChatPanel();
     refreshDetails();
@@ -1722,13 +1628,11 @@
         sampleId: sample.id,
         sampleLabel: sample.label,
         notice: FALLBACK_NOTE,
-        log: true,
       });
     }
 
     chat.pending = null;
     chat.turns.push({ user: text, result: data.result, received: data.received, ms: data.ms, clientMs: data.clientMs, source: "custom", shownNotes: false, shownReply: false });
-    saveChatLog(agent, chat);
     await playTurn(agent, chat, chat.turns.length - 1);
     if (state.chats[agent.id] !== chat) return;
     chat.busy = false;
@@ -1767,11 +1671,11 @@
     const agent = state.agent;
     const sample = samplesFor(agent).find((x) => x.id === id);
     if (!sample || chatFor(agent).busy) return;
-    playConversation(agent, sampleTurns(sample, "sample"), { source: "sample", sampleId: sample.id, sampleLabel: sample.label, log: true });
+    playConversation(agent, sampleTurns(sample, "sample"), { source: "sample", sampleId: sample.id, sampleLabel: sample.label });
   }
 
-  // Replays a whole conversation turn by turn (samples, the resting
-  // fallback and log replays). No network calls.
+  // Replays a whole conversation turn by turn (examples and the resting
+  // fallback). No network calls.
   async function playConversation(agent, turns, opts = {}) {
     if (state.route !== agent.id) go(agent.id);
     const token = ++state.chatToken;
@@ -1781,10 +1685,6 @@
     chat.replaying = true;
     state.chats[agent.id] = chat;
     state.run = null;
-    if (opts.log) {
-      chat.logId = newId();
-      logConversation(agent, chat, turns);
-    }
     if (chatTabOpen()) renderPanel();
     else openPanel({ kind: "chat", tab: "chat", id: null });
     const instant = mqReduce.matches;
@@ -1853,129 +1753,12 @@
     });
   }
 
-  /* ---------------- Execution logs ---------------- */
-  function addLog(run) {
-    const entry = Object.assign({ id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, at: new Date().toISOString() }, run);
-    state.logs.unshift(entry);
-    state.logs = state.logs.slice(0, LOG_MAX);
-    saveLogs();
-    updateLogsCount();
-    if (state.panel && state.panel.kind === "logs") renderPanel();
-  }
-  // Chat agents: one entry per conversation, updated as turns land.
-  const logTurn = ({ user, result, received, ms, clientMs, source }) => ({ user, result, received, ms, clientMs, source });
-  function upsertLog(entry) {
-    state.logs = [entry, ...state.logs.filter((l) => l.id !== entry.id)].slice(0, LOG_MAX);
-    saveLogs();
-    updateLogsCount();
-    if (state.panel && state.panel.kind === "logs") renderPanel();
-  }
-  function logConversation(agent, chat, turns) {
-    upsertLog({
-      id: chat.logId,
-      at: chat.startedAt,
-      agent: agent.id,
-      kind: "chat",
-      source: chat.source,
-      sampleId: chat.sampleId,
-      sampleLabel: chat.sampleLabel,
-      turns: turns.map(logTurn),
-    });
-  }
-  function saveChatLog(agent, chat) {
-    if (!chat.logId) chat.logId = newId();
-    const prior = state.logs.find((l) => l.id === chat.logId);
-    upsertLog({
-      id: chat.logId,
-      at: chat.startedAt,
-      agent: agent.id,
-      kind: "chat",
-      source: "custom",
-      sampleId: chat.sampleId,
-      sampleLabel: chat.sampleLabel,
-      continued: !!(prior && prior.source !== "custom") || !!(prior && prior.continued),
-      turns: chat.turns.filter((t) => t.result).map(logTurn),
-    });
-  }
-
-  function updateLogsCount() {
-    const n = state.logs.length;
-    els.logsCount.textContent = n ? String(n) : "";
-    els.logsCount.hidden = !n;
-  }
-  function fmtLogTime(iso) {
-    const d = new Date(iso);
-    if (isNaN(d)) return "";
-    const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-    return d.toDateString() === new Date().toDateString() ? `Today, ${time}` : `${d.toLocaleDateString([], { day: "numeric", month: "short" })}, ${time}`;
-  }
-  const sourceLabel = (l) => {
-    if (l.kind === "chat") {
-      if (l.source === "custom") return l.continued ? `Custom · continued from ${l.sampleLabel || "a recording"}` : "Custom";
-      return l.source === "fallback" ? "Custom · recorded fallback" : `Sample · ${l.sampleLabel || ""}`;
-    }
-    return l.source === "custom" ? `Custom · ${fmtSecs(l.clientMs || l.ms)}` : l.source === "fallback" ? "Custom · recorded fallback" : `Sample · ${l.sampleLabel || ""}`;
-  };
-  const clip = (t, n) => (t.length > n ? `${t.slice(0, n - 1).trim()}…` : t);
-
-  function chatLogRow(l, agent) {
-    let summary = "";
-    try { summary = agent.summarizeConversation(l.turns); } catch (e) { summary = ""; }
-    const turns = l.turns
-      .map((t) => {
-        let s2 = "";
-        try { s2 = agent.summarize(t.result); } catch (e) { s2 = ""; }
-        return `<li><span>${esc(clip(t.user, 90))}</span><em>${esc(s2)}</em></li>`;
-      })
-      .join("");
-    return `<li><div class="ag-log is-chat">
-      <span class="ag-log-top"><span class="ag-log-time">${esc(fmtLogTime(l.at))}</span><span class="ag-log-src" data-source="${esc(l.source)}">${esc(sourceLabel(l))}</span></span>
-      <span class="ag-log-agent">${esc(agent.name)}</span>
-      <span class="ag-log-sum">${esc(summary)}</span>
-      <details class="ag-log-turns"><summary>Show ${l.turns.length} turn${l.turns.length === 1 ? "" : "s"}</summary><ol>${turns}</ol></details>
-      <button type="button" class="ag-log-replay" data-log="${esc(l.id)}">${agentIcon("play", 14)} Replay conversation</button>
-    </div></li>`;
-  }
-
-  function logsPanel() {
-    const rows = state.logs
-      .map((l) => {
-        const agent = byId(l.agent);
-        if (l.kind === "chat") return chatLogRow(l, agent);
-        let summary = "";
-        try { summary = agent.summarize(l.result); } catch (e) { summary = ""; }
-        return `<li><button type="button" class="ag-log" data-log="${esc(l.id)}">
-          <span class="ag-log-top"><span class="ag-log-time">${esc(fmtLogTime(l.at))}</span><span class="ag-log-src" data-source="${esc(l.source)}">${esc(sourceLabel(l))}</span></span>
-          <span class="ag-log-agent">${esc(agent ? agent.name : l.agent)}</span>
-          <span class="ag-log-sum">${esc(summary)}</span>
-          <span class="ag-log-replay">${agentIcon("play", 14)} Replay</span>
-        </button></li>`;
-      })
-      .join("");
-    const body = state.logs.length
-      ? `<p class="ag-about">Your runs in this browser, newest first. Click one to replay it. Nothing here leaves your device.</p><ul class="ag-logs">${rows}</ul>`
-      : `<div class="ag-empty"><p>No runs yet. Open the first step on the canvas and run a sample.</p></div>`;
-    const footer = state.logs.length ? `<button type="button" class="ag-btn is-quiet" id="ag-clear-logs">Clear history</button>` : "";
-    return panelShell({ icon: "logs", kind: `${state.logs.length} of ${LOG_MAX} kept`, title: "Execution logs", body, footer });
-  }
-  function replayLog(id) {
-    const l = state.logs.find((x) => x.id === id);
-    if (!l) return;
-    const agent = byId(l.agent);
-    if (l.kind === "chat") {
-      if (state.route !== agent.id) go(agent.id);
-      return playConversation(agent, l.turns, { source: l.source, sampleId: l.sampleId, sampleLabel: l.sampleLabel, replay: true });
-    }
-    playRun(l, { replay: true });
-  }
-
   /* ---------------- Boot ---------------- */
   document.querySelectorAll("[data-icon]").forEach((el) => el.insertAdjacentHTML("afterbegin", agentIcon(el.dataset.icon, Number(el.dataset.size) || 20)));
   AgentOps.init({ go, openRun, byId, esc, mqReduce, renderBlock, email: EMAIL });
   buildDock();
   bindTips();
-  buildCards();
-  updateLogsCount();
+  buildHome();
   const mail = $("#ag-mail");
   if (mail) mail.href = `mailto:${EMAIL}`;
   mqMobile.addEventListener("change", () => {
@@ -1983,4 +1766,10 @@
     if (state.panel) positionPanelMode();
   });
   render();
+  // A "Run the day" link from elsewhere on the site lands here and starts it.
+  const params = new URLSearchParams(location.search);
+  if (params.has("play")) {
+    history.replaceState(history.state, "", location.pathname + location.hash);
+    if (state.route === "ops-team") AgentOps.runDay();
+  }
 })();

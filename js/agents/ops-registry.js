@@ -2,8 +2,8 @@
    The Ops Team on /agents: client configs for the agents only the
    team uses (Harbourline Plumbing, fictional), plus the ops-team
    entry itself. Same graph rules as js/agents/registry.js, and the
-   same engine draws them. `team: "ops-team"` keeps an agent off the
-   landing cards and the dock: it is reached from the ops board.
+   same engine draws them. `team: "ops-team"` keeps an agent out of the
+   dock: it is reached from the Ops Team page.
 
    Facts come from js/agents/harbourline.js. No em dashes in any
    visible copy here.
@@ -33,7 +33,7 @@ const OPS_AGENTS = [
     problem: "Eight agents run a plumber's whole day, handing work to each other.",
     pitchDim: "Most chatbots answer one question.",
     pitch: "This team runs the whole day.",
-    cta: "Open the team",
+    cta: "Run the day",
     icon: "team",
     nodes: [],
     edges: [],
@@ -51,7 +51,6 @@ const OPS_AGENTS = [
     business: OPS_BUSINESS,
     problem: "Answers website chat and sends emergencies straight to the on-call plumber.",
     icon: "chat",
-    preview: "chat",
     chat: {
       greeting: `Hi, you've reached ${OPS_BUSINESS}. I can help with prices, hours, booking requests and emergencies. What's going on?`,
       placeholder: `Message ${OPS_BUSINESS}`,
@@ -64,15 +63,7 @@ const OPS_AGENTS = [
           ? [{ node: "booking", tone: "handoff", icon: "calendarCheck", text: "Booking request sent" }]
           : [],
     },
-    summarize(r) {
-      return [cap(r.intent), r.emergency ? "Emergency" : "", r.bookingReady ? "Booking request" : ""].filter(Boolean).join(" · ");
-    },
     liveStatus: () => ["Reading the message…", "Checking the fact sheet…", "Thinking about the reply…"],
-    summarizeConversation(turns) {
-      const rs = turns.map((t) => t.result);
-      const flags = [rs.some((r) => r.emergency) ? "Emergency" : "", rs.some((r) => r.bookingReady) ? "Booking request" : ""].filter(Boolean);
-      return [`${turns.length} turn${turns.length === 1 ? "" : "s"}`, ...flags].join(" · ");
-    },
 
     nodes: [
       {
@@ -82,8 +73,8 @@ const OPS_AGENTS = [
         row: 0,
         label: "Customer message",
         icon: "chat",
-        about: "Each message the customer sends starts one run through the flow.",
-        view: (run) => [{ type: "quote", title: `Turn ${run.turn}`, body: run.input }],
+        about: "Each message the customer sends goes through these steps.",
+        view: (run) => [{ type: "quote", title: `Message ${run.turn}`, body: run.input }],
       },
       {
         id: "understand",
@@ -122,13 +113,13 @@ const OPS_AGENTS = [
         type: "action",
         col: 3,
         row: -1,
-        label: "Hand to on-call",
+        label: "Tell the on-call plumber",
         icon: "bell",
-        about: "On the emergency path only: writes the note for the on-call plumber and passes the job to Speed-to-Lead.",
+        about: "On the emergency path only: writes the note for the on-call plumber and passes the job to New Lead Reply.",
         caption: () => "Plumber alerted",
         view: (run) => [
           { type: "quote", title: "Note to the on-call plumber", body: run.result.handoffNote },
-          { type: "note", body: "A mock hand-off. Nothing is sent." },
+          { type: "note", body: "A demo only. Nothing is sent." },
         ],
       },
       {
@@ -192,7 +183,7 @@ const OPS_AGENTS = [
         caption: () => "To the Scheduler",
         skip: (r) => !r.bookingReady,
         skippedView: (run) => [
-          { type: "text", body: "No booking request on this turn. It's created once the name, mobile, suburb, job and preferred time are all in." },
+          { type: "text", body: "No booking request for this message. It's created once the name, mobile, suburb, job and preferred time are all in." },
           { type: "list", title: "Still needed", items: run.result.missing, empty: "The customer hasn't asked to book." },
         ],
         view: (run) => {
@@ -213,7 +204,7 @@ const OPS_AGENTS = [
               summary: r.booking.summary,
               summaryLabel: "For the Scheduler",
             },
-            { type: "note", body: "A visual mock. Nothing is sent and no time is confirmed." },
+            { type: "note", body: "A demo only. Nothing is sent and no time is confirmed." },
           ];
         },
       },
@@ -242,7 +233,6 @@ const OPS_AGENTS = [
     business: OPS_BUSINESS,
     problem: "Turns job details into an itemised one-page quote.",
     icon: "quote",
-    preview: "table",
     trigger: {
       payload: "fields",
       fields: [
@@ -253,15 +243,12 @@ const OPS_AGENTS = [
         { id: "details", type: "textarea", label: "Job details", maxLength: 900, rows: 6, required: true, primary: true, placeholder: "What needs doing, in the customer's words." },
       ],
       hints: {
-        sample: "This sample replays a recorded run, no live call. Edit any field to run it live.",
-        custom: "Custom input runs the agent live.",
-        empty: "Pick a sample or describe a job.",
+        sample: "This example is saved, so it plays straight away. Change anything to try it for real.",
+        custom: "Your own words go to the real AI.",
+        empty: "Pick an example or describe a job.",
       },
-      emptyError: "Pick a sample, or add a name, a suburb and the job details.",
+      emptyError: "Pick an example, or add a name, a suburb and the job details.",
       caption: (v) => (v && v.name ? v.name : ""),
-    },
-    summarize(r) {
-      return r.quotable ? `${r.jobLabel} · ${r.totals.label}` : "Not on the services list";
     },
     liveStatus: () => ["Reading the job…", "Matching it to the price list…", "Writing the quote…"],
 
@@ -273,7 +260,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "Job details",
         icon: "inbox",
-        about: "The job as the customer described it, usually handed over by Speed-to-Lead. Pick a sample or write your own, then run the agent.",
+        about: "The job as the customer described it, usually passed on by New Lead Reply. Pick an example or write your own, then run the agent.",
       },
       {
         id: "match",
@@ -301,7 +288,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "Work out price",
         icon: "dollar",
-        about: "Call-out and labour come from the price list and are worked out in code. The model never does the sums.",
+        about: "Call-out and labour come from the price list and are worked out by the system. The AI never does the sums.",
         caption: (r) => (r.quotable ? r.totals.label : "Needs the team"),
         view: (run) => {
           const r = run.result;
@@ -330,7 +317,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "Customer note",
         icon: "message",
-        about: "The text that goes with the quote. The model writes the words, the figures are added by code.",
+        about: "The text that goes with the quote. The AI writes the words, and the system adds the figures.",
         caption: (r) => `${r.customerMessage.length} chars`,
         view: (run) => [{ type: "sms", body: run.result.customerMessage, limit: 320 }],
       },
@@ -341,9 +328,9 @@ const OPS_AGENTS = [
         row: 0,
         label: "Quote",
         icon: "quote",
-        about: "The deliverable: a one-page quote you can print or save as a PDF.",
+        about: "The result: a one-page quote you can print or save as a PDF.",
         caption: (r) => r.quote.number,
-        view: (run) => [{ type: "quoteDoc", result: run.result }, { type: "note", body: "A visual mock for a fictional business. Nothing is sent." }],
+        view: (run) => [{ type: "quoteDoc", result: run.result }, { type: "note", body: "A demo for a made-up business. Nothing is sent." }],
       },
     ],
 
@@ -363,11 +350,10 @@ const OPS_AGENTS = [
     status: "live",
     name: "Scheduler",
     short: "Scheduler",
-    role: "Places jobs on the technicians' calendar. Emergencies jump the queue, and nobody is promised an exact time.",
+    role: "Places jobs on the technicians' calendar. Emergencies go first, and nobody is promised an exact time.",
     business: OPS_BUSINESS,
-    problem: "Places jobs on the week's calendar. Emergencies jump the queue.",
+    problem: "Places jobs on the week's calendar. Emergencies go first.",
     icon: "calendar",
-    preview: "table",
     trigger: {
       payload: "fields",
       fields: [
@@ -381,15 +367,12 @@ const OPS_AGENTS = [
         { id: "preferred", type: "text", label: "Preferred time (optional)", maxLength: 80, placeholder: "e.g. Any morning next week" },
       ],
       hints: {
-        sample: "This sample replays a recorded run, no live call. Edit any field to run it live on the same board.",
-        custom: "Custom input runs the agent live, on the fictional board as it stood for this sample.",
-        empty: "Pick a sample or describe a job.",
+        sample: "This example is saved, so it plays straight away. Change anything to try it for real.",
+        custom: "Your own words go to the real AI, using the calendar as it stood for this example.",
+        empty: "Pick an example or describe a job.",
       },
-      emptyError: "Pick a sample, or add a customer and the job details.",
+      emptyError: "Pick an example, or add a customer and the job details.",
       caption: (v) => (v && v.customer ? v.customer : ""),
-    },
-    summarize(r) {
-      return [r.jobLabel, r.emergency ? "Jumped the queue" : r.slot ? r.slot.dayLabel : "With the office"].join(" · ");
     },
     liveStatus: () => ["Reading the job…", "Checking the calendar…", "Writing the text…"],
 
@@ -401,7 +384,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "New job",
         icon: "inbox",
-        about: "A job handed over by Speed-to-Lead, Front Desk or Quote Builder. Pick a sample or write your own, then run the agent.",
+        about: "A job passed on by New Lead Reply, Front Desk or Quote Builder. Pick an example or write your own, then run the agent.",
       },
       {
         id: "read",
@@ -440,9 +423,9 @@ const OPS_AGENTS = [
         type: "action",
         col: 3,
         row: -1,
-        label: "Jump the queue",
+        label: "Put it first",
         icon: "bolt",
-        about: "Takes the current window of the right technician. Whoever was there moves to that technician's next free window. Worked out in code.",
+        about: "Takes the current window of the right technician. Whoever was there moves to that technician's next free window. Worked out by the system.",
         caption: (r) => (r.bump ? `Moved ${r.bump.who}` : "Window was free"),
         view: (run) => {
           const r = run.result;
@@ -491,7 +474,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "Week calendar",
         icon: "calendar",
-        about: "The deliverable: the board with this job on it. Morning and afternoon windows, one job per technician per window.",
+        about: "The result: the board with this job on it. Morning and afternoon windows, one job per technician per window.",
         caption: (r) => (r.slot ? `${r.slot.techName.split(" ")[0]}, ${r.slot.dayLabel.split(" ").slice(0, 2).join(" ")}` : "With the office"),
         view: (run) => {
           const r = run.result;
@@ -500,7 +483,7 @@ const OPS_AGENTS = [
           return [
             ...(r.slot ? [{ type: "kv", title: "This job", rows: [["Technician", r.slot.techName], ["Day", r.slot.dayLabel], ["Window", `${r.slot.window}, ${r.slot.range}`], ["Travel allowance", `About ${r.slot.travelMinutes} minutes`]] }] : []),
             { type: "calendar", title: "The board after this job", changes: before.concat(r.changes), focus: r.addedId, moved: r.bump ? r.bump.job : null, week: r.slot ? r.slot.date : HARBOURLINE.dayOfTheDemo },
-            { type: "note", body: "A fictional board. Nothing is booked or sent." },
+            { type: "note", body: "A made-up calendar. Nothing is booked or sent." },
           ];
         },
       },
@@ -517,18 +500,17 @@ const OPS_AGENTS = [
     ],
   },
 
-  /* ---------------- Job Wrap-up ---------------- */
+  /* ---------------- After-Job Check-in ---------------- */
   {
     id: "job-wrap-up",
     team: "ops-team",
     status: "live",
-    name: "Job Wrap-up",
-    short: "Job Wrap-up",
+    name: "After-Job Check-in",
+    short: "After-Job Check-in",
     role: "After each job, writes the payment reminder and the review request, and tells the owner if something went wrong.",
     business: OPS_BUSINESS,
     problem: "After a job: a payment reminder, a review request, and a flag if it went badly.",
     icon: "listCheck",
-    preview: "phone",
     trigger: {
       payload: "fields",
       fields: [
@@ -542,15 +524,12 @@ const OPS_AGENTS = [
         { id: "jobNote", type: "textarea", label: "Technician's note", maxLength: 600, rows: 4, required: true, primary: true, placeholder: "How the job went." },
       ],
       hints: {
-        sample: "This sample replays a recorded run, no live call. Edit any field to run it live.",
-        custom: "Custom input runs the agent live.",
-        empty: "Pick a sample or describe a finished job.",
+        sample: "This example is saved, so it plays straight away. Change anything to try it for real.",
+        custom: "Your own words go to the real AI.",
+        empty: "Pick an example or describe a finished job.",
       },
-      emptyError: "Pick a sample, or fill in the customer, suburb, job, invoice amount and the note.",
+      emptyError: "Pick an example, or fill in the customer, suburb, job, invoice amount and the note.",
       caption: (v) => (v && v.customer ? v.customer : ""),
-    },
-    summarize(r) {
-      return [r.job, r.amount, r.problem ? "Owner flagged" : ""].filter(Boolean).join(" · ");
     },
     liveStatus: () => ["Reading the technician's note…", "Writing the payment reminder…", "Writing the review request…"],
 
@@ -562,7 +541,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "Job finished",
         icon: "wrench",
-        about: "A technician marks a job as done. Pick a sample or write your own, then run the agent.",
+        about: "A technician marks a job as done. Pick an example or write your own, then run the agent.",
       },
       {
         id: "read",
@@ -582,7 +561,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "Payment reminder",
         icon: "dollar",
-        about: "A signed text with the invoice amount and the due date. The due date is worked out in code.",
+        about: "A signed text with the invoice amount and the due date. The system works out the due date.",
         caption: (r) => r.amount,
         view: (run) => [{ type: "kv", rows: [["Invoice", run.result.amount], ["Due", run.result.dueLabel]] }, { type: "sms", body: run.result.paymentMessage, limit: 320 }],
       },
@@ -613,7 +592,7 @@ const OPS_AGENTS = [
         view: (run) => [
           { type: "quote", title: "What happened", body: run.result.ownerFlag },
           { type: "quote", title: "Suggested action", body: run.result.suggestedAction },
-          { type: "note", body: "A mock alert. Nothing is sent." },
+          { type: "note", body: "A demo only. Nothing is sent." },
         ],
       },
       {
@@ -632,9 +611,9 @@ const OPS_AGENTS = [
         type: "output",
         col: 6,
         row: 0,
-        label: "Wrap-up card",
+        label: "Check-in card",
         icon: "card",
-        about: "The deliverable: both texts and the state of the job, ready for the office.",
+        about: "The result: both texts and the state of the job, ready for the office.",
         caption: (r) => (r.problem ? "Owner calls first" : "Ready to send"),
         view: (run) => {
           const r = run.result;
@@ -650,7 +629,7 @@ const OPS_AGENTS = [
             },
             { type: "quote", title: "Payment reminder", body: r.paymentMessage },
             { type: "quote", title: `Review request (${r.reviewTiming})`, body: r.reviewMessage },
-            { type: "note", body: "A visual mock. Nothing is sent." },
+            { type: "note", body: "A demo only. Nothing is sent." },
           ];
         },
       },
@@ -667,7 +646,7 @@ const OPS_AGENTS = [
     ],
   },
 
-  /* ---------------- Review Guardian and Dead Lead Revival, same engines ---------------- */
+  /* ---------------- Review Guardian and Old Quote Follow-up, same engines ---------------- */
   Object.assign(makeReviewGuardian({ id: "hb-review-guardian", business: OPS_BUSINESS, owner: HARBOURLINE.owner.first, place: "business", recordsWord: "job" }), {
     team: "ops-team",
     short: "Review Guardian",
@@ -685,9 +664,9 @@ const OPS_AGENTS = [
     }),
     {
       team: "ops-team",
-      short: "Dead Lead Revival",
+      short: "Old Quote Follow-up",
       role: "Sweeps old quotes, leaves opted-out customers alone and writes to the rest.",
-      problem: "Wins back old quotes sitting in the CRM.",
+      problem: "Wins back old quotes.",
     }
   ),
 
@@ -698,11 +677,10 @@ const OPS_AGENTS = [
     status: "live",
     name: "Owner's Daily Brief",
     short: "Daily Brief",
-    role: "Turns everything the team logged into one screen for the owner.",
+    role: "Turns everything the team did into one screen for the owner.",
     business: OPS_BUSINESS,
     problem: "One screen on everything the team did, and what needs the owner.",
     icon: "pulse",
-    preview: "table",
     trigger: {
       payload: "fields",
       fields: [
@@ -710,7 +688,7 @@ const OPS_AGENTS = [
         {
           id: "rows",
           type: "table",
-          label: "The day's log",
+          label: "The day's notes",
           minRows: 3,
           maxRows: 30,
           maxTotal: 7000,
@@ -729,19 +707,16 @@ const OPS_AGENTS = [
         },
       ],
       hints: {
-        sample: "This sample replays a recorded run, no live call. Edit any cell to run it live.",
-        custom: "Custom logs run the agent live.",
-        empty: "Pick the sample day or write your own log.",
+        sample: "This example is saved, so it plays straight away. Change anything to try it for real.",
+        custom: "Your own notes go to the real AI.",
+        empty: "Pick the example day or write your own notes.",
       },
-      emptyError: "Pick a sample, or fill in the time, agent, kind and what happened for at least 3 entries.",
+      emptyError: "Pick an example, or fill in the time, agent, kind and what happened for at least 3 entries.",
       caption: (v) => (v && Array.isArray(v.rows) ? `${v.rows.length} entries` : ""),
-    },
-    summarize(r) {
-      return `${r.needsYou.length} for the owner · ${r.invoiced} invoiced`;
     },
     liveStatus: (v) => {
       const n = v && Array.isArray(v.rows) ? v.rows.length : 0;
-      return [`Reading ${n} log entries…`, "Working out what needs the owner…", "Writing the brief…"];
+      return [`Reading ${n} notes…`, "Working out what needs the owner…", "Writing the brief…"];
     },
 
     nodes: [
@@ -750,9 +725,9 @@ const OPS_AGENTS = [
         type: "trigger",
         col: 0,
         row: 0,
-        label: "Day's log",
+        label: "Day's notes",
         icon: "listCheck",
-        about: "Everything the team logged today. Pick the sample day or write your own, then run the agent.",
+        about: "Everything the team noted today. Pick the example day or write your own, then run the agent.",
       },
       {
         id: "count",
@@ -761,7 +736,7 @@ const OPS_AGENTS = [
         row: 0,
         label: "Count",
         icon: "gauge",
-        about: "Adds up the day and the invoices in code. The model never does the sums.",
+        about: "The system adds up the day and the invoices. The AI never does the sums.",
         caption: (r) => `${r.invoiced} invoiced`,
         view: (run) => [{ type: "kv", rows: run.result.counts.map((c) => [c.label, String(c.n)]).concat([["Invoiced today", run.result.invoiced]]) }],
       },
@@ -783,9 +758,9 @@ const OPS_AGENTS = [
         row: 0,
         label: "Brief",
         icon: "pulse",
-        about: "The deliverable: the owner's day, on one screen.",
+        about: "The result: the owner's day, on one screen.",
         caption: () => "Ready to read",
-        view: (run) => [{ type: "brief", result: run.result }, { type: "note", body: "A visual mock for a fictional business. Nothing is sent." }],
+        view: (run) => [{ type: "brief", result: run.result }, { type: "note", body: "A demo for a made-up business. Nothing is sent." }],
       },
     ],
 
@@ -799,6 +774,6 @@ const OPS_AGENTS = [
 
 AGENTS.push(...OPS_AGENTS);
 
-// The eight on the board, in lane order. Speed-to-Lead is the existing
+// The eight on the board, in lane order. New Lead Reply is the existing
 // agent, unchanged.
 const OPS_TEAM = ["hb-front-desk", "speed-to-lead", "quote-builder", "scheduler", "job-wrap-up", "hb-review-guardian", "hb-dead-lead-revival", "daily-brief"];

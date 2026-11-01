@@ -8,7 +8,7 @@
    Works as a browser global and as a Node module, like js/data.js.
 
    All names are invented and every phone number is from the ranges
-   ACMA reserves for fiction. Speed-to-Lead keeps its own copy of the
+   ACMA reserves for fiction. New Lead Reply keeps its own copy of the
    first four facts in api/agent.js, word for word, so its recordings
    stay valid; everything below only adds to them.
 
